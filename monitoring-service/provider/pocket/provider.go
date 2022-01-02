@@ -8,9 +8,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/itsnoproblem/pokthud/monitoring-service/inmem"
-
-	"github.com/itsnoproblem/pokthud/monitoring-service/transaction"
+	"github.com/itsnoproblem/pokthud/monitoring-service/pocket"
 )
 
 const (
@@ -19,18 +17,88 @@ const (
 	urlPathGetAccountTransactions = "/query/accounttxs"
 	urlPathGetTransaction         = "/query/tx"
 	urlPathGetBlock               = "/query/block"
+	urlPathGetNode                = "/query/node"
+	urlPathGetBalance             = "/query/balance"
 )
+
+type blockTimesRepo interface {
+	Get(height uint) (t time.Time, exists bool, err error)
+	Set(height uint, t time.Time) error
+}
 
 type pocketProvider struct {
 	client         *http.Client
-	blockTimesRepo *inmem.BlockTimesRepo
+	blockTimesRepo blockTimesRepo
 }
 
-func NewPocketProvider(c http.Client, blockTimesRepo inmem.BlockTimesRepo) pocketProvider {
+func NewPocketProvider(c http.Client, repo blockTimesRepo) pocketProvider {
 	return pocketProvider{
 		client:         &c,
-		blockTimesRepo: &blockTimesRepo,
+		blockTimesRepo: repo,
 	}
+}
+
+func (p pocketProvider) Node(address string) (pocket.Node, error) {
+	var fail = func(err error) (pocket.Node, error) {
+		return pocket.Node{}, fmt.Errorf("pocketProvider.Node: %s", err)
+	}
+
+	url := fmt.Sprintf("%s/%s", pocketEndpoint, urlPathGetNode)
+	nodeRequest := queryNodeRequest{Address: address}
+	var nodeResponse queryNodeResponse
+
+	body, err := p.doRequest(url, nodeRequest)
+	if err != nil {
+		return fail(err)
+	}
+
+	err = json.Unmarshal(body, &nodeResponse)
+	if err != nil {
+		return fail(err)
+	}
+
+	chains := make([]pocket.Chain, len(nodeResponse.Chains))
+	for i, chainID := range nodeResponse.Chains {
+		ch, err := pocket.ChainFromID(chainID)
+		if err != nil {
+			fail(err)
+		}
+
+		chains[i] = ch
+	}
+
+	return pocket.Node{
+		Address: nodeResponse.Address,
+		//Balance:           "",
+		StakedBalance: nodeResponse.StakedBalance,
+		IsJailed:      nodeResponse.IsJailed,
+		Chains:        chains,
+		IsSynced:      false,
+		//LatestBlockHeight: 0,
+		//LatestBlockTime:   time.Time{},
+	}, nil
+}
+
+func (p pocketProvider) Balance(address string) (uint, error) {
+	var fail = func(err error) (uint, error) {
+		return 0, fmt.Errorf("pocketProvider.Balance: %s", err)
+	}
+
+	url := fmt.Sprintf("%s/%s", pocketEndpoint, urlPathGetBalance)
+	balRequest := balanceRequest{Address: address}
+	var balResponse balanceResponse
+
+	body, err := p.doRequest(url, balRequest)
+	if err != nil {
+		return fail(err)
+	}
+
+	err = json.Unmarshal(body, &balResponse)
+	if err != nil {
+		return fail(err)
+	}
+
+	return balResponse.Balance, nil
 }
 
 func (p pocketProvider) BlockTime(height uint) (time.Time, error) {
@@ -38,7 +106,7 @@ func (p pocketProvider) BlockTime(height uint) (time.Time, error) {
 		return time.Time{}, fmt.Errorf("pocketProvider.BlockTime: %s", err)
 	}
 
-	cached, exists := p.blockTimesRepo.Get(height)
+	cached, exists, err := p.blockTimesRepo.Get(height)
 	if exists {
 		return cached, nil
 	}
@@ -57,13 +125,16 @@ func (p pocketProvider) BlockTime(height uint) (time.Time, error) {
 		return fail(err)
 	}
 
-	p.blockTimesRepo.Set(height, blkResponse.Block.Header.Time)
+	if err = p.blockTimesRepo.Set(height, blkResponse.Block.Header.Time); err != nil {
+		return time.Time{}, fmt.Errorf("pocketProvider.BlockTime: %s", err)
+	}
+
 	return blkResponse.Block.Header.Time, nil
 }
 
-func (p pocketProvider) Transaction(hash string) (transaction.Transaction, error) {
-	var fail = func(err error) (transaction.Transaction, error) {
-		return transaction.Transaction{}, fmt.Errorf("pocketProvider.Transaction: %s", err)
+func (p pocketProvider) Transaction(hash string) (pocket.Transaction, error) {
+	var fail = func(err error) (pocket.Transaction, error) {
+		return pocket.Transaction{}, fmt.Errorf("pocketProvider.Transaction: %s", err)
 	}
 
 	url := fmt.Sprintf("%s/%s", pocketEndpoint, urlPathGetTransaction)
@@ -88,25 +159,9 @@ func (p pocketProvider) Transaction(hash string) (transaction.Transaction, error
 	return txn, nil
 }
 
-func (p pocketProvider) AccountTransactions(address string, page uint, perPage uint, sort string) ([]transaction.Transaction, error) {
-	var fail = func(err error) ([]transaction.Transaction, error) {
+func (p pocketProvider) AccountTransactions(address string, page uint, perPage uint, sort string) ([]pocket.Transaction, error) {
+	var fail = func(err error) ([]pocket.Transaction, error) {
 		return nil, fmt.Errorf("pocketProvider.AccountTransactions: %s", err)
-	}
-
-	if page < 1 {
-		page = 1
-	}
-
-	if perPage < 1 {
-		perPage = 50
-	}
-
-	switch sort {
-	case "asc":
-	case "desc":
-		break
-	default:
-		sort = "asc"
 	}
 
 	url := fmt.Sprintf("%s/%s", pocketEndpoint, urlPathGetAccountTransactions)
@@ -129,7 +184,7 @@ func (p pocketProvider) AccountTransactions(address string, page uint, perPage u
 		return fail(err)
 	}
 
-	var transactions []transaction.Transaction
+	var transactions []pocket.Transaction
 	for _, t := range txsResponse.Transactions {
 		txn, err := t.Transaction()
 		if err != nil {

@@ -9,15 +9,16 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/itsnoproblem/pokthud/monitoring-service/inmem"
+	"github.com/itsnoproblem/pokthud/monitoring-service/db"
 
-	"github.com/itsnoproblem/pokthud/monitoring-service/node"
-	"github.com/itsnoproblem/pokthud/monitoring-service/provider/pocket"
+	"git.mills.io/prologic/bitcask"
 
 	"github.com/go-kit/kit/log"
 	"github.com/oklog/oklog/pkg/group"
 
 	"github.com/itsnoproblem/pokthud/api"
+	"github.com/itsnoproblem/pokthud/monitoring-service/monitoring"
+	"github.com/itsnoproblem/pokthud/monitoring-service/provider/pocket"
 )
 
 const (
@@ -43,11 +44,20 @@ func main() {
 
 	// accounts
 	httpClient := http.Client{}
-	blockTimesRepo := inmem.NewBlockTimesRepo()
+
+	//
+	//
+	//
+	bitcaskDB, err := bitcask.Open("/tmp/db")
+	if err != nil {
+		panic(err)
+	}
+	defer bitcaskDB.Close()
+	blockTimesRepo := db.NewBlockTimesRepo(bitcaskDB)
 	pocketProvider := pocket.NewPocketProvider(httpClient, blockTimesRepo)
-	nodeSvc := node.NewService(pocketProvider)
+	nodeSvc := monitoring.NewService(pocketProvider)
 	//accountsSvc = accounts.NewLoggingService(logger, accountsSvc)
-	nodeTransport := node.NewTransport(nodeSvc)
+	nodeTransport := monitoring.NewTransport(nodeSvc)
 	router.AddRoutes(nodeTransport.Routes)
 	//createAccountFixtures(accountsSvc, logger)
 

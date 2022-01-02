@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/itsnoproblem/pokthud/monitoring-service/transaction"
+	"github.com/itsnoproblem/pokthud/monitoring-service/pocket"
 )
 
 type accountTransactionsRequest struct {
@@ -12,7 +12,7 @@ type accountTransactionsRequest struct {
 	Height  uint   `json:"height"`
 	Page    uint   `json:"page"`
 	PerPage uint   `json:"per_page"`
-	Sort    string `json:"sort"`
+	Sort    string `json:"order"`
 }
 
 type accountTransactionsResponse struct {
@@ -29,7 +29,7 @@ type transactionResponse struct {
 	StdTx  stdTxResponse `json:"stdTx"`
 }
 
-func (t *transactionResponse) Transaction() (transaction.Transaction, error) {
+func (t *transactionResponse) Transaction() (pocket.Transaction, error) {
 	var numProofs uint64
 	var err error
 
@@ -38,11 +38,11 @@ func (t *transactionResponse) Transaction() (transaction.Transaction, error) {
 	} else {
 		numProofs, err = strconv.ParseUint(t.StdTx.Message.Value.TotalProofs, 10, 32)
 		if err != nil {
-			return transaction.Transaction{}, fmt.Errorf("transactionResponse.Transaction: %s", err)
+			return pocket.Transaction{}, fmt.Errorf("transactionResponse.Transaction: %s", err)
 		}
 	}
 
-	return transaction.Transaction{
+	return pocket.Transaction{
 		Hash:      t.Hash,
 		Height:    uint(t.Height),
 		Type:      t.StdTx.Message.Type,
