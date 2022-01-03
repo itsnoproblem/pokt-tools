@@ -2,6 +2,7 @@ package monitoring
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -15,6 +16,8 @@ const (
 	transactionEndpointPath         = "/transactions/{hash}"
 	nodeEndpointPath                = "/node/{address}"
 	accountTransactionsEndpointPath = "/accounts/{address}/transactions"
+	blockTimesEndpointPath          = "/block-times"
+	monthlyRewardsEndpointPath      = "/node/{address}/rewards"
 )
 
 type transport struct {
@@ -45,6 +48,20 @@ func NewTransport(svc Service) transport {
 				Path:     nodeEndpointPath,
 				Endpoint: NodeEndpoint(svc),
 				Decoder:  decodeNodeRequest,
+				Encoder:  api.EncodeResponse,
+			},
+			{
+				Method:   http.MethodPost,
+				Path:     blockTimesEndpointPath,
+				Endpoint: BlockTimesEndpoint(svc),
+				Decoder:  decodeBlockTimesRequest,
+				Encoder:  api.EncodeResponse,
+			},
+			{
+				Method:   http.MethodGet,
+				Path:     monthlyRewardsEndpointPath,
+				Endpoint: MonthlyRewardsEndpoint(svc),
+				Decoder:  decodeMonthlyRewardsRequest,
 				Encoder:  api.EncodeResponse,
 			},
 		},
@@ -107,4 +124,23 @@ func decodeNodeRequest(_ context.Context, req *http.Request) (request interface{
 	}
 
 	return nodeRequest{Address: address}, nil
+}
+
+func decodeBlockTimesRequest(_ context.Context, req *http.Request) (request interface{}, err error) {
+	var blockHeights blockTimesRequest
+	if err := json.NewDecoder(req.Body).Decode(&blockHeights); err != nil {
+		return nil, fmt.Errorf("decodeBlockTimesRequest: %s", err)
+	}
+
+	return blockHeights, nil
+}
+
+func decodeMonthlyRewardsRequest(_ context.Context, req *http.Request) (request interface{}, err error) {
+	vars := mux.Vars(req)
+	address, ok := vars["address"]
+	if !ok {
+		return nil, errors.New("decodeMonthlyRewardsRequest: required param 'address' not found")
+	}
+
+	return monthlyRewardsRequest{Address: address}, nil
 }

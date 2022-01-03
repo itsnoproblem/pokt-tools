@@ -3,6 +3,7 @@ package monitoring
 import (
 	"context"
 	"fmt"
+	"sort"
 	"time"
 
 	"github.com/go-kit/kit/endpoint"
@@ -12,6 +13,99 @@ type Endpoints struct {
 	Node                endpoint.Endpoint
 	Transaction         endpoint.Endpoint
 	AccountTransactions endpoint.Endpoint
+	BlockTimes          endpoint.Endpoint
+	MonthlyRewards      endpoint.Endpoint
+}
+
+type monthlyRewardsRequest struct {
+	Address string `json:"address"'`
+}
+
+type monthlyRewardsResponse struct {
+	Year         uint                  `json:"year"`
+	Month        uint                  `json:"month"`
+	NumRelays    uint                  `json:"num_relays"`
+	PoktAmount   float64               `json:"pokt_amount"`
+	Transactions []transactionResponse `json:"transactions"`
+}
+
+func MonthlyRewardsEndpoint(svc Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		fail := func(err error) (interface{}, error) {
+			return nil, fmt.Errorf("MonthlyRewardsEndpoint: %s", err)
+		}
+
+		req, ok := request.(monthlyRewardsRequest)
+		if !ok {
+			err := fmt.Errorf("failed to parse request: %v", request)
+			return fail(err)
+		}
+
+		months, err := svc.RewardsByMonth(req.Address)
+		if err != nil {
+			return fail(err)
+		}
+
+		resp := make([]monthlyRewardsResponse, len(months))
+		i := 0
+		for _, month := range months {
+			resp[i] = monthlyRewardsResponse{
+				Year:         month.Year,
+				Month:        month.Month,
+				NumRelays:    month.TotalProofs,
+				PoktAmount:   month.PoktAmount(),
+				Transactions: make([]transactionResponse, len(month.Transactions)),
+			}
+
+			for j, tx := range month.Transactions {
+				resp[i].Transactions[j] = transactionResponse{
+					Hash:      tx.Hash,
+					Height:    tx.Height,
+					Time:      tx.Time,
+					Type:      tx.Type,
+					ChainID:   tx.ChainID,
+					NumProofs: tx.NumProofs,
+				}
+			}
+			i++
+		}
+
+		sort.Slice(resp, func(i, j int) bool {
+			if resp[i].Year == resp[j].Year {
+				return resp[i].Month > resp[j].Month
+			}
+			return resp[i].Year > resp[j].Year
+		})
+
+		return resp, nil
+	}
+}
+
+type blockTimesRequest struct {
+	Heights []uint `json:"heights"`
+}
+
+type blockTimesResponse map[uint]time.Time
+
+func BlockTimesEndpoint(svc Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		fail := func(err error) (interface{}, error) {
+			return nil, fmt.Errorf("BlockTimesEndpoint: %s", err)
+		}
+
+		req, ok := request.(blockTimesRequest)
+		if !ok {
+			err := fmt.Errorf("failed to parse request: %v", request)
+			return fail(err)
+		}
+
+		blocks, err := svc.BlockTimes(req.Heights)
+		if err != nil {
+			return fail(err)
+		}
+
+		return blocks, nil
+	}
 }
 
 type transactionRequest struct {
