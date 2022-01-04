@@ -14,7 +14,7 @@ import (
 	"github.com/go-kit/kit/log"
 	"github.com/oklog/oklog/pkg/group"
 
-	"github.com/itsnoproblem/pokt-calculator/api"
+	"monitoring-service/api"
 	"monitoring-service/db"
 	"monitoring-service/monitoring"
 	"monitoring-service/provider/pocket"
