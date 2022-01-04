@@ -8,11 +8,12 @@ import {
     Grid,
     GridItem,
     HStack,
-    Text,
+    Text, useClipboard,
     useColorModeValue
 } from "@chakra-ui/react";
 import {useEffect, useState} from "react";
 import axios from "axios";
+import {CheckIcon, CopyIcon} from "@chakra-ui/icons";
 
 type Transaction = {
     hash: string,
@@ -29,6 +30,41 @@ type MonthlyReward = {
     num_relays: number,
     pokt_amount: number,
     transactions: Array<Transaction>
+}
+
+interface RewardTransactionProps {
+    tx: Transaction
+    color: string
+}
+
+const RewardTransaction = (props: RewardTransactionProps) => {
+    const tx = props.tx;
+    const numProofs = tx.num_proofs;
+    const description = numProofs + " relays on [" + tx.chain_id + "]";
+    const amount = Number(numProofs?.valueOf() * 0.0089).toFixed(4) + " POKT";
+    const {hasCopied, onCopy} = useClipboard(tx.hash);
+    const time = new Date(tx.time);
+
+    return (
+        <>
+            <GridItem padding={2} backgroundColor={props.color} align="left" pl={4}>{tx.height}</GridItem>
+            <GridItem padding={2} backgroundColor={props.color}>
+                <Box>
+                    {time.toLocaleString()}
+                </Box>
+            </GridItem>
+            <GridItem padding={2} backgroundColor={props.color}>
+                <Text title={tx.hash}>
+                    {tx.hash.substring(0, 6)}...{tx.hash.substring(tx.hash.length - 4, tx.hash.length)}&nbsp;
+                    {hasCopied && <CheckIcon/>}
+                    {!hasCopied && <CopyIcon  onClick={onCopy} cursor={"pointer"}/>}
+                </Text>
+            </GridItem>
+            <GridItem padding={2} backgroundColor={props.color}>{tx.type}</GridItem>
+            <GridItem padding={2} backgroundColor={props.color} align={"right"}>{amount}</GridItem>
+            <GridItem padding={2} backgroundColor={props.color} pr={4} align={"right"}>{description}</GridItem>
+        </>
+    )
 }
 
 interface MonthlyRewardsProps {
@@ -68,13 +104,13 @@ const MonthlyRewards = (props: MonthlyRewardsProps) => {
     });
 
     const bgOdd = useColorModeValue("gray.200", "gray.800");
-    const bgEven = useColorModeValue("gray.50", "gray.700")
+    const bgEven = useColorModeValue("gray.50", "gray.700");
 
     return (
         <Accordion allowMultiple>
             {months.map((month: MonthlyReward, i) => {
                 return (
-                    <AccordionItem>
+                    <AccordionItem key={i.toString()}>
                         <h2>
                             <AccordionButton>
                                 <Box flex='1'>
@@ -97,24 +133,10 @@ const MonthlyRewards = (props: MonthlyRewardsProps) => {
                                 <GridItem padding={2} fontWeight={900} align={"right"} >Amount</GridItem>
                                 <GridItem padding={2} fontWeight={900} pr={4} align={"right"}>Description</GridItem>
 
-                                {month.transactions.map((tx, j) => {
-
+                                {month.transactions.slice(0).reverse().map((tx, j) => {
                                     const rowColor = (j % 2 === 0) ? bgEven : bgOdd;
-                                    const numProofs = tx.num_proofs;
-                                    const description = numProofs + " relays on [" + tx.chain_id + "]";
-                                    const amount = new Number(numProofs?.valueOf() * 0.0089).toFixed(4) + " POKT";
-
                                     return (
-                                        <>
-                                            <GridItem padding={2} backgroundColor={rowColor} align="left" pl={4}>{tx.height}</GridItem>
-                                            <GridItem padding={2} backgroundColor={rowColor}><Box>{tx.time}</Box></GridItem>
-                                            <GridItem padding={2} backgroundColor={rowColor}>
-                                                {tx.hash.substring(0, 3)}...{tx.hash.substring(tx.hash.length - 4, tx.hash.length)}
-                                            </GridItem>
-                                            <GridItem padding={2} backgroundColor={rowColor}>{tx.type}</GridItem>
-                                            <GridItem padding={2} backgroundColor={rowColor} align={"right"}>{amount}</GridItem>
-                                            <GridItem padding={2} backgroundColor={rowColor} pr={4} align={"right"}>{description}</GridItem>
-                                        </>
+                                        <RewardTransaction key={tx.hash} tx={tx} color={rowColor}/>
                                     )
                                 })}
                             </Grid>

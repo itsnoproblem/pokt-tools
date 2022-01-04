@@ -9,26 +9,25 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/itsnoproblem/pokthud/monitoring-service/db"
-
 	"git.mills.io/prologic/bitcask"
 
 	"github.com/go-kit/kit/log"
 	"github.com/oklog/oklog/pkg/group"
 
-	"github.com/itsnoproblem/pokthud/api"
-	"github.com/itsnoproblem/pokthud/monitoring-service/monitoring"
-	"github.com/itsnoproblem/pokthud/monitoring-service/provider/pocket"
+	"github.com/itsnoproblem/pokt-calculator/api"
+	"monitoring-service/db"
+	"monitoring-service/monitoring"
+	"monitoring-service/provider/pocket"
 )
 
 const (
 	defaultPort = "7878"
+	defaultHost = "localhost"
 )
 
 func main() {
 	var (
-		addr     = envString("PORT", defaultPort)
-		httpAddr = flag.String("http.addr", "localhost:"+addr, "HTTP listen address")
+		httpAddr = flag.String("listen", defaultHost+":"+defaultPort, "HTTP listen address")
 	)
 
 	flag.Parse()
@@ -38,21 +37,30 @@ func main() {
 
 	router := api.NewRouter(logger)
 
-	//defer db.Close()
-
 	logger.Log("transport", "HTTP", "MySQL Connect", "Success")
 
 	// accounts
 	httpClient := http.Client{}
 
-	//
-	//
-	//
-	bitcaskDB, err := bitcask.Open("/tmp/db")
+	// db
+	path, err := os.Getwd()
 	if err != nil {
+		logger.Log("ERROR: failed to get working directory")
 		panic(err)
 	}
-	defer bitcaskDB.Close()
+
+	dbPath := path + "/.pokt-calculator-db"
+	bitcaskDB, err := bitcask.Open(dbPath)
+	if err != nil {
+		logger.Log("ERROR opening database")
+		panic(err)
+	}
+	defer func(bitcaskDB *bitcask.Bitcask) {
+		err := bitcaskDB.Close()
+		if err != nil {
+			logger.Log("ERROR closing database")
+		}
+	}(bitcaskDB)
 	blockTimesRepo := db.NewBlockTimesRepo(bitcaskDB)
 	pocketProvider := pocket.NewPocketProvider(httpClient, blockTimesRepo)
 	nodeSvc := monitoring.NewService(pocketProvider)

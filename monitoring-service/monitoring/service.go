@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/itsnoproblem/pokthud/monitoring-service/pocket"
+	"monitoring-service/pocket"
 )
 
 type PocketProvider interface {

@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/itsnoproblem/pokthud/monitoring-service/pocket"
+	"monitoring-service/pocket"
 )
 
 const (

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/itsnoproblem/pokthud/monitoring-service/pocket"
+	"monitoring-service/pocket"
 )
 
 type accountTransactionsRequest struct {

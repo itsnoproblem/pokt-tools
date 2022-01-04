@@ -9,7 +9,7 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
-	"github.com/itsnoproblem/pokthud/api"
+	"github.com/itsnoproblem/pokt-calculator/api"
 )
 
 const (

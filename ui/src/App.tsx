@@ -1,6 +1,7 @@
 import * as React from "react"
-import {Box, ChakraProvider, Flex, theme} from "@chakra-ui/react"
+import {Box, ChakraProvider, Flex} from "@chakra-ui/react"
 import {ColorModeSwitcher} from "./ColorModeSwitcher"
+import theme from "./theme";
 import AccountBalance from "./AccountBalance";
 import MonthlyRewards from "./MonthlyRewards";
 import {
