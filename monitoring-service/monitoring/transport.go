@@ -8,11 +8,13 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/gorilla/mux"
 	"monitoring-service/api"
+
+	"github.com/gorilla/mux"
 )
 
 const (
+	heightEndpointPath              = "/height"
 	transactionEndpointPath         = "/transactions/{hash}"
 	nodeEndpointPath                = "/node/{address}"
 	accountTransactionsEndpointPath = "/accounts/{address}/transactions"
@@ -29,6 +31,13 @@ func NewTransport(svc Service) transport {
 	return transport{
 		Service: svc,
 		Routes: []api.Route{
+			{
+				Method:   http.MethodGet,
+				Path:     heightEndpointPath,
+				Endpoint: HeightEndpoint(svc),
+				Decoder:  api.DecodeEmptyRequest,
+				Encoder:  api.EncodeResponse,
+			},
 			{
 				Method:   http.MethodGet,
 				Path:     transactionEndpointPath,

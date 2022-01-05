@@ -11,9 +11,10 @@ import {
     Text, useClipboard,
     useColorModeValue
 } from "@chakra-ui/react";
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import axios from "axios";
 import {CheckIcon, CopyIcon} from "@chakra-ui/icons";
+declare const window: any;
 
 type Transaction = {
     hash: string,
@@ -72,17 +73,24 @@ interface MonthlyRewardsProps {
 }
 
 const MonthlyRewards = (props: MonthlyRewardsProps) => {
-    const [months, setMonths] = useState([])
+    const [months, setMonths] = useState([]);
+    const [rpcUrl, setRpcUrl] = useState("");
+    const [hasLoaded, setHasLoaded] = useState(false);
 
-    const getRewards = () => {
-        const url = `http://localhost:7878/node/${props.address}/rewards`;
-        axios.get(url).then((result) => {
+    const getRewards = useCallback(() => {
+        if(rpcUrl === "") {
+            return;
+        }
+
+        axios.get(rpcUrl).then((result) => {
             setMonths(result.data.data);
             console.log(result);
+            setHasLoaded(true);
         }).catch((err) => {
             console.error(err);
+            setHasLoaded(true);
         });
-    }
+    },[rpcUrl]);
 
     const monthNames: Record<number, string> = {
         1: "January",
@@ -100,8 +108,12 @@ const MonthlyRewards = (props: MonthlyRewardsProps) => {
     }
 
     useEffect(() => {
-        window.addEventListener("load", getRewards);
-    });
+        if(!hasLoaded) {
+            const url = `${window._env_.RPC_URL}/node/${props.address}/rewards`;
+            setRpcUrl(url);
+            getRewards();
+        }
+    },  [hasLoaded, props.address, getRewards]);
 
     const bgOdd = useColorModeValue("gray.200", "gray.800");
     const bgEven = useColorModeValue("gray.50", "gray.700");

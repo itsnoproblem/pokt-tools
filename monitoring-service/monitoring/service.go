@@ -13,6 +13,7 @@ type PocketProvider interface {
 	BlockTime(height uint) (time.Time, error)
 	Node(address string) (pocket.Node, error)
 	Balance(address string) (uint, error)
+	Height() (uint, error)
 }
 
 func NewService(provider PocketProvider) Service {
@@ -23,6 +24,15 @@ func NewService(provider PocketProvider) Service {
 
 type Service struct {
 	provider PocketProvider
+}
+
+func (s *Service) Height() (uint, error) {
+	height, err := s.provider.Height()
+	if err != nil {
+		return 0, fmt.Errorf("Height: %s", err)
+	}
+
+	return height, nil
 }
 
 func (s *Service) Transaction(hash string) (pocket.Transaction, error) {

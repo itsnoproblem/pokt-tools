@@ -3,25 +3,55 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"flag"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/go-kit/kit/transport/http/jsonrpc"
 )
 
 const (
-	rpcUrl    = "http://localhost:7878/block-times"
-	maxHeight = 46962
-	batchSize = 25
+	blockTimesURLPattern = "http://%s/block-times"
+	heightURLPattern     = "http://%s/height"
+	batchSize            = 25
 )
 
+type blockTimesRequest struct {
+	Heights []uint `json:"heights"`
+}
+
+type heightResponseWrapper struct {
+	Data heightResponse `json:"data"`
+}
+
+type heightResponse struct {
+	Height float64 `json:"height"`
+}
+
 func main() {
+	rpcHost := flag.String("host", "localhost:7878", "RPC host:port")
+	flag.Parse()
+
 	client := http.Client{}
 	fmt.Println("Start...")
 
-	type blockTimesRequest struct {
-		Heights []uint `json:"heights"`
+	var heightResp heightResponseWrapper
+	url := fmt.Sprintf(heightURLPattern, *rpcHost)
+	res, err := client.Get(url)
+	if err != nil {
+		panic(err)
 	}
+
+	respB, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		panic(err)
+	}
+
+	if err := json.Unmarshal(respB, &heightResp); err != nil {
+		panic(err)
+	}
+	maxHeight := int(heightResp.Data.Height)
 
 	for i := 1; i <= maxHeight; i++ {
 
@@ -45,7 +75,8 @@ func main() {
 			panic(err)
 		}
 
-		res, err := client.Post(rpcUrl, jsonrpc.ContentType, bytes.NewBuffer(jsonData))
+		url := fmt.Sprintf(blockTimesURLPattern, *rpcHost)
+		res, err := client.Post(url, jsonrpc.ContentType, bytes.NewBuffer(jsonData))
 		if err != nil {
 			panic(err)
 		}

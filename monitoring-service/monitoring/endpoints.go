@@ -10,11 +10,28 @@ import (
 )
 
 type Endpoints struct {
+	Height              endpoint.Endpoint
 	Node                endpoint.Endpoint
 	Transaction         endpoint.Endpoint
 	AccountTransactions endpoint.Endpoint
 	BlockTimes          endpoint.Endpoint
 	MonthlyRewards      endpoint.Endpoint
+}
+
+type heightResponse struct {
+	Height uint `json:"height"`
+}
+
+func HeightEndpoint(svc Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		height, err := svc.Height()
+		if err != nil {
+			return nil, fmt.Errorf("HeightEndpoint: %s", err)
+		}
+
+		response = heightResponse{Height: height}
+		return response, nil
+	}
 }
 
 type monthlyRewardsRequest struct {

@@ -1,0 +1,25 @@
+version: "3"
+
+services:
+  monitoring-service:
+    container_name: monitoring-service
+    ports:
+    - 7878:7878
+    build:
+      context: ./monitoring-service
+    environment:
+      LISTEN: 0.0.0.0:7878
+      DBPATH: /db
+      POCKET_URL: https://mainnet.gateway.pokt.network/v1/lb/61d4a60d431851003b628aa8/v1
+    volumes:
+      - ./.pokt-calculator-db:/db
+  ui:
+    container_name: pokt-calculator-ui
+    build:
+      context: ./ui
+    environment:
+      RPC_URL: http://localhost:7878
+    ports:
+    - 4444:80
+volumes:
+  disk-db:

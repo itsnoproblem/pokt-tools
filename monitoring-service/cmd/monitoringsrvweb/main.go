@@ -23,17 +23,23 @@ import (
 const (
 	defaultPort = "7878"
 	defaultHost = "localhost"
+	defaultPocketURL = "https://mainnet.gateway.pokt.network/v1/lb/61d4a60d431851003b628aa8/v1"
 )
 
 func main() {
-	var (
-		httpAddr = flag.String("listen", defaultHost+":"+defaultPort, "HTTP listen address")
-	)
-
-	flag.Parse()
-
 	logger := log.NewLogfmtLogger(log.NewSyncWriter(os.Stderr))
 	logger = log.With(logger, "ts", log.DefaultTimestampUTC)
+
+	defaultDBPath, err := os.Getwd()
+	if err != nil {
+		logger.Log("ERROR: failed to get working directory")
+		panic(err)
+	}
+
+	httpAddr := flag.String("listen", defaultHost+":"+defaultPort, "HTTP listen address")
+	dbPath := flag.String("dbPath", defaultDBPath + "/.pokt-calculator-db", "Path to DB data")
+	pocketRpcURL := flag.String("pocketURL", defaultPocketURL, "Pocket network RPC URL")
+	flag.Parse()
 
 	router := api.NewRouter(logger)
 
@@ -43,14 +49,8 @@ func main() {
 	httpClient := http.Client{}
 
 	// db
-	path, err := os.Getwd()
-	if err != nil {
-		logger.Log("ERROR: failed to get working directory")
-		panic(err)
-	}
-
-	dbPath := path + "/.pokt-calculator-db"
-	bitcaskDB, err := bitcask.Open(dbPath)
+	logger.Log("bitcask DB", *dbPath)
+	bitcaskDB, err := bitcask.Open(*dbPath)
 	if err != nil {
 		logger.Log("ERROR opening database")
 		panic(err)
@@ -62,7 +62,7 @@ func main() {
 		}
 	}(bitcaskDB)
 	blockTimesRepo := db.NewBlockTimesRepo(bitcaskDB)
-	pocketProvider := pocket.NewPocketProvider(httpClient, blockTimesRepo)
+	pocketProvider := pocket.NewPocketProvider(httpClient, *pocketRpcURL, blockTimesRepo)
 	nodeSvc := monitoring.NewService(pocketProvider)
 	//accountsSvc = accounts.NewLoggingService(logger, accountsSvc)
 	nodeTransport := monitoring.NewTransport(nodeSvc)

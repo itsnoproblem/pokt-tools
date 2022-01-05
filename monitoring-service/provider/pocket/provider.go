@@ -13,12 +13,12 @@ import (
 
 const (
 	contentTypeJSON               = "application/json; charset=UTF-8"
-	pocketEndpoint                = "https://node-000.pokt.gaagl.com/v1"
 	urlPathGetAccountTransactions = "/query/accounttxs"
 	urlPathGetTransaction         = "/query/tx"
 	urlPathGetBlock               = "/query/block"
 	urlPathGetNode                = "/query/node"
 	urlPathGetBalance             = "/query/balance"
+	urlPathGetHeight              = "/query/height"
 )
 
 type blockTimesRepo interface {
@@ -29,13 +29,34 @@ type blockTimesRepo interface {
 type pocketProvider struct {
 	client         *http.Client
 	blockTimesRepo blockTimesRepo
+	pocketRpcURL   string
 }
 
-func NewPocketProvider(c http.Client, repo blockTimesRepo) pocketProvider {
+func NewPocketProvider(c http.Client, pocketRpcURL string, repo blockTimesRepo) pocketProvider {
 	return pocketProvider{
 		client:         &c,
 		blockTimesRepo: repo,
+		pocketRpcURL:   pocketRpcURL,
 	}
+}
+
+func (p pocketProvider) Height() (uint, error) {
+	url := fmt.Sprintf("%s%s", p.pocketRpcURL, urlPathGetHeight)
+	//var req interface{}
+	var resp struct {
+		Height float64 `json:"height"`
+	}
+
+	body, err := p.doRequest(url, nil)
+	if err != nil {
+		return 0, fmt.Errorf("pocketProvider.Height: %s", err)
+	}
+
+	if err := json.Unmarshal(body, &resp); err != nil {
+		return 0, fmt.Errorf("pocketProvider.Height: %s", err)
+	}
+
+	return uint(resp.Height), nil
 }
 
 func (p pocketProvider) Node(address string) (pocket.Node, error) {
@@ -43,7 +64,7 @@ func (p pocketProvider) Node(address string) (pocket.Node, error) {
 		return pocket.Node{}, fmt.Errorf("pocketProvider.Node: %s", err)
 	}
 
-	url := fmt.Sprintf("%s/%s", pocketEndpoint, urlPathGetNode)
+	url := fmt.Sprintf("%s/%s", p.pocketRpcURL, urlPathGetNode)
 	nodeRequest := queryNodeRequest{Address: address}
 	var nodeResponse queryNodeResponse
 
@@ -84,7 +105,7 @@ func (p pocketProvider) Balance(address string) (uint, error) {
 		return 0, fmt.Errorf("pocketProvider.Balance: %s", err)
 	}
 
-	url := fmt.Sprintf("%s/%s", pocketEndpoint, urlPathGetBalance)
+	url := fmt.Sprintf("%s/%s", p.pocketRpcURL, urlPathGetBalance)
 	balRequest := balanceRequest{Address: address}
 	var balResponse balanceResponse
 
@@ -111,7 +132,7 @@ func (p pocketProvider) BlockTime(height uint) (time.Time, error) {
 		return cached, nil
 	}
 
-	url := fmt.Sprintf("%s/%s", pocketEndpoint, urlPathGetBlock)
+	url := fmt.Sprintf("%s/%s", p.pocketRpcURL, urlPathGetBlock)
 	blkRequest := blockRequest{Height: height}
 	var blkResponse blockResponse
 
@@ -137,7 +158,7 @@ func (p pocketProvider) Transaction(hash string) (pocket.Transaction, error) {
 		return pocket.Transaction{}, fmt.Errorf("pocketProvider.Transaction: %s", err)
 	}
 
-	url := fmt.Sprintf("%s/%s", pocketEndpoint, urlPathGetTransaction)
+	url := fmt.Sprintf("%s/%s", p.pocketRpcURL, urlPathGetTransaction)
 	txRequest := transactionRequest{Hash: hash}
 	var txnResponse transactionResponse
 
@@ -164,7 +185,7 @@ func (p pocketProvider) AccountTransactions(address string, page uint, perPage u
 		return nil, fmt.Errorf("pocketProvider.AccountTransactions: %s", err)
 	}
 
-	url := fmt.Sprintf("%s/%s", pocketEndpoint, urlPathGetAccountTransactions)
+	url := fmt.Sprintf("%s/%s", p.pocketRpcURL, urlPathGetAccountTransactions)
 	txsRequest := accountTransactionsRequest{
 		Address: address,
 		Height:  0,
@@ -198,12 +219,17 @@ func (p pocketProvider) AccountTransactions(address string, page uint, perPage u
 }
 
 func (p pocketProvider) doRequest(url string, reqObj interface{}) ([]byte, error) {
-	reqBody, err := json.Marshal(reqObj)
-	if err != nil {
-		return nil, fmt.Errorf("doRequest: %s", err)
+	var reqBody []byte
+	var err error
+	if reqObj != nil {
+		reqBody, err = json.Marshal(reqObj)
+		if err != nil {
+			return nil, fmt.Errorf("doRequest: %s", err)
+		}
 	}
+	req := bytes.NewBuffer(reqBody)
 
-	clientReq, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(reqBody))
+	clientReq, err := http.NewRequest(http.MethodPost, url, req)
 	if err != nil {
 		return nil, fmt.Errorf("doRequest: %s", err)
 	}
