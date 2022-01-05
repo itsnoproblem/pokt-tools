@@ -8,12 +8,14 @@ import {
     Grid,
     GridItem,
     HStack,
-    Text, useClipboard,
+    Text,
+    useClipboard,
     useColorModeValue
 } from "@chakra-ui/react";
 import {useCallback, useEffect, useState} from "react";
 import axios from "axios";
 import {CheckIcon, CopyIcon} from "@chakra-ui/icons";
+
 declare const window: any;
 
 type Transaction = {

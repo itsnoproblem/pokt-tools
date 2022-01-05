@@ -2,6 +2,8 @@
 
 A reward explorer for Pocket Network nodes.
 
+![](doc/rewards-sample.png)
+
 ### Quick start
 
 You can run the application with `docker-compose`.  First check out the repository:

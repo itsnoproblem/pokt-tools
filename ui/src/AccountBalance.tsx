@@ -1,6 +1,7 @@
 import {Box, Text, VStack} from "@chakra-ui/react";
 import React, {useCallback, useEffect, useState} from "react";
 import axios from "axios";
+
 declare const window: any;
 
 interface AccountBalanceProps {

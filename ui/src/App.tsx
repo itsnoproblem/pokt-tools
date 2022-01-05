@@ -1,6 +1,6 @@
 import * as React from "react"
 import {useState} from "react"
-import {Box, Button, ChakraProvider, Flex, FormControl, Heading, HStack, Input} from "@chakra-ui/react"
+import {Box, Button, ChakraProvider, Flex, Heading, HStack, Input} from "@chakra-ui/react"
 import {ColorModeSwitcher} from "./ColorModeSwitcher"
 import theme from "./theme";
 import AccountBalance from "./AccountBalance";
@@ -32,7 +32,7 @@ const Home = () => {
             <HStack p={40} pt={20}>
                 <Input placeholder={"node id"} value={nodeId} onChange={(e) => {setNodeId(e.target.value)}}/>
                 <Button onClick={() => {
-                    if(nodeId != "") {
+                    if(nodeId !== "") {
                         window.location.href = `/node/${nodeId}/rewards`;
                     }
                 }}>View</Button>
