@@ -1,0 +1,123 @@
+package pocket
+
+import (
+	"fmt"
+	"monitoring-service/pocket"
+	"monitoring-service/timer"
+	"time"
+
+	log "github.com/go-kit/kit/log"
+)
+
+const (
+	logTypeError = "ERROR"
+	logTypeWarn  = "WARN"
+	logTypeInfo  = "INFO"
+)
+
+type ProviderWithLogger interface {
+	Provider
+	WithLogger(l log.Logger) Provider
+}
+
+type loggingProvider struct {
+	provider Provider
+	logger   log.Logger
+}
+
+func (p loggingProvider) WithLogger(l log.Logger) Provider {
+	//l = log.With(l, "ts", log.DefaultTimestampUTC)
+	return loggingProvider{
+		provider: p,
+		logger:   l,
+	}
+}
+
+func (p loggingProvider) Height() (uint, error) {
+	t := timer.Start()
+	h, err := p.provider.Height()
+	if err != nil {
+		p.error(err.Error())
+	}
+
+	p.info("Height is %d (took %s)", h, t.Elapsed().String())
+	return h, nil
+}
+
+func (p loggingProvider) Node(address string) (pocket.Node, error) {
+	t := timer.Start()
+	n, err := p.provider.Node(address)
+	if err != nil {
+		p.error(err.Error())
+		return pocket.Node{}, err
+	}
+
+	p.info("Node for address %s (took %s)", address, t.Elapsed().String())
+	return n, nil
+}
+
+func (p loggingProvider) Balance(address string) (uint, error) {
+	t := timer.Start()
+	b, err := p.provider.Balance(address)
+	if err != nil {
+		p.error(err.Error())
+		return 0, err
+	}
+
+	p.info("Balance for address %s is %d (took %s)", address, b, t.Elapsed().String())
+	return b, nil
+}
+
+func (p loggingProvider) BlockTime(height uint) (time.Time, error) {
+	//t := timer.Start()
+	bt, err := p.provider.BlockTime(height)
+	if err != nil {
+		p.error(err.Error())
+		return time.Time{}, err
+	}
+
+	//p.info("BlockTime for %d (took %s)", height, t.Elapsed().String())
+	return bt, nil
+}
+
+func (p loggingProvider) Transaction(hash string) (pocket.Transaction, error) {
+	t := timer.Start()
+	tx, err := p.provider.Transaction(hash)
+	if err != nil {
+		p.error(err.Error())
+		return pocket.Transaction{}, nil
+	}
+
+	p.info("Transaction hash %s (took %s)", hash, t.Elapsed().String())
+	return tx, nil
+}
+
+func (p loggingProvider) AccountTransactions(address string, page uint, perPage uint, sort string) ([]pocket.Transaction, error) {
+	t := timer.Start()
+	txs, err := p.provider.AccountTransactions(address, page, perPage, sort)
+	if err != nil {
+		p.error(err.Error())
+		return nil, err
+	}
+
+	p.info("AccountTransactions for address %s page %d: %d results (took %s)",
+		address, page, len(txs), t.Elapsed().String())
+	return txs, nil
+}
+
+func (p loggingProvider) error(format string, args ...interface{}) {
+	p.log(logTypeError, format, args...)
+}
+
+func (p loggingProvider) warn(format string, args ...interface{}) {
+	p.log(logTypeWarn, format, args)
+}
+
+func (p loggingProvider) info(format string, args ...interface{}) {
+	p.log(logTypeInfo, format, args...)
+}
+
+func (p loggingProvider) log(lvl, format string, args ...interface{}) {
+	msg := fmt.Sprintf(format, args...)
+	_ = p.logger.Log("level", lvl, "msg", msg)
+}

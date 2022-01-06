@@ -30,7 +30,7 @@ const Home = () => {
         <Box w={"100%"} h={"100vh"}>
             <Heading p={40} align={"center"}>POKT Calculator</Heading>
             <HStack p={40} pt={20}>
-                <Input placeholder={"node id"} value={nodeId} onChange={(e) => {setNodeId(e.target.value)}}/>
+                <Input name="node_id" placeholder={"node id"} value={nodeId} onChange={(e) => {setNodeId(e.target.value)}}/>
                 <Button onClick={() => {
                     if(nodeId !== "") {
                         window.location.href = `/node/${nodeId}/rewards`;
