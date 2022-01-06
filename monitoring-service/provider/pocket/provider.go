@@ -5,20 +5,23 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	pchttp "monitoring-service/http"
 	"net/http"
 	"time"
+
+	"github.com/go-kit/kit/log"
 
 	"monitoring-service/pocket"
 )
 
 const (
 	contentTypeJSON               = "application/json; charset=UTF-8"
-	urlPathGetAccountTransactions = "/query/accounttxs"
-	urlPathGetTransaction         = "/query/tx"
-	urlPathGetBlock               = "/query/block"
-	urlPathGetNode                = "/query/node"
-	urlPathGetBalance             = "/query/balance"
-	urlPathGetHeight              = "/query/height"
+	urlPathGetAccountTransactions = "query/accounttxs"
+	urlPathGetTransaction         = "query/tx"
+	urlPathGetBlock               = "query/block"
+	urlPathGetNode                = "query/node"
+	urlPathGetBalance             = "query/balance"
+	urlPathGetHeight              = "query/height"
 )
 
 type blockTimesRepo interface {
@@ -26,22 +29,39 @@ type blockTimesRepo interface {
 	Set(height uint, t time.Time) error
 }
 
+type Provider interface {
+	Height() (uint, error)
+	Node(address string) (pocket.Node, error)
+	Balance(address string) (uint, error)
+	BlockTime(height uint) (time.Time, error)
+	Transaction(hash string) (pocket.Transaction, error)
+	AccountTransactions(address string, page uint, perPage uint, sort string) ([]pocket.Transaction, error)
+	WithLogger(l log.Logger) Provider
+}
+
 type pocketProvider struct {
-	client         *http.Client
+	client         pchttp.Client
 	blockTimesRepo blockTimesRepo
 	pocketRpcURL   string
 }
 
-func NewPocketProvider(c http.Client, pocketRpcURL string, repo blockTimesRepo) pocketProvider {
+func NewPocketProvider(c pchttp.Client, pocketRpcURL string, repo blockTimesRepo) Provider {
 	return pocketProvider{
-		client:         &c,
+		client:         c,
 		blockTimesRepo: repo,
 		pocketRpcURL:   pocketRpcURL,
 	}
 }
 
+func (p pocketProvider) WithLogger(l log.Logger) Provider {
+	return loggingProvider{
+		provider: p,
+		logger:   l,
+	}
+}
+
 func (p pocketProvider) Height() (uint, error) {
-	url := fmt.Sprintf("%s%s", p.pocketRpcURL, urlPathGetHeight)
+	url := fmt.Sprintf("%s/%s", p.pocketRpcURL, urlPathGetHeight)
 	//var req interface{}
 	var resp struct {
 		Height float64 `json:"height"`

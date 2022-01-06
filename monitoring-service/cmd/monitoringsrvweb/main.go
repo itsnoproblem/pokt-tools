@@ -16,13 +16,14 @@ import (
 
 	"monitoring-service/api"
 	"monitoring-service/db"
+	pchttp "monitoring-service/http"
 	"monitoring-service/monitoring"
 	"monitoring-service/provider/pocket"
 )
 
 const (
-	defaultPort = "7878"
-	defaultHost = "localhost"
+	defaultPort      = "7878"
+	defaultHost      = "localhost"
 	defaultPocketURL = "https://mainnet.gateway.pokt.network/v1/lb/61d4a60d431851003b628aa8/v1"
 )
 
@@ -32,37 +33,41 @@ func main() {
 
 	defaultDBPath, err := os.Getwd()
 	if err != nil {
-		logger.Log("ERROR: failed to get working directory")
+		_ = logger.Log("ERROR: failed to get working directory")
 		panic(err)
 	}
 
 	httpAddr := flag.String("listen", defaultHost+":"+defaultPort, "HTTP listen address")
-	dbPath := flag.String("dbPath", defaultDBPath + "/.pokt-calculator-db", "Path to DB data")
+	dbPath := flag.String("dbPath", defaultDBPath+"/.pokt-calculator-db", "Path to DB data")
 	pocketRpcURL := flag.String("pocketURL", defaultPocketURL, "Pocket network RPC URL")
 	flag.Parse()
 
 	router := api.NewRouter(logger)
 
-	logger.Log("transport", "HTTP", "MySQL Connect", "Success")
+	_ = logger.Log("transport", "HTTP", "MySQL Connect", "Success")
 
 	// accounts
-	httpClient := http.Client{}
+	clientWithoutLogger := http.Client{}
+	httpClient := pchttp.NewClientWithLogger(clientWithoutLogger, logger)
 
 	// db
-	logger.Log("bitcask DB", *dbPath)
+	_ = logger.Log("bitcask DB", *dbPath)
 	bitcaskDB, err := bitcask.Open(*dbPath)
 	if err != nil {
-		logger.Log("ERROR opening database")
+		_ = logger.Log("ERROR opening database")
 		panic(err)
 	}
 	defer func(bitcaskDB *bitcask.Bitcask) {
 		err := bitcaskDB.Close()
 		if err != nil {
-			logger.Log("ERROR closing database")
+			_ = logger.Log("ERROR closing database")
 		}
 	}(bitcaskDB)
 	blockTimesRepo := db.NewBlockTimesRepo(bitcaskDB)
-	pocketProvider := pocket.NewPocketProvider(httpClient, *pocketRpcURL, blockTimesRepo)
+
+	// provider
+	prv := pocket.NewPocketProvider(httpClient, *pocketRpcURL, blockTimesRepo)
+	pocketProvider := prv.WithLogger(logger)
 	nodeSvc := monitoring.NewService(pocketProvider)
 	//accountsSvc = accounts.NewLoggingService(logger, accountsSvc)
 	nodeTransport := monitoring.NewTransport(nodeSvc)
@@ -74,14 +79,17 @@ func main() {
 		// The HTTP listener mounts the Go kit HTTP handler we created.
 		httpListener, err := net.Listen("tcp", *httpAddr)
 		if err != nil {
-			logger.Log("transport", "HTTP", "during", "Listen", "err", err)
+			_ = logger.Log("transport", "HTTP", "during", "Listen", "err", err)
 			os.Exit(1)
 		}
 		g.Add(func() error {
-			logger.Log("transport", "HTTP", "addr", *httpAddr)
+			_ = logger.Log("transport", "HTTP", "addr", *httpAddr)
 			return http.Serve(httpListener, router.Mux)
 		}, func(error) {
-			httpListener.Close()
+			err := httpListener.Close()
+			if err != nil {
+				panic(err)
+			}
 		})
 	}
 	{
