@@ -1,60 +1,66 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
 	"flag"
 	"fmt"
-	"io/ioutil"
+	"monitoring-service/db"
+	pchttp "monitoring-service/http"
+	"monitoring-service/provider/pocket"
 	"net/http"
+	"os"
 
-	"github.com/go-kit/kit/transport/http/jsonrpc"
+	"monitoring-service/monitoring"
+
+	"git.mills.io/prologic/bitcask"
+	"github.com/go-kit/kit/log"
 )
 
 const (
-	blockTimesURLPattern = "http://%s/block-times"
-	heightURLPattern     = "http://%s/height"
-	batchSize            = 25
+	batchSize        = 25
+	defaultPocketURL = "https://mainnet.gateway.pokt.network/v1/lb/61d4a60d431851003b628aa8/v1"
 )
 
-type blockTimesRequest struct {
-	Heights []uint `json:"heights"`
-}
-
-type heightResponseWrapper struct {
-	Data heightResponse `json:"data"`
-}
-
-type heightResponse struct {
-	Height float64 `json:"height"`
-}
-
 func main() {
-	rpcHost := flag.String("host", "localhost:7878", "RPC host:port")
+	logger := log.NewLogfmtLogger(log.NewSyncWriter(os.Stderr))
+	logger = log.With(logger, "ts", log.DefaultTimestampUTC)
+	defaultDBPath, err := os.Getwd()
+	if err != nil {
+		_ = logger.Log("ERROR: failed to get working directory")
+		panic(err)
+	}
+
+	dbPath := flag.String("dbPath", defaultDBPath+"/../.pokt-calculator-db", "Path to DB data")
+	pocketRpcURL := flag.String("pocketURL", defaultPocketURL, "Pocket network RPC URL")
 	flag.Parse()
 
-	client := http.Client{}
 	fmt.Println("Start...")
+	clientWithoutLogger := http.Client{}
+	httpClient := pchttp.NewClientWithLogger(clientWithoutLogger, logger)
 
-	var heightResp heightResponseWrapper
-	url := fmt.Sprintf(heightURLPattern, *rpcHost)
-	res, err := client.Get(url)
+	// db
+	_ = logger.Log("bitcask DB", *dbPath)
+	bitcaskDB, err := bitcask.Open(*dbPath)
 	if err != nil {
+		_ = logger.Log("ERROR opening database")
 		panic(err)
 	}
+	defer func(bitcaskDB *bitcask.Bitcask) {
+		err := bitcaskDB.Close()
+		if err != nil {
+			_ = logger.Log("ERROR closing database")
+		}
+	}(bitcaskDB)
+	blockTimesRepo := db.NewBlockTimesRepo(bitcaskDB)
 
-	respB, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		panic(err)
-	}
+	// provider + service
+	prv := pocket.NewPocketProvider(httpClient, *pocketRpcURL, blockTimesRepo)
+	pocketProvider := prv.WithLogger(logger)
+	nodeSvc := monitoring.NewService(pocketProvider)
 
-	if err := json.Unmarshal(respB, &heightResp); err != nil {
-		panic(err)
-	}
-	maxHeight := int(heightResp.Data.Height)
+	height, err := nodeSvc.Height()
+	maxHeight := int(height)
 
 	for i := 1; i <= maxHeight; i++ {
-
 		thisBatchSize := batchSize
 		numLeft := maxHeight - i
 		if numLeft < batchSize {
@@ -63,26 +69,14 @@ func main() {
 
 		fmt.Printf("This batch size: %d\n", thisBatchSize)
 
-		var req blockTimesRequest
-		req.Heights = make([]uint, thisBatchSize)
+		heights := make([]uint, thisBatchSize)
 		for j := 0; j < thisBatchSize; j++ {
-			req.Heights[j] = uint(i + j)
+			heights[j] = uint(i + j)
 		}
 
-		fmt.Printf("fetching blocks %v\n", req)
-		jsonData, err := json.Marshal(req)
-		if err != nil {
+		fmt.Printf("fetching blocks %v\n", heights)
+		if _, err := nodeSvc.BlockTimes(heights); err != nil {
 			panic(err)
-		}
-
-		url := fmt.Sprintf(blockTimesURLPattern, *rpcHost)
-		res, err := client.Post(url, jsonrpc.ContentType, bytes.NewBuffer(jsonData))
-		if err != nil {
-			panic(err)
-		}
-
-		if res.StatusCode != http.StatusOK {
-			panic(fmt.Sprintf("Got bad response %d: %s", res.StatusCode, res.Status))
 		}
 
 		i = i + batchSize - 1
