@@ -1,56 +1,58 @@
 import * as React from "react"
 import {useState} from "react"
-import {Box, Button, ChakraProvider, Flex, Heading, HStack, Input} from "@chakra-ui/react"
-import {ColorModeSwitcher} from "./ColorModeSwitcher"
+import {Box, ChakraProvider, Flex, HStack} from "@chakra-ui/react"
+import {BrowserRouter as Router, Route, Routes} from "react-router-dom";
 import theme from "./theme";
-import AccountBalance from "./AccountBalance";
-import MonthlyRewards from "./MonthlyRewards";
-import {BrowserRouter as Router, Route, Routes, useParams} from "react-router-dom";
-
-interface RewardsProps {
-    address?: string
-}
-const Rewards = (props: RewardsProps) => {
-    let { address } = useParams();
-    return (
-        <Box textAlign="center" fontSize="xl">
-            <Flex direction={"column"} className={"outer-grid"} minH="100vh" p={3}>
-                <ColorModeSwitcher alignSelf="flex-end"/>
-                <AccountBalance address={address ?? ""}/>
-                <MonthlyRewards address={address ?? ""}/>
-            </Flex>
-        </Box>
-    )
-}
-
-const Home = () => {
-    const [nodeId, setNodeId] = useState("")
-
-    return (
-        <Box w={"100%"} h={"100vh"}>
-            <Heading p={40} align={"center"}>POKT Calculator</Heading>
-            <HStack p={40} pt={20}>
-                <Input name="node_id" placeholder={"node id"} value={nodeId} onChange={(e) => {setNodeId(e.target.value)}}/>
-                <Button onClick={() => {
-                    if(nodeId !== "") {
-                        window.location.href = `/node/${nodeId}/rewards`;
-                    }
-                }}>View</Button>
-            </HStack>
-        </Box>
-    )
-}
+import {NodeContext} from "./node-context";
+import {CryptoNode} from "./types/crypto-node";
+import {ColorModeSwitcher} from "./components/ColorModeSwitcher";
+import {Home} from "./components/Home";
+import {HomeButton} from "./components/HomeButton";
+import {Rewards} from "./components/Rewards";
+import {NodeStatus} from "./components/NodeStatus";
 
 export const App = () => {
+    const defaultNode: CryptoNode = {
+        exists: false,
+        address: "",
+        balance: 0,
+        chains: [],
+        isJailed: true,
+        stakedBalance: 0,
+    }
+
+    const [node, setNode] = useState(defaultNode)
+
     return (
         <ChakraProvider theme={theme}>
-            <Router>
-                <Routes>
-                    <Route path={"/node/:address/rewards"} element={(<Rewards/>)}/>
-                    <Route path={"/"} element={(<Home/>)}/>
-                </Routes>
+            <NodeContext.Provider value={node}>
+                <Flex direction={"column"} className={"outer-grid"} minH="100vh" w="100%" p={3}>
+                    <HStack justifyContent={"space-between"}>
+                        {window.location.pathname === "/" ? (
+                            <Box/>
+                        ) : (
+                            <HomeButton alignSelf="flex-start"/>
+                        )}
+                        {window.location.pathname === "/" ? (
+                            <Box/>
+                        ) : (
+                            <NodeStatus />
+                        )}
+                        <ColorModeSwitcher _focus={{boxShadow: "none"}} alignSelf="flex-end"/>
+                    </HStack>
+                    <Router>
+                        <Routes>
+                            <Route
+                                path={"/node/:address/rewards"}
+                                element={(
+                                    <Rewards onNodeLoaded={setNode}/>
+                                )}/>
+                            <Route path={"/"} element={(<Home/>)}/>
+                        </Routes>
 
-            </Router>
+                    </Router>
+                </Flex>
+            </NodeContext.Provider>
         </ChakraProvider>
     )
 }
