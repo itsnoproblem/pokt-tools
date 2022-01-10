@@ -21,7 +21,7 @@ services:
       context: ./ui
     environment:
       # Update the url below
-      RPC_URL: http://YOUR-PUBLIC-IP-OR-HOSTNAME:7878
+      RPC_URL: http://127.0.0.1:7878
     ports:
     - 4444:80
 volumes:

@@ -9,75 +9,21 @@ import {
     GridItem,
     HStack,
     Text,
-    useClipboard,
     useColorModeValue
 } from "@chakra-ui/react";
-import {useCallback, useEffect, useState} from "react";
+import {useCallback, useContext, useEffect, useState} from "react";
 import axios from "axios";
-import {CheckIcon, CopyIcon} from "@chakra-ui/icons";
+import {NodeContext} from "../node-context";
+import {MonthlyReward} from "../types/monthly-reward";
+import {RewardTransaction} from "./RewardTransaction";
 
 declare const window: any;
 
-type Transaction = {
-    hash: string,
-    height: number,
-    time: string,
-    type: string,
-    chain_id: string,
-    num_proofs: number
-}
-
-type MonthlyReward = {
-    year: number,
-    month: number,
-    num_relays: number,
-    pokt_amount: number,
-    transactions: Array<Transaction>
-}
-
-interface RewardTransactionProps {
-    tx: Transaction
-    color: string
-}
-
-const RewardTransaction = (props: RewardTransactionProps) => {
-    const tx = props.tx;
-    const numProofs = tx.num_proofs;
-    const description = numProofs + " relays on [" + tx.chain_id + "]";
-    const amount = Number(numProofs?.valueOf() * 0.0089).toFixed(4) + " POKT";
-    const {hasCopied, onCopy} = useClipboard(tx.hash);
-    const time = new Date(tx.time);
-
-    return (
-        <>
-            <GridItem padding={2} backgroundColor={props.color} align="left" pl={4}>{tx.height}</GridItem>
-            <GridItem padding={2} backgroundColor={props.color}>
-                <Box>
-                    {time.toLocaleString()}
-                </Box>
-            </GridItem>
-            <GridItem padding={2} backgroundColor={props.color}>
-                <Text title={tx.hash}>
-                    {tx.hash.substring(0, 6)}...{tx.hash.substring(tx.hash.length - 4, tx.hash.length)}&nbsp;
-                    {hasCopied && <CheckIcon/>}
-                    {!hasCopied && <CopyIcon  onClick={onCopy} cursor={"pointer"}/>}
-                </Text>
-            </GridItem>
-            <GridItem padding={2} backgroundColor={props.color}>{tx.type}</GridItem>
-            <GridItem padding={2} backgroundColor={props.color} align={"right"}>{amount}</GridItem>
-            <GridItem padding={2} backgroundColor={props.color} pr={4} align={"right"}>{description}</GridItem>
-        </>
-    )
-}
-
-interface MonthlyRewardsProps {
-    address: string
-}
-
-const MonthlyRewards = (props: MonthlyRewardsProps) => {
+export const MonthlyRewards = () => {
     const [months, setMonths] = useState([]);
     const [rpcUrl, setRpcUrl] = useState("");
     const [hasLoaded, setHasLoaded] = useState(false);
+    const node = useContext(NodeContext)
 
     const getRewards = useCallback(() => {
         if(rpcUrl === "") {
@@ -89,7 +35,7 @@ const MonthlyRewards = (props: MonthlyRewardsProps) => {
             console.log(result);
             setHasLoaded(true);
         }).catch((err) => {
-            console.error(err);
+            console.error("ERROR", err);
             setHasLoaded(true);
         });
     },[rpcUrl]);
@@ -111,17 +57,17 @@ const MonthlyRewards = (props: MonthlyRewardsProps) => {
 
     useEffect(() => {
         if(!hasLoaded) {
-            const url = `${window._env_.RPC_URL}/node/${props.address}/rewards`;
+            const url = `${window._env_.RPC_URL}/node/${node.address}/rewards`;
             setRpcUrl(url);
             getRewards();
         }
-    },  [hasLoaded, props.address, getRewards]);
+    },  [hasLoaded, node.address, getRewards]);
 
     const bgOdd = useColorModeValue("gray.200", "gray.800");
     const bgEven = useColorModeValue("gray.50", "gray.700");
 
     return (
-        <Accordion allowMultiple>
+        <Accordion allowMultiple w={"100%"}>
             {months.map((month: MonthlyReward, i) => {
                 return (
                     <AccordionItem key={i.toString()}>
@@ -129,8 +75,8 @@ const MonthlyRewards = (props: MonthlyRewardsProps) => {
                             <AccordionButton>
                                 <Box flex='1'>
                                     <HStack>
-                                        <Box pl={8} textAlign='left'>{monthNames[month.month]} {month.year}</Box>
-                                        <Box pr={8} flexGrow={1} textAlign='right'>
+                                        <Box pl={[1,8]} textAlign='left'>{monthNames[month.month]} {month.year}</Box>
+                                        <Box pr={[2,8]} flexGrow={1} textAlign='right'>
                                             {month.pokt_amount} <Text d="inline" fontSize={"xs"} textTransform={"uppercase"}>pokt</Text>
                                         </Box>
                                     </HStack>
@@ -161,5 +107,3 @@ const MonthlyRewards = (props: MonthlyRewardsProps) => {
         </Accordion>
     )
 }
-
-export default MonthlyRewards
