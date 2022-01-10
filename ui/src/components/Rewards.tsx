@@ -21,7 +21,7 @@ export const Rewards = (props: RewardsProps) => {
     }
 
     return (
-        <Flex direction="column" className="outer-grid" minH="100vh" w="100vw" p={[1, 3]}>
+        <Flex direction="column" className="outer-grid" minH="100vh" w={["100vw", "100%"]} p={[1, 3]}>
             {node.address && (
             <>
                 <AppStatus onNodeLoaded={props.onNodeLoaded}/>
