@@ -67,7 +67,7 @@ export const MonthlyRewards = () => {
     const bgEven = useColorModeValue("gray.50", "gray.700");
 
     return (
-        <Accordion allowMultiple>
+        <Accordion allowMultiple w={"100%"}>
             {months.map((month: MonthlyReward, i) => {
                 return (
                     <AccordionItem key={i.toString()}>
@@ -75,8 +75,8 @@ export const MonthlyRewards = () => {
                             <AccordionButton>
                                 <Box flex='1'>
                                     <HStack>
-                                        <Box pl={8} textAlign='left'>{monthNames[month.month]} {month.year}</Box>
-                                        <Box pr={8} flexGrow={1} textAlign='right'>
+                                        <Box pl={[1,8]} textAlign='left'>{monthNames[month.month]} {month.year}</Box>
+                                        <Box pr={[2,8]} flexGrow={1} textAlign='right'>
                                             {month.pokt_amount} <Text d="inline" fontSize={"xs"} textTransform={"uppercase"}>pokt</Text>
                                         </Box>
                                     </HStack>
