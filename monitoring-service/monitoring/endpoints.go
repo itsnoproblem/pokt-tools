@@ -3,6 +3,7 @@ package monitoring
 import (
 	"context"
 	"fmt"
+	"monitoring-service/pocket"
 	"sort"
 	"time"
 
@@ -43,8 +44,14 @@ type monthlyRewardsResponse struct {
 	Month         uint                  `json:"month"`
 	NumRelays     uint                  `json:"num_relays"`
 	PoktAmount    float64               `json:"pokt_amount"`
-	RelaysByChain map[string]uint       `json:"relays_by_chain"`
+	RelaysByChain []relaysByChain       `json:"relays_by_chain"`
 	Transactions  []transactionResponse `json:"transactions"`
+}
+
+type relaysByChain struct {
+	Chain     string `json:"chain"`
+	Name      string `json:"name"`
+	NumRelays uint   `json:"num_relays"`
 }
 
 func MonthlyRewardsEndpoint(svc Service) endpoint.Endpoint {
@@ -72,16 +79,17 @@ func MonthlyRewardsEndpoint(svc Service) endpoint.Endpoint {
 				Month:         month.Month,
 				NumRelays:     month.TotalProofs,
 				PoktAmount:    month.PoktAmount(),
-				RelaysByChain: make(map[string]uint),
+				RelaysByChain: make([]relaysByChain, 0),
 				Transactions:  make([]transactionResponse, len(month.Transactions)),
 			}
 
+			byChain := make(map[string]uint, 0)
 			for j, tx := range month.Transactions {
-				if _, isSet := resp[i].RelaysByChain[tx.ChainID]; !isSet {
-					resp[i].RelaysByChain[tx.ChainID] = 0
+				if _, isSet := byChain[tx.ChainID]; !isSet {
+					byChain[tx.ChainID] = 0
 				}
 
-				resp[i].RelaysByChain[tx.ChainID] += tx.NumProofs
+				byChain[tx.ChainID] += tx.NumProofs
 				resp[i].Transactions[j] = transactionResponse{
 					Hash:      tx.Hash,
 					Height:    tx.Height,
@@ -90,6 +98,22 @@ func MonthlyRewardsEndpoint(svc Service) endpoint.Endpoint {
 					ChainID:   tx.ChainID,
 					NumProofs: tx.NumProofs,
 				}
+			}
+
+			for ch, num := range byChain {
+				byChainResp := relaysByChain{
+					Chain:     ch,
+					NumRelays: num,
+				}
+
+				chain, err := pocket.ChainFromID(ch)
+				if err != nil {
+					byChainResp.Name = ch
+				} else {
+					byChainResp.Name = chain.Name
+				}
+
+				resp[i].RelaysByChain = append(resp[i].RelaysByChain, byChainResp)
 			}
 			i++
 		}

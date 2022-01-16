@@ -7,15 +7,24 @@ import {
     Box,
     Grid,
     GridItem,
-    HStack, Spacer, Tab, TabList, TabPanel, TabPanels, Tabs,
-    Text, useBreakpointValue,
+    HStack, SimpleGrid,
+    Spacer, Stack,
+    Tab,
+    TabList,
+    TabPanel,
+    TabPanels,
+    Tabs,
+    Text, Tooltip,
+    useBreakpointValue,
     useColorModeValue
 } from "@chakra-ui/react";
+
 import {useCallback, useContext, useEffect, useState} from "react";
 import axios from "axios";
 import {NodeContext} from "../node-context";
 import {MonthlyReward} from "../types/monthly-reward";
 import {RewardTransaction} from "./RewardTransaction";
+import {PieChart} from "./PieChart";
 
 declare const window: any;
 
@@ -33,7 +42,7 @@ export const MonthlyRewards = () => {
 
         axios.get(rpcUrl).then((result) => {
             setMonths(result.data.data);
-            console.log(result);
+            console.log("month result", result);
             setHasLoaded(true);
         }).catch((err) => {
             console.error("ERROR", err);
@@ -67,9 +76,25 @@ export const MonthlyRewards = () => {
     const bgOdd = useColorModeValue("gray.200", "gray.800");
     const bgEven = useColorModeValue("gray.50", "gray.700");
 
+    const relaysByChain = useCallback((month) => {
+        let data = [];
+
+        for(let i = 0; i < month.relays_by_chain.length; i++) {
+            data[i] = {
+                id: month.relays_by_chain[i].name,
+                label: month.relays_by_chain[i].name,
+                value: month.relays_by_chain[i].num_relays,
+            };
+        }
+        return data.sort((i, j) => {
+            return (i.value < j.value) ? 1 : -1;
+        });
+    }, []);
+
     return (
         <Accordion allowMultiple w={"100%"}>
             {months.map((month: MonthlyReward, i) => {
+                const relays = relaysByChain(month)
                 return (
                     <AccordionItem key={i.toString()}>
                         <h2>
@@ -94,7 +119,30 @@ export const MonthlyRewards = () => {
                                     <Tab>Transactions</Tab>
                                 </TabList>
                                 <TabPanels>
-                                    <TabPanel>0101010101</TabPanel>
+                                    <TabPanel minHeight={"400px"}>
+                                        <Stack direction={["column", "row"]}>
+                                            <Box w={["100%", "100%"]} height={"400px"} color={"gray.50"}>
+                                                <PieChart data={relays}/>
+                                            </Box>
+                                            <Box w={["100%", "100%"]}>
+                                                <SimpleGrid columns={3} mt={8}>
+                                                    <Box padding={3} backgroundColor={"blue.900"}>Chain</Box>
+                                                    <Box padding={3} backgroundColor={"blue.900"} align={"right"}>Relays</Box>
+                                                    <Box padding={3} backgroundColor={"blue.900"} align={"right"}>Percent</Box>
+                                                    { relays.map((r) => {
+                                                        return (
+                                                            <>
+                                                                <Box padding={3}>{r.id}</Box>
+                                                                <Box padding={3} align={"right"}>{Number(r.value).toLocaleString()}</Box>
+                                                                <Box padding={3} align={"right"}>{Number((r.value/month.num_relays)*100).toPrecision(4)}%</Box>
+                                                            </>
+                                                        )
+                                                    })}
+                                                </SimpleGrid>
+                                            </Box>
+                                        </Stack>
+
+                                    </TabPanel>
                                     <TabPanel>
                                         <Grid templateColumns='repeat(6, 1fr)' gap={0} fontFamily={"monospace"} fontSize={"xs"} p={5}>
                                             <GridItem padding={2} fontWeight={900} align="left" pl={4}>Height</GridItem>
