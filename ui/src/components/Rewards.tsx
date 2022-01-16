@@ -12,7 +12,7 @@ interface RewardsProps {
 }
 
 export const Rewards = (props: RewardsProps) => {
-   const node = useContext(NodeContext)
+    const node = useContext(NodeContext)
     const {address} = useParams();
     console.log(`Got ${address} from params`);
     if(address !== "") {

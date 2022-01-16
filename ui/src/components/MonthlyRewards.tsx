@@ -7,8 +7,8 @@ import {
     Box,
     Grid,
     GridItem,
-    HStack,
-    Text,
+    HStack, Spacer, Tab, TabList, TabPanel, TabPanels, Tabs,
+    Text, useBreakpointValue,
     useColorModeValue
 } from "@chakra-ui/react";
 import {useCallback, useContext, useEffect, useState} from "react";
@@ -24,6 +24,7 @@ export const MonthlyRewards = () => {
     const [rpcUrl, setRpcUrl] = useState("");
     const [hasLoaded, setHasLoaded] = useState(false);
     const node = useContext(NodeContext)
+    const isMobile = useBreakpointValue([false, true]);
 
     const getRewards = useCallback(() => {
         if(rpcUrl === "") {
@@ -75,7 +76,9 @@ export const MonthlyRewards = () => {
                             <AccordionButton>
                                 <Box flex='1'>
                                     <HStack>
-                                        <Box pl={[1,8]} textAlign='left'>{monthNames[month.month]} {month.year}</Box>
+                                        <Box pl={[1,8]} w={["200px", "200px"]} textAlign='left'>{monthNames[month.month]} {month.year}</Box>
+                                        <Spacer/>
+                                        { isMobile && (<Box flexGrow={1} textAlign={"right"}>{Number(month.num_relays).toLocaleString()} relays</Box>) }
                                         <Box pr={[2,8]} flexGrow={1} textAlign='right'>
                                             {month.pokt_amount} <Text d="inline" fontSize={"xs"} textTransform={"uppercase"}>pokt</Text>
                                         </Box>
@@ -85,21 +88,32 @@ export const MonthlyRewards = () => {
                             </AccordionButton>
                         </h2>
                         <AccordionPanel pb={4}>
-                            <Grid templateColumns='repeat(6, 1fr)' gap={0} fontFamily={"monospace"} fontSize={"xs"} p={5}>
-                                <GridItem padding={2} fontWeight={900} align="left" pl={4}>Height</GridItem>
-                                <GridItem padding={2} fontWeight={900}>Time</GridItem>
-                                <GridItem padding={2} fontWeight={900}>Hash</GridItem>
-                                <GridItem padding={2} fontWeight={900}>Tx Type</GridItem>
-                                <GridItem padding={2} fontWeight={900} align={"right"} >Amount</GridItem>
-                                <GridItem padding={2} fontWeight={900} pr={4} align={"right"}>Description</GridItem>
+                            <Tabs>
+                                <TabList>
+                                    <Tab>Metrics</Tab>
+                                    <Tab>Transactions</Tab>
+                                </TabList>
+                                <TabPanels>
+                                    <TabPanel>0101010101</TabPanel>
+                                    <TabPanel>
+                                        <Grid templateColumns='repeat(6, 1fr)' gap={0} fontFamily={"monospace"} fontSize={"xs"} p={5}>
+                                            <GridItem padding={2} fontWeight={900} align="left" pl={4}>Height</GridItem>
+                                            <GridItem padding={2} fontWeight={900}>Time</GridItem>
+                                            <GridItem padding={2} fontWeight={900}>Hash</GridItem>
+                                            <GridItem padding={2} fontWeight={900}>Tx Type</GridItem>
+                                            <GridItem padding={2} fontWeight={900} align={"right"} >Amount</GridItem>
+                                            <GridItem padding={2} fontWeight={900} pr={4} align={"right"}>Description</GridItem>
 
-                                {month.transactions.slice(0).reverse().map((tx, j) => {
-                                    const rowColor = (j % 2 === 0) ? bgEven : bgOdd;
-                                    return (
-                                        <RewardTransaction key={tx.hash} tx={tx} color={rowColor}/>
-                                    )
-                                })}
-                            </Grid>
+                                            {month.transactions.slice(0).reverse().map((tx, j) => {
+                                                const rowColor = (j % 2 === 0) ? bgEven : bgOdd;
+                                                return (
+                                                    <RewardTransaction key={tx.hash} tx={tx} color={rowColor}/>
+                                                )
+                                            })}
+                                        </Grid>
+                                    </TabPanel>
+                                </TabPanels>
+                            </Tabs>
                         </AccordionPanel>
                     </AccordionItem>
                 )

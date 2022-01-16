@@ -39,11 +39,12 @@ type monthlyRewardsRequest struct {
 }
 
 type monthlyRewardsResponse struct {
-	Year         uint                  `json:"year"`
-	Month        uint                  `json:"month"`
-	NumRelays    uint                  `json:"num_relays"`
-	PoktAmount   float64               `json:"pokt_amount"`
-	Transactions []transactionResponse `json:"transactions"`
+	Year          uint                  `json:"year"`
+	Month         uint                  `json:"month"`
+	NumRelays     uint                  `json:"num_relays"`
+	PoktAmount    float64               `json:"pokt_amount"`
+	RelaysByChain map[string]uint       `json:"relays_by_chain"`
+	Transactions  []transactionResponse `json:"transactions"`
 }
 
 func MonthlyRewardsEndpoint(svc Service) endpoint.Endpoint {
@@ -67,14 +68,20 @@ func MonthlyRewardsEndpoint(svc Service) endpoint.Endpoint {
 		i := 0
 		for _, month := range months {
 			resp[i] = monthlyRewardsResponse{
-				Year:         month.Year,
-				Month:        month.Month,
-				NumRelays:    month.TotalProofs,
-				PoktAmount:   month.PoktAmount(),
-				Transactions: make([]transactionResponse, len(month.Transactions)),
+				Year:          month.Year,
+				Month:         month.Month,
+				NumRelays:     month.TotalProofs,
+				PoktAmount:    month.PoktAmount(),
+				RelaysByChain: make(map[string]uint),
+				Transactions:  make([]transactionResponse, len(month.Transactions)),
 			}
 
 			for j, tx := range month.Transactions {
+				if _, isSet := resp[i].RelaysByChain[tx.ChainID]; !isSet {
+					resp[i].RelaysByChain[tx.ChainID] = 0
+				}
+
+				resp[i].RelaysByChain[tx.ChainID] += tx.NumProofs
 				resp[i].Transactions[j] = transactionResponse{
 					Hash:      tx.Hash,
 					Height:    tx.Height,

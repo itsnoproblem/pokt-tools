@@ -74,11 +74,12 @@ func main() {
 			heights[j] = uint(i + j)
 		}
 
-		fmt.Printf("fetching blocks %v\n", heights)
-		if _, err := nodeSvc.BlockTimes(heights); err != nil {
-			panic(err)
-		}
-
+		(func() {
+			if _, err := nodeSvc.BlockTimes(heights); err != nil {
+				fmt.Sprintf("ERROR: %s", err)
+			}
+			fmt.Printf("fetching blocks %v\n", heights)
+		})()
 		i = i + batchSize - 1
 	}
 }
