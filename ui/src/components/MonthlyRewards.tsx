@@ -49,7 +49,7 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
 
         axios.get(rpcUrl).then((result) => {
             props.onRewardsLoaded(result.data.data);
-            console.log("month result", result);
+            console.log("months result", result.data.data);
             setHasLoaded(true);
         }).catch((err) => {
             console.error("ERROR", err);

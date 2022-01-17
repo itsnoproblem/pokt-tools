@@ -31,9 +31,7 @@ export const AppStatus = (props: NodeStatusProps) => {
                 if(txDate.getTime() >= pastDate.getTime()) {
                     thirtyDayTotal += t.num_proofs;
                 }
-                return true;
             });
-            return true;
         });
 
         return Math.round((thirtyDayTotal/numDays) * 0.0089);
@@ -78,9 +76,13 @@ export const AppStatus = (props: NodeStatusProps) => {
         }
     }, [address, hasLoaded, props, updateBalance, props.rewards])
 
-    const sortedRewards = props.rewards.sort((i, j) => {
+    const sortedRewards = props.rewards; /*.sort((i, j) => {
         return (i.num_relays < j.num_relays) ? 1 : -1;
-    });
+    });*/
+
+    const sortedByChain = sortedRewards[0] !== undefined ? sortedRewards[0].relays_by_chain.sort((a, b) => {
+        return (a.num_relays > b.num_relays) ? -1 : 1;
+    }) : [];
 
     return(
         <HStack mt={4} mb={8} ml={'auto'} mr={'auto'} p={0}>
@@ -89,8 +91,8 @@ export const AppStatus = (props: NodeStatusProps) => {
                     <Box  p={5} minWidth={"185px"} borderWidth={1} borderRadius={20} borderColor={"gray.50"}>
                         <Stat align={"center"}>
                             <StatLabel>Top Chain This Month</StatLabel>
-                            <StatNumber>{sortedRewards[0]?.relays_by_chain[0]?.num_relays?.toLocaleString()}</StatNumber>
-                            <StatHelpText>{sortedRewards[0]?.relays_by_chain[0]?.name}</StatHelpText>
+                            <StatNumber>{sortedByChain[0]?.num_relays?.toLocaleString()}</StatNumber>
+                            <StatHelpText>{sortedByChain[0]?.name}</StatHelpText>
                         </Stat>
                     </Box>
                     <Box  p={5} minWidth={"185px"}>
