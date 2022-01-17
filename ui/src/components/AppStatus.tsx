@@ -78,6 +78,10 @@ export const AppStatus = (props: NodeStatusProps) => {
         }
     }, [address, hasLoaded, props, updateBalance, props.rewards])
 
+    const sortedRewards = props.rewards.sort((i, j) => {
+        return (i.num_relays < j.num_relays) ? 1 : -1;
+    });
+
     return(
         <HStack mt={4} mb={8} ml={'auto'} mr={'auto'} p={0}>
             {isMobile && (
@@ -85,8 +89,8 @@ export const AppStatus = (props: NodeStatusProps) => {
                     <Box  p={5} minWidth={"185px"} borderWidth={1} borderRadius={20} borderColor={"gray.50"}>
                         <Stat align={"center"}>
                             <StatLabel>Top Chain This Month</StatLabel>
-                            <StatNumber>{props.rewards[0]?.relays_by_chain[0]?.num_relays?.toLocaleString()}</StatNumber>
-                            <StatHelpText>{props.rewards[0]?.relays_by_chain[0]?.name}</StatHelpText>
+                            <StatNumber>{sortedRewards[0]?.relays_by_chain[0]?.num_relays?.toLocaleString()}</StatNumber>
+                            <StatHelpText>{sortedRewards[0]?.relays_by_chain[0]?.name}</StatHelpText>
                         </Stat>
                     </Box>
                     <Box  p={5} minWidth={"185px"}>

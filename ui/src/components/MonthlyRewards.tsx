@@ -83,7 +83,7 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
     const bgOdd = useColorModeValue("gray.200", "gray.800");
     const bgEven = useColorModeValue("gray.50", "gray.700");
 
-    const relaysByChain = useCallback((month) => {
+    const relaysByChain = useCallback((month: MonthlyReward) => {
         let data = [];
 
         for(let i = 0; i < month.relays_by_chain.length; i++) {
