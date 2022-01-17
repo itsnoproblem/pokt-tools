@@ -33,4 +33,4 @@ do
   echo "  $varname: \"$value\"," >> ./env-config.js
 done < $ENVFILE
 
-echo "}" >> ./env-config.js &&  cp ./env-config.js ./public/
+echo "}" >> ./env-config.js
