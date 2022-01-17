@@ -7,14 +7,16 @@ import {
     Box,
     Grid,
     GridItem,
-    HStack, SimpleGrid,
-    Spacer, Stack,
+    HStack,
+    SimpleGrid,
+    Spacer,
+    Stack,
     Tab,
     TabList,
     TabPanel,
     TabPanels,
     Tabs,
-    Text, Tooltip,
+    Text,
     useBreakpointValue,
     useColorModeValue
 } from "@chakra-ui/react";
@@ -28,8 +30,13 @@ import {PieChart} from "./PieChart";
 
 declare const window: any;
 
-export const MonthlyRewards = () => {
-    const [months, setMonths] = useState([]);
+type MonthlyRewardsProps = {
+    rewards: MonthlyReward[],
+    onRewardsLoaded: (r: MonthlyReward[]) => void,
+}
+
+export const MonthlyRewards = (props: MonthlyRewardsProps) => {
+    // const [months, setMonths] = useState([]);
     const [rpcUrl, setRpcUrl] = useState("");
     const [hasLoaded, setHasLoaded] = useState(false);
     const node = useContext(NodeContext)
@@ -41,14 +48,14 @@ export const MonthlyRewards = () => {
         }
 
         axios.get(rpcUrl).then((result) => {
-            setMonths(result.data.data);
+            props.onRewardsLoaded(result.data.data);
             console.log("month result", result);
             setHasLoaded(true);
         }).catch((err) => {
             console.error("ERROR", err);
             setHasLoaded(true);
         });
-    },[rpcUrl]);
+    },[rpcUrl, props]);
 
     const monthNames: Record<number, string> = {
         1: "January",
@@ -92,15 +99,15 @@ export const MonthlyRewards = () => {
     }, []);
 
     return (
-        <Accordion allowMultiple w={"100%"}>
-            {months.map((month: MonthlyReward, i) => {
+        <Accordion allowMultiple w={["100vw", "1280px"]} ml={"auto"} mr={"auto"} mt={2}>
+            {props.rewards.map((month: MonthlyReward, i) => {
                 const relays = relaysByChain(month)
                 return (
                     <AccordionItem key={i.toString()}>
                         <h2>
                             <AccordionButton>
                                 <Box flex='1'>
-                                    <HStack>
+                                    <HStack pt={1} pb={1}>
                                         <Box pl={[1,8]} w={["200px", "200px"]} textAlign='left'>{monthNames[month.month]} {month.year}</Box>
                                         <Spacer/>
                                         { isMobile && (<Box flexGrow={1} textAlign={"right"}>{Number(month.num_relays).toLocaleString()} relays</Box>) }

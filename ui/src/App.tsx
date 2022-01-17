@@ -10,6 +10,7 @@ import {Home} from "./components/Home";
 import {HomeButton} from "./components/HomeButton";
 import {Rewards} from "./components/Rewards";
 import {NodeStatus} from "./components/NodeStatus";
+import {MonthlyReward} from "./types/monthly-reward";
 
 export const App = () => {
     const defaultNode: CryptoNode = {
@@ -21,7 +22,10 @@ export const App = () => {
         stakedBalance: 0,
     }
 
-    const [node, setNode] = useState(defaultNode)
+    let defaultRewards: MonthlyReward[] = [];
+
+    const [node, setNode] = useState(defaultNode);
+    const [rewards, setRewards] = useState(defaultRewards);
 
     return (
         <ChakraProvider theme={theme}>
@@ -45,7 +49,10 @@ export const App = () => {
                             <Route
                                 path={"/node/:address/rewards"}
                                 element={(
-                                    <Rewards onNodeLoaded={setNode}/>
+                                    <Rewards onNodeLoaded={setNode}
+                                             rewards={rewards}
+                                             onRewardsLoaded={setRewards}
+                                    />
                                 )}/>
                             <Route path={"/"} element={(<Home/>)}/>
                         </Routes>

@@ -1,6 +1,5 @@
 import {ResponsivePie} from "@nivo/pie";
 import {useBreakpointValue} from "@chakra-ui/react";
-import {auto} from "framer-motion/types/render/dom/value-types/type-auto";
 
 type PieChartProps = {
     data: any[]

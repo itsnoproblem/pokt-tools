@@ -1,24 +1,43 @@
-import {Box, VStack} from "@chakra-ui/react";
-import React, {useCallback, useContext, useEffect, useState} from "react";
+import {Box, HStack, Stat, StatHelpText, StatLabel, StatNumber, useBreakpointValue} from "@chakra-ui/react";
+import React, {useCallback, useEffect, useState} from "react";
 import axios from "axios";
 import {CryptoNode} from "../types/crypto-node";
-import {NodeContext} from "../node-context";
 import {useParams} from "react-router-dom";
+import {MonthlyReward} from "../types/monthly-reward";
 
 declare const window: any;
 
 interface NodeStatusProps {
-    onNodeLoaded: (b: CryptoNode) => void
+    onNodeLoaded: (b: CryptoNode) => void,
+    rewards: MonthlyReward[],
 }
 
 export const AppStatus = (props: NodeStatusProps) => {
     const [rpcEndpoint, setRpcEndpoint] = useState("");
-    const [lastUpdated, setLastUpdated] = useState(new Date());
     const [hasLoaded, setHasLoaded] = useState(false);
-    const node = useContext(NodeContext);
     const { address } = useParams();
+    const isMobile = useBreakpointValue({base: false, sm: true})
 
-    console.log("NODE", node);
+    const avgPoktForLastDays = (numDays: number): number => {
+        const today = new Date();
+        const pastDate = new Date();
+        pastDate.setTime(today.getTime() - (numDays * 86400 * 1000));
+        console.log(`${numDays} days ago`, pastDate.toString());
+
+        let thirtyDayTotal = 0;
+        props.rewards.map((r) => {
+            r.transactions.map((t) => {
+                const txDate = new Date(t.time);
+                if(txDate.getTime() >= pastDate.getTime()) {
+                    thirtyDayTotal += t.num_proofs;
+                }
+                return true;
+            });
+            return true;
+        });
+
+        return Math.round((thirtyDayTotal/numDays) * 0.0089);
+    }
 
     const updateBalance = useCallback(() => {
         if(rpcEndpoint === "" || address === "") {
@@ -57,11 +76,42 @@ export const AppStatus = (props: NodeStatusProps) => {
             setRpcEndpoint(rpcUrl);
             updateBalance();
         }
-    }, [address, hasLoaded, props, updateBalance])
+    }, [address, hasLoaded, props, updateBalance, props.rewards])
 
     return(
-        <VStack align={"left"} w={"100%"} fontSize={"sm"} p={4} mb={4}>
-            <Box align={"left"}></Box>
-        </VStack>
+        <HStack mt={4} mb={8} ml={'auto'} mr={'auto'} p={0}>
+            {isMobile && (
+                <>
+                    <Box  p={5} minWidth={"185px"} borderWidth={1} borderRadius={20} borderColor={"gray.50"}>
+                        <Stat align={"center"}>
+                            <StatLabel>Top Chain This Month</StatLabel>
+                            <StatNumber>{props.rewards[0]?.relays_by_chain[0]?.num_relays?.toLocaleString()}</StatNumber>
+                            <StatHelpText>{props.rewards[0]?.relays_by_chain[0]?.name}</StatHelpText>
+                        </Stat>
+                    </Box>
+                    <Box  p={5} minWidth={"185px"}>
+                        <Stat align={"center"}>
+                            <StatLabel>30 Day Average</StatLabel>
+                            <StatNumber>{avgPoktForLastDays(30)}</StatNumber>
+                            <StatHelpText>POKT per day</StatHelpText>
+                        </Stat>
+                    </Box>
+                    <Box borderWidth={1} borderRadius={20} p={5} minWidth={"185px"} borderColor={"gray.50"}>
+                        <Stat align={"center"}>
+                            <StatLabel>90 Day Average</StatLabel>
+                            <StatNumber>{avgPoktForLastDays(90)}</StatNumber>
+                            <StatHelpText>POKT per day</StatHelpText>
+                        </Stat>
+                    </Box>
+                    <Box  p={5} minWidth={"185px"}>
+                        <Stat align={"center"}>
+                            <StatLabel>120 Day Average</StatLabel>
+                            <StatNumber>{avgPoktForLastDays(120)}</StatNumber>
+                            <StatHelpText>POKT per day</StatHelpText>
+                        </Stat>
+                    </Box>
+                </>
+            )}
+        </HStack>
     )
 }
