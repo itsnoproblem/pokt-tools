@@ -1,6 +1,6 @@
 import * as React from "react"
 import {useState} from "react"
-import {Box, ChakraProvider, Flex, HStack} from "@chakra-ui/react"
+import {Box, ChakraProvider, Flex, HStack, IconButton} from "@chakra-ui/react"
 import {BrowserRouter as Router, Route, Routes} from "react-router-dom";
 import theme from "./theme";
 import {NodeContext} from "./node-context";
@@ -11,6 +11,8 @@ import {HomeButton} from "./components/HomeButton";
 import {Rewards} from "./components/Rewards";
 import {NodeStatus} from "./components/NodeStatus";
 import {MonthlyReward} from "./types/monthly-reward";
+import {Icon} from "@chakra-ui/icons";
+import {FaGithub} from "react-icons/all";
 
 export const App = () => {
     const defaultNode: CryptoNode = {
@@ -42,7 +44,24 @@ export const App = () => {
                         ) : (
                             <NodeStatus />
                         )}
-                        <ColorModeSwitcher _focus={{boxShadow: "none"}} alignSelf="flex-end"/>
+                        <Box>
+                            <ColorModeSwitcher
+                                _focus={{boxShadow: "none"}}
+                                alignSelf="flex-end"
+                            />
+                            <IconButton
+                                aria-label={"Source code"}
+                                icon={(<FaGithub/>)}
+                                onClick={() => { window.location.href="https://github.com/itsnoproblem/pokt-calculator"} }
+                                _focus={{boxShadow: "none"}}
+                                alignSelf="flex-end"
+                                size="md"
+                                fontSize="lg"
+                                variant="ghost"
+                                color="current"
+                                marginLeft="2"
+                            />
+                        </Box>
                     </HStack>
                     <Router>
                         <Routes>
