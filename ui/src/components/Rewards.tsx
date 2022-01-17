@@ -6,9 +6,12 @@ import {CryptoNode} from "../types/crypto-node";
 import {AppStatus} from "./AppStatus";
 import {MonthlyRewards} from "./MonthlyRewards";
 import {useParams} from "react-router-dom";
+import {MonthlyReward} from "../types/monthly-reward";
 
 interface RewardsProps {
     onNodeLoaded: (n: CryptoNode) => void,
+    rewards: MonthlyReward[],
+    onRewardsLoaded: (m: MonthlyReward[]) => void
 }
 
 export const Rewards = (props: RewardsProps) => {
@@ -24,8 +27,8 @@ export const Rewards = (props: RewardsProps) => {
         <Flex direction="column" className="outer-grid" minH="100vh" w={["100vw", "100%"]} p={[1, 3]}>
             {node.address && (
             <>
-                <AppStatus onNodeLoaded={props.onNodeLoaded}/>
-                <MonthlyRewards/>
+                <AppStatus rewards={props.rewards} onNodeLoaded={props.onNodeLoaded}/>
+                <MonthlyRewards rewards={props.rewards} onRewardsLoaded={props.onRewardsLoaded}/>
             </>
             )}
         </Flex>
