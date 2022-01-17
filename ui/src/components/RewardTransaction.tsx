@@ -1,10 +1,11 @@
 import {Transaction} from "../types/transaction";
 import {Box, GridItem, Text, useClipboard} from "@chakra-ui/react";
 import {CheckIcon, CopyIcon} from "@chakra-ui/icons";
+import React from 'react';
 
 interface RewardTransactionProps {
-    tx: Transaction
-    color: string
+    tx: Transaction,
+    color: string,
 }
 
 export const RewardTransaction = (props: RewardTransactionProps) => {
@@ -16,7 +17,7 @@ export const RewardTransaction = (props: RewardTransactionProps) => {
     const time = new Date(tx.time);
 
     return (
-        <>
+        <React.Fragment key={tx.hash}>
             <GridItem padding={2} backgroundColor={props.color} align="left" pl={4}>{tx.height}</GridItem>
             <GridItem padding={2} backgroundColor={props.color}>
                 <Box>
@@ -33,6 +34,6 @@ export const RewardTransaction = (props: RewardTransactionProps) => {
             <GridItem padding={2} backgroundColor={props.color}>{tx.type}</GridItem>
             <GridItem padding={2} backgroundColor={props.color} align={"right"}>{amount}</GridItem>
             <GridItem padding={2} backgroundColor={props.color} pr={4} align={"right"}>{description}</GridItem>
-        </>
+        </React.Fragment>
     )
 }

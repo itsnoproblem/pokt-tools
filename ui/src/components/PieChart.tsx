@@ -6,8 +6,9 @@ type PieChartProps = {
 }
 
 export const PieChart = (props: PieChartProps) => {
-    const margin = useBreakpointValue([{ top: 0, right: 80, bottom: 80, left: 80 }, {top: 40, right:180, bottom:80, left: 0}]);
+    const margin = useBreakpointValue([{ top: 0, right: 80, bottom: 80, left: 80 }, {top: 40, right:180, bottom:80, left: 80}]);
     const isMobile = useBreakpointValue([true, false]);
+    const legendItemWidth = useBreakpointValue([70, 90]) ?? 90
 
     return (
         <ResponsivePie
@@ -28,13 +29,13 @@ export const PieChart = (props: PieChartProps) => {
             arcLabelsTextColor={"#000"}
             legends={[
                 {
-                    anchor: isMobile ? 'bottom' : 'left',
-                    direction: 'column',
+                    anchor: isMobile ? 'bottom' : 'bottom',
+                    direction: 'row',
                     justify: false,
                     translateX: 0,
                     translateY: 56,
-                    itemsSpacing: 8,
-                    itemWidth: 100,
+                    itemsSpacing: 4,
+                    itemWidth: legendItemWidth,
                     itemHeight: 18,
                     itemTextColor: '#ccc',
                     itemDirection: 'left-to-right',
