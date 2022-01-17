@@ -1,5 +1,12 @@
 #!/bin/bash
 
+ENVFILE=$1
+
+if [ "$ENVFILE" == "" ]
+then
+	ENVFILE=.env.prod
+fi
+
 # Recreate config file
 rm -rf ./env-config.js
 touch ./env-config.js
@@ -24,6 +31,6 @@ do
 
   # Append configuration property to JS file
   echo "  $varname: \"$value\"," >> ./env-config.js
-done < .env
+done < $ENVFILE
 
 echo "}" >> ./env-config.js
