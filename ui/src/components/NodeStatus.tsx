@@ -1,7 +1,7 @@
 import {
     Box,
     Button,
-    HStack,
+    HStack, Link, LinkBox,
     Popover, PopoverBody, PopoverContent,
     PopoverTrigger,
     Spacer,
@@ -15,17 +15,39 @@ import {NodeContext} from "../node-context";
 import {useContext, useRef} from "react";
 
 export const NodeStatus = () => {
+    const metricsId = 'rewards';
+    const errorsId = 'errors';
+    let activePath = '';
+
+    const pathElements = window.location.pathname.split('/');
+    switch(pathElements[pathElements.length-1]) {
+        case metricsId:
+            activePath = metricsId;
+            break;
+        case errorsId:
+            activePath = errorsId;
+            break;
+    }
+
+    console.log("activePath", activePath)
+
     const node = useContext(NodeContext);
     const statusColor = (node.isJailed || !node.exists) ? "#FF0000"   : "#2bd950";
     const status = (node.isJailed || !node.exists) ?
         (node.exists ? "Jailed" : "Invalid address") : "Not Jailed";
-    const formattedDate = `${node.lastChecked?.toUTCString()}`;
+    const formattedDate = `${node.lastChecked?.toLocaleString()}`;
     const isMobile = useBreakpointValue({base: false, sm: true})
 
     return (
         <>
-            {isMobile && (<Box><em>Updated: {formattedDate}</em></Box>)}
+            {isMobile && (
+                <>
+                    <Button variant={activePath === metricsId ? "outline" : "ghost"} title={"Metrics"} href={`/node/${node.address}/rewards`}>Metrics</Button>
+                    <Button variant={activePath === errorsId ? "outline" : "ghost"} title={"Errors"} href={`/node/${node.address}/errors`}>Errors</Button>
+                </>
+            )}
             <Spacer/>
+            {isMobile && (<Box><em>Updated: {formattedDate}</em></Box>)}
             <Box>
                 <Popover placement={"bottom"} strategy={"fixed"}>
                     <PopoverTrigger>
@@ -46,7 +68,7 @@ export const NodeStatus = () => {
                     {node.address.substring(0,6)}...{node.address.substring(node.address.length-4, node.address.length)}
                 </Button>
                 <Button alignSelf="flex-end" colorScheme={"blue"}  borderRadius={25} borderLeftRadius={0} marginStart={0} marginInlineStart={0} ml={0} _focus={{boxShadow: "none"}}>
-                    {Number(node.balance/1000000).toFixed(4)}&nbsp;
+                    {Number(node.balance/1000000).toFixed(2)}&nbsp;
                     <Text d={"inline"} fontSize={"xs"}> POKT</Text>
                 </Button>
             </HStack>

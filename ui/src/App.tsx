@@ -1,6 +1,6 @@
 import * as React from "react"
 import {useState} from "react"
-import {Box, ChakraProvider, Flex, HStack, IconButton} from "@chakra-ui/react"
+import {Box, ChakraProvider, Flex, HStack, IconButton, useBreakpointValue} from "@chakra-ui/react"
 import {BrowserRouter as Router, Route, Routes} from "react-router-dom";
 import theme from "./theme";
 import {NodeContext} from "./node-context";
@@ -44,24 +44,24 @@ export const App = () => {
                         ) : (
                             <NodeStatus />
                         )}
-                        <Box>
+                        <HStack>
                             <ColorModeSwitcher
                                 _focus={{boxShadow: "none"}}
                                 alignSelf="flex-end"
                             />
                             <IconButton
-                                aria-label={"Source code"}
-                                icon={(<FaGithub/>)}
-                                onClick={() => { window.location.href="https://github.com/itsnoproblem/pokt-calculator"} }
-                                _focus={{boxShadow: "none"}}
-                                alignSelf="flex-end"
-                                size="md"
-                                fontSize="lg"
-                                variant="ghost"
-                                color="current"
-                                marginLeft="2"
+                                    aria-label={"Source code"}
+                                    icon={(<FaGithub/>)}
+                                    onClick={() => { window.location.href="https://github.com/itsnoproblem/pokt-calculator"} }
+                                    _focus={{boxShadow: "none"}}
+                                    alignSelf="flex-end"
+                                    size="md"
+                                    fontSize="lg"
+                                    variant="ghost"
+                                    color="current"
+                                    marginLeft="2"
                             />
-                        </Box>
+                        </HStack>
                     </HStack>
                     <Router>
                         <Routes>

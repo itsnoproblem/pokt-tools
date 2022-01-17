@@ -38,7 +38,7 @@ export const AppStatus = (props: NodeStatusProps) => {
         if(numDays > 0) {
             relays = (total/numDays);
         }
-        
+
         return Math.round(relays * 0.0089);
     }
 
@@ -121,7 +121,7 @@ export const AppStatus = (props: NodeStatusProps) => {
                             <StatHelpText>POKT per day</StatHelpText>
                         </Stat>
                     </Box>
-                    <Box  p={5} minWidth={"185px"}>
+                    <Box  p={5} minWidth={"185px"} borderWidth={1} borderRadius={20} borderColor={"gray.50"}>
                         <Stat align={"center"}>
                             <StatLabel>Today</StatLabel>
                             <StatNumber>{avgPoktForLastDays(0) ?? 0}</StatNumber>
