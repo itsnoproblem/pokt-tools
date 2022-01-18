@@ -245,6 +245,7 @@ type nodeRequest struct {
 
 type nodeResponse struct {
 	Address           string          `json:"address"`
+	Pubkey            string          `json:"pubkey"`
 	Balance           uint            `json:"balance"`
 	StakedBalance     string          `json:"staked_balance"`
 	IsJailed          bool            `json:"is_jailed"`
@@ -287,6 +288,7 @@ func NodeEndpoint(svc Service) endpoint.Endpoint {
 		return nodeResponse{
 			Address:           node.Address,
 			Balance:           node.Balance,
+			Pubkey:            node.Pubkey,
 			StakedBalance:     node.StakedBalance,
 			IsJailed:          node.IsJailed,
 			Chains:            chains,

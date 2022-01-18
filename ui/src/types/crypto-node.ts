@@ -6,6 +6,7 @@ export type CryptoNode = {
     balance: number,
     chains: Array<Chain>,
     isJailed: boolean,
+    pubkey: string,
     stakedBalance: number,
     lastChecked?: Date,
 }

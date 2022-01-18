@@ -56,6 +56,7 @@ export const NodeStatus = (props: NodeProps) => {
                     balance: result.data.data.balance,
                     chains: result.data.data.chains,
                     isJailed: result.data.data.is_jailed,
+                    pubkey: result.data.data.pubkey,
                     stakedBalance: result.data.data.staked_balance,
                 }
                 node.lastChecked = new Date();

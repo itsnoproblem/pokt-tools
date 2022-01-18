@@ -109,14 +109,12 @@ func (p pocketProvider) Node(address string) (pocket.Node, error) {
 	}
 
 	return pocket.Node{
-		Address: nodeResponse.Address,
-		//Balance:           "",
+		Address:       nodeResponse.Address,
+		Pubkey:        nodeResponse.Pubkey,
 		StakedBalance: nodeResponse.StakedBalance,
 		IsJailed:      nodeResponse.IsJailed,
 		Chains:        chains,
 		IsSynced:      false,
-		//LatestBlockHeight: 0,
-		//LatestBlockTime:   time.Time{},
 	}, nil
 }
 

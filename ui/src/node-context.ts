@@ -7,6 +7,7 @@ export const defaultNodeContext: CryptoNode = {
     balance: 0,
     chains: [],
     isJailed: true,
+    pubkey: '',
     stakedBalance: 0,
 };
 

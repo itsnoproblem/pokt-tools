@@ -19,10 +19,11 @@ import {AppHeader} from "./components/AppHeader";
 export const App = () => {
     const defaultNode: CryptoNode = {
         exists: false,
-        address: "",
+        address: '',
         balance: 0,
         chains: [],
         isJailed: true,
+        pubkey: '',
         stakedBalance: 0,
     }
 
