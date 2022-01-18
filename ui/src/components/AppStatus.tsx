@@ -7,22 +7,21 @@ import {MonthlyReward} from "../types/monthly-reward";
 
 declare const window: any;
 
-interface NodeStatusProps {
-    onNodeLoaded: (b: CryptoNode) => void,
+interface AppStatusProps {
+    // onNodeLoaded: (b: CryptoNode) => void,
     rewards: MonthlyReward[],
 }
 
-export const AppStatus = (props: NodeStatusProps) => {
-    const [rpcEndpoint, setRpcEndpoint] = useState("");
-    const [hasLoaded, setHasLoaded] = useState(false);
-    const { address } = useParams();
+export const AppStatus = (props: AppStatusProps) => {
+    // const [rpcEndpoint, setRpcEndpoint] = useState("");
+    // const [hasLoaded, setHasLoaded] = useState(false);
+    // const { address } = useParams();
     const isMobile = useBreakpointValue({base: false, sm: true})
 
     const avgPoktForLastDays = (numDays: number): number => {
         const today = new Date();
         const pastDate = new Date();
         pastDate.setTime(today.getTime() - (numDays * 86400 * 1000));
-        console.log(`${numDays} days ago`, pastDate.toString());
 
         let total = 0;
         props.rewards.map((r) => {
@@ -42,44 +41,44 @@ export const AppStatus = (props: NodeStatusProps) => {
         return Math.round(relays * 0.0089);
     }
 
-    const updateBalance = useCallback(() => {
-        if(rpcEndpoint === "" || address === "") {
-            return;
-        }
-        
-        axios.get(rpcEndpoint)
-            .then(async (result) => {
-                console.log("Node status result", result);
-
-                const node: CryptoNode = {
-                    exists: result.data.data.address !== "",
-                    address: result.data.data.address,
-                    balance: result.data.data.balance,
-                    chains: result.data.data.chains,
-                    isJailed: result.data.data.is_jailed,
-                    stakedBalance: result.data.data.staked_balance,
-                }
-                node.lastChecked = new Date();
-                props.onNodeLoaded(node);
-
-                console.log(rpcEndpoint, node);
-                setHasLoaded(true);
-            })
-            .catch((err) => {
-                console.error(err);
-                // node.exists = false;
-                // props.onNodeLoaded(node);
-                setHasLoaded(true);
-            });
-    }, [props, address, rpcEndpoint]);
-
-    useEffect(() => {
-        if(!hasLoaded) {
-            const rpcUrl = `${window._env_.RPC_URL}/node/${address}`
-            setRpcEndpoint(rpcUrl);
-            updateBalance();
-        }
-    }, [address, hasLoaded, props, updateBalance, props.rewards])
+    // const updateBalance = useCallback(() => {
+    //     if(rpcEndpoint === "" || address === "") {
+    //         return;
+    //     }
+    //
+    //     axios.get(rpcEndpoint)
+    //         .then(async (result) => {
+    //             console.log("Node status result", result);
+    //
+    //             const node: CryptoNode = {
+    //                 exists: result.data.data.address !== "",
+    //                 address: result.data.data.address,
+    //                 balance: result.data.data.balance,
+    //                 chains: result.data.data.chains,
+    //                 isJailed: result.data.data.is_jailed,
+    //                 stakedBalance: result.data.data.staked_balance,
+    //             }
+    //             node.lastChecked = new Date();
+    //             props.onNodeLoaded(node);
+    //
+    //             console.log(rpcEndpoint, node);
+    //             setHasLoaded(true);
+    //         })
+    //         .catch((err) => {
+    //             console.error(err);
+    //             // node.exists = false;
+    //             // props.onNodeLoaded(node);
+    //             setHasLoaded(true);
+    //         });
+    // }, [props, address, rpcEndpoint]);
+    //
+    // useEffect(() => {
+    //     if(!hasLoaded) {
+    //         const rpcUrl = `${window._env_.RPC_URL}/node/${address}`
+    //         setRpcEndpoint(rpcUrl);
+    //         updateBalance();
+    //     }
+    // }, [address, hasLoaded, props, updateBalance, props.rewards])
 
     const sortedRewards = props.rewards; /*.sort((i, j) => {
         return (i.num_relays < j.num_relays) ? 1 : -1;

@@ -9,3 +9,9 @@ export type CryptoNode = {
     stakedBalance: number,
     lastChecked?: Date,
 }
+
+export interface NodeProps {
+    onNodeLoaded: (b: CryptoNode) => void,
+    node: CryptoNode,
+    address?: string,
+}
