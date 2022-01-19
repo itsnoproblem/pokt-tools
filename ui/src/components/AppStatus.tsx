@@ -22,18 +22,23 @@ export const AppStatus = (props: AppStatusProps) => {
         const today = new Date();
         const pastDate = new Date();
         pastDate.setTime(today.getTime() - (numDays * 86400 * 1000));
+        if(numDays === 0) {
+            pastDate.setHours(0, 0, 0);
+        }
 
         let total = 0;
+        let n = 0;
         props.rewards.map((r) => {
             r.transactions.map((t) => {
                 const txDate = new Date(t.time);
                 if(txDate.getTime() >= pastDate.getTime()) {
                     total += t.num_proofs;
+                    n++;
                 }
             });
         });
 
-        let relays = 0;
+        let relays = total;
         if(numDays > 0) {
             relays = (total/numDays);
         }

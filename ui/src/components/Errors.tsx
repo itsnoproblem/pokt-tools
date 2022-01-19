@@ -15,7 +15,7 @@ import {
     FormControl,
     Select,
     Spacer,
-    Flex
+    Flex, Th
 } from "@chakra-ui/react";
 
 export const Errors = () => {
@@ -71,11 +71,11 @@ export const Errors = () => {
             </Flex>
             <Table variant={"striped"} w={"100%"}>
                 <Thead>
-                    <Td>Timestamp</Td>
-                    <Td>Chain</Td>
-                    <Td>Method</Td>
-                    <Td>Code</Td>
-                    <Td>Message</Td>
+                    <Th>Timestamp</Th>
+                    <Th>Chain</Th>
+                    <Th>Method</Th>
+                    <Th>Code</Th>
+                    <Th>Message</Th>
                 </Thead>
                 <Tbody>
                 {errors.map((err, index) => {

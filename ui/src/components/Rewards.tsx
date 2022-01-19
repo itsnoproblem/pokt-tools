@@ -18,7 +18,6 @@ export const Rewards = (props: RewardsProps) => {
     const node = useContext(NodeContext)
     const params = useParams();
     const address = params["address"];
-    console.log(`--Rewards`, params);
     if(address !== "") {
         node.address = address ?? "";
         // props.onNodeLoaded(node);
