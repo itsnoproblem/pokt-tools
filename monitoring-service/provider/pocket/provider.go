@@ -145,7 +145,7 @@ func (p pocketProvider) BlockTime(height uint) (time.Time, error) {
 		return time.Time{}, fmt.Errorf("pocketProvider.BlockTime: %s", err)
 	}
 
-	cached, exists, err := p.blockTimesRepo.Get(height)
+	cached, exists, _ := p.blockTimesRepo.Get(height)
 	if exists {
 		return cached, nil
 	}

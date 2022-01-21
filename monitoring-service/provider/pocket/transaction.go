@@ -42,13 +42,38 @@ func (t *transactionResponse) Transaction() (pocket.Transaction, error) {
 		}
 	}
 
-	return pocket.Transaction{
+	tx := pocket.Transaction{
 		Hash:      t.Hash,
 		Height:    uint(t.Height),
 		Type:      t.StdTx.Message.Type,
 		ChainID:   t.StdTx.Message.Value.Header.Chain,
 		NumProofs: uint(numProofs),
-	}, nil
+	}
+
+	switch tx.Type {
+	case pocket.TypeProof:
+		sessionHeight, err := strconv.ParseUint(t.StdTx.Message.Value.Leaf.Value.SessionHeight, 10, 32)
+		if err != nil {
+			return pocket.Transaction{}, fmt.Errorf("transactionResponse.Transaction: %s", err)
+		}
+		tx.SessionHeight = uint(sessionHeight)
+		tx.AppPubkey = t.StdTx.Message.Value.Leaf.Value.AAT.AppPubkey
+		tx.ChainID = t.StdTx.Message.Value.Leaf.Value.Blockchain
+		break
+
+	case pocket.TypeClaim:
+		sessionHeight, err := strconv.ParseUint(t.StdTx.Message.Value.Header.SessionHeight, 10, 32)
+		if err != nil {
+			return pocket.Transaction{}, fmt.Errorf("transactionResponse.Transaction: %s", err)
+		}
+
+		tx.SessionHeight = uint(sessionHeight)
+		tx.ChainID = t.StdTx.Message.Value.Header.Chain
+		tx.AppPubkey = t.StdTx.Message.Value.Header.AppPubKey
+		break
+	}
+
+	return tx, nil
 }
 
 type stdTxResponse struct {
@@ -70,6 +95,22 @@ type msgValueResponse struct {
 	FromAddress string            `json:"from_address"`
 	Header      msgHeaderResponse `json:"header"`
 	TotalProofs string            `json:"total_proofs"`
+	Leaf        msgLeafResponse   `json:"leaf"`
+}
+
+type msgLeafResponse struct {
+	Type  string               `json:"type"`
+	Value msgLeafValueResponse `json:"value"`
+}
+
+type msgLeafValueResponse struct {
+	Blockchain    string             `json:"blockchain"`
+	SessionHeight string             `json:"session_block_height"`
+	AAT           msgLeafAATResponse `json:"aat"`
+}
+
+type msgLeafAATResponse struct {
+	AppPubkey string `json:"app_pub_key"`
 }
 
 type msgHeaderResponse struct {

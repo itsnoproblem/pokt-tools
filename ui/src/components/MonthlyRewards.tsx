@@ -122,10 +122,29 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
                         <AccordionPanel pb={4}>
                             <Tabs>
                                 <TabList>
-                                    <Tab>Metrics</Tab>
                                     <Tab>Transactions</Tab>
+                                    <Tab>Metrics</Tab>
                                 </TabList>
                                 <TabPanels>
+                                    <TabPanel>
+                                        <Grid templateColumns='repeat(9, auto)' fontFamily={"monospace"} fontSize={"xs"} p={5}>
+                                            <GridItem padding={2} fontWeight={900} align="left" pl={4}>Height</GridItem>
+                                            <GridItem padding={2} fontWeight={900}>Time</GridItem>
+                                            <GridItem padding={2} fontWeight={900} pr={4} align={"left"}>Description</GridItem>
+                                            <GridItem padding={2} fontWeight={900} align={"right"} >Amount</GridItem>
+                                            <GridItem padding={2} fontWeight={900} align={"center"}>Tx Type</GridItem>
+                                            <GridItem padding={2} fontWeight={900} align={"center"}>Sess Height</GridItem>
+                                            <GridItem padding={2} fontWeight={900}>App Pubkey</GridItem>
+                                            <GridItem padding={2} fontWeight={900}>Hash</GridItem>
+                                            <GridItem padding={2} fontWeight={900}>Confirmed</GridItem>
+                                            {month.transactions.slice(0).reverse().map((tx, j) => {
+                                                const rowColor = (j % 2 === 0) ? bgEven : bgOdd;
+                                                return (
+                                                    <RewardTransaction key={tx.hash} tx={tx} color={rowColor}/>
+                                                )
+                                            })}
+                                        </Grid>
+                                    </TabPanel>
                                     <TabPanel minHeight={"400px"}>
                                         <Stack direction={["column", "row"]}>
                                             <Box w={["100%", "100%"]} height={"400px"} color={"gray.50"}>
@@ -149,23 +168,6 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
                                             </Box>
                                         </Stack>
 
-                                    </TabPanel>
-                                    <TabPanel>
-                                        <Grid templateColumns='repeat(6, 1fr)' gap={0} fontFamily={"monospace"} fontSize={"xs"} p={5}>
-                                            <GridItem padding={2} fontWeight={900} align="left" pl={4}>Height</GridItem>
-                                            <GridItem padding={2} fontWeight={900}>Time</GridItem>
-                                            <GridItem padding={2} fontWeight={900}>Hash</GridItem>
-                                            <GridItem padding={2} fontWeight={900}>Tx Type</GridItem>
-                                            <GridItem padding={2} fontWeight={900} align={"right"} >Amount</GridItem>
-                                            <GridItem padding={2} fontWeight={900} pr={4} align={"right"}>Description</GridItem>
-
-                                            {month.transactions.slice(0).reverse().map((tx, j) => {
-                                                const rowColor = (j % 2 === 0) ? bgEven : bgOdd;
-                                                return (
-                                                    <RewardTransaction key={tx.hash} tx={tx} color={rowColor}/>
-                                                )
-                                            })}
-                                        </Grid>
                                     </TabPanel>
                                 </TabPanels>
                             </Tabs>

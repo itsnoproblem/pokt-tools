@@ -7,7 +7,7 @@ export const Home = () => {
 
     return (
         <Box w={"100%"} h={"100vh"}>
-            <Heading p={[10, 40]} pt={[40,40]} pb={[4,4]} align={"center"}>POKT tool</Heading>
+            <Heading p={[10, 40]} pt={[40,40]} pb={[4,4]} align={"center"}>POKT Tools</Heading>
             <Box align="center" mb={8} fontSize={"lg"}>rewards explorer</Box>
             <form id="node-form" onSubmit={(e) => {
                 e.preventDefault();
