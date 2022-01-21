@@ -14,6 +14,7 @@ export const RewardTransaction = (props: RewardTransactionProps) => {
     const description = (tx.type === 'pocketcore/proof') ? '' : numProofs + " relays on [" + tx.chain_id + "]";
     const amount = (tx.type === 'pocketcore/proof') ? '-' : Number(numProofs?.valueOf() * 0.0089).toFixed(4) + " POKT";
     const {hasCopied, onCopy} = useClipboard(tx.hash);
+    const {hasCopied: pubkeyHasCopied, onCopy: pubkeyCopy} = useClipboard(tx.app_pubkey);
     const time = new Date(tx.time);
 
     return (
@@ -29,10 +30,10 @@ export const RewardTransaction = (props: RewardTransactionProps) => {
             <GridItem padding={2} backgroundColor={props.color} align={"center"}>{tx.type.replace('pocketcore/', '')}</GridItem>
             <GridItem padding={2} backgroundColor={props.color} align={"center"}>{tx.session_height ?? '?'}</GridItem>
             <GridItem padding={2} backgroundColor={props.color}>
-                <Text title={tx.hash}>
-                    {tx.app_pubkey.substring(0, 6)}...{tx.hash.substring(tx.app_pubkey.length - 4, tx.hash.length)}&nbsp;
-                    {hasCopied && <CheckIcon/>}
-                    {!hasCopied && <CopyIcon  onClick={onCopy} cursor={"pointer"}/>}
+                <Text title={tx.app_pubkey}>
+                    {tx.app_pubkey.substring(0, 6)}...{tx.app_pubkey.substring(tx.app_pubkey.length - 4, tx.app_pubkey.length)}&nbsp;
+                    {pubkeyHasCopied && <CheckIcon/>}
+                    {!pubkeyHasCopied && <CopyIcon  onClick={pubkeyCopy} cursor={"pointer"}/>}
                 </Text>
             </GridItem>
             <GridItem padding={2} backgroundColor={props.color}>

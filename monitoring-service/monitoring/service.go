@@ -141,11 +141,6 @@ func (s *Service) RewardsByMonth(address string) (map[string]pocket.MonthlyRewar
 		return nil, fmt.Errorf("RewardsByMonth: %s", err)
 	}
 
-	//claims = append(claims, proofs...)
-	//sort.Slice(claims, func(i, j int) bool {
-	//	return claims[i].Time.Before(claims[j].Time)
-	//})
-
 	months := make(map[string]pocket.MonthlyReward)
 	for sessionKey, tx := range claims {
 		tx.IsConfirmed = false

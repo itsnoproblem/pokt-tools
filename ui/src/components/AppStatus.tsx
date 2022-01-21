@@ -31,7 +31,7 @@ export const AppStatus = (props: AppStatusProps) => {
         props.rewards.map((r) => {
             r.transactions.map((t) => {
                 const txDate = new Date(t.time);
-                if(txDate.getTime() >= pastDate.getTime()) {
+                if((txDate.getTime() >= pastDate.getTime()) && t.is_confirmed) {
                     total += t.num_proofs;
                     n++;
                 }
