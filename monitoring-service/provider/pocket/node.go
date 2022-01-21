@@ -6,6 +6,7 @@ type queryNodeRequest struct {
 
 type queryNodeResponse struct {
 	Address       string   `json:"address"`
+	Pubkey        string   `json:"public_key"`
 	Chains        []string `json:"chains"`
 	IsJailed      bool     `json:"jailed"`
 	ServiceURL    string   `json:"service_url"`

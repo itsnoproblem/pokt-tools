@@ -91,12 +91,15 @@ func MonthlyRewardsEndpoint(svc Service) endpoint.Endpoint {
 
 				byChain[tx.ChainID] += tx.NumProofs
 				resp[i].Transactions[j] = transactionResponse{
-					Hash:      tx.Hash,
-					Height:    tx.Height,
-					Time:      tx.Time,
-					Type:      tx.Type,
-					ChainID:   tx.ChainID,
-					NumProofs: tx.NumProofs,
+					Hash:          tx.Hash,
+					Height:        tx.Height,
+					Time:          tx.Time,
+					Type:          tx.Type,
+					ChainID:       tx.ChainID,
+					SessionHeight: tx.SessionHeight,
+					AppPubkey:     tx.AppPubkey,
+					NumProofs:     tx.NumProofs,
+					IsConfirmed:   tx.IsConfirmed,
 				}
 			}
 
@@ -161,12 +164,15 @@ type transactionRequest struct {
 }
 
 type transactionResponse struct {
-	Hash      string    `json:"hash"`
-	Height    uint      `json:"height"`
-	Time      time.Time `json:"time"`
-	Type      string    `json:"type"`
-	ChainID   string    `json:"chain_id"`
-	NumProofs uint      `json:"num_proofs"`
+	Hash          string    `json:"hash"`
+	Height        uint      `json:"height"`
+	Time          time.Time `json:"time"`
+	Type          string    `json:"type"`
+	ChainID       string    `json:"chain_id"`
+	SessionHeight uint      `json:"session_height"`
+	AppPubkey     string    `json:"app_pubkey"`
+	NumProofs     uint      `json:"num_proofs"`
+	IsConfirmed   bool      `json:"is_confirmed"`
 }
 
 func TransactionEndpoint(svc Service) endpoint.Endpoint {
@@ -226,12 +232,14 @@ func AccountTransactionsEndpoint(svc Service) endpoint.Endpoint {
 		txsResponse := make(accountTransactionsResponse, len(txs))
 		for i, tx := range txs {
 			txsResponse[i] = transactionResponse{
-				Hash:      tx.Hash,
-				Height:    tx.Height,
-				Time:      tx.Time,
-				Type:      tx.Type,
-				ChainID:   tx.ChainID,
-				NumProofs: tx.NumProofs,
+				Hash:          tx.Hash,
+				Height:        tx.Height,
+				Time:          tx.Time,
+				Type:          tx.Type,
+				ChainID:       tx.ChainID,
+				SessionHeight: tx.SessionHeight,
+				AppPubkey:     tx.AppPubkey,
+				NumProofs:     tx.NumProofs,
 			}
 		}
 
@@ -245,6 +253,7 @@ type nodeRequest struct {
 
 type nodeResponse struct {
 	Address           string          `json:"address"`
+	Pubkey            string          `json:"pubkey"`
 	Balance           uint            `json:"balance"`
 	StakedBalance     string          `json:"staked_balance"`
 	IsJailed          bool            `json:"is_jailed"`
@@ -287,6 +296,7 @@ func NodeEndpoint(svc Service) endpoint.Endpoint {
 		return nodeResponse{
 			Address:           node.Address,
 			Balance:           node.Balance,
+			Pubkey:            node.Pubkey,
 			StakedBalance:     node.StakedBalance,
 			IsJailed:          node.IsJailed,
 			Chains:            chains,

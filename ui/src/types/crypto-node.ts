@@ -6,6 +6,13 @@ export type CryptoNode = {
     balance: number,
     chains: Array<Chain>,
     isJailed: boolean,
+    pubkey: string,
     stakedBalance: number,
     lastChecked?: Date,
+}
+
+export interface NodeProps {
+    onNodeLoaded: (b: CryptoNode) => void,
+    node: CryptoNode,
+    address?: string,
 }

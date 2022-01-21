@@ -109,14 +109,12 @@ func (p pocketProvider) Node(address string) (pocket.Node, error) {
 	}
 
 	return pocket.Node{
-		Address: nodeResponse.Address,
-		//Balance:           "",
+		Address:       nodeResponse.Address,
+		Pubkey:        nodeResponse.Pubkey,
 		StakedBalance: nodeResponse.StakedBalance,
 		IsJailed:      nodeResponse.IsJailed,
 		Chains:        chains,
 		IsSynced:      false,
-		//LatestBlockHeight: 0,
-		//LatestBlockTime:   time.Time{},
 	}, nil
 }
 
@@ -147,7 +145,7 @@ func (p pocketProvider) BlockTime(height uint) (time.Time, error) {
 		return time.Time{}, fmt.Errorf("pocketProvider.BlockTime: %s", err)
 	}
 
-	cached, exists, err := p.blockTimesRepo.Get(height)
+	cached, exists, _ := p.blockTimesRepo.Get(height)
 	if exists {
 		return cached, nil
 	}

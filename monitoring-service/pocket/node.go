@@ -4,6 +4,7 @@ import "time"
 
 type Node struct {
 	Address           string
+	Pubkey            string
 	Balance           uint
 	StakedBalance     string
 	IsJailed          bool

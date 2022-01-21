@@ -2,6 +2,7 @@ package monitoring
 
 import (
 	"fmt"
+	"sort"
 	"time"
 
 	"monitoring-service/pocket"
@@ -80,16 +81,22 @@ func (s *Service) AccountTransactions(address string, page uint, perPage uint, s
 	return transactions, nil
 }
 
-func (s *Service) AllAccountTransactions(address string) ([]pocket.Transaction, error) {
-	var allTransactions []pocket.Transaction
+func sessionKey(tx pocket.Transaction) string {
+	return fmt.Sprintf("%d%s%s", tx.SessionHeight, tx.AppPubkey, tx.ChainID)
+}
+
+func (s *Service) AccountClaimsAndProofs(address string) (claims, proofs map[string]pocket.Transaction, err error) {
+	page := 1
 	numPerPage := 100
 	sortDirection := "desc"
 	goAgain := true
 
-	for i := 1; goAgain; i++ {
-		txs, err := s.AccountTransactions(address, uint(i), uint(numPerPage), sortDirection)
+	claims, proofs = make(map[string]pocket.Transaction), make(map[string]pocket.Transaction)
+
+	for goAgain {
+		txs, err := s.AccountTransactions(address, uint(page), uint(numPerPage), sortDirection)
 		if err != nil {
-			return nil, fmt.Errorf("AllAccountTransactions: %s", err)
+			return nil, nil, fmt.Errorf("AccountClaimsAndProofs: %s", err)
 		}
 
 		if len(txs) < numPerPage {
@@ -97,13 +104,20 @@ func (s *Service) AllAccountTransactions(address string) ([]pocket.Transaction, 
 		}
 
 		for _, tx := range txs {
-			if tx.Type == "pocketcore/claim" {
-				allTransactions = append(allTransactions, tx)
+			sessionKey := sessionKey(tx)
+			switch tx.Type {
+			case pocket.TypeClaim:
+				claims[sessionKey] = tx
+				break
+			case pocket.TypeProof:
+				proofs[sessionKey] = tx
+				break
 			}
 		}
+		page++
 	}
 
-	return allTransactions, nil
+	return claims, proofs, nil
 
 }
 
@@ -122,25 +136,40 @@ func (s *Service) Node(address string) (pocket.Node, error) {
 }
 
 func (s *Service) RewardsByMonth(address string) (map[string]pocket.MonthlyReward, error) {
-	txs, err := s.AllAccountTransactions(address)
+	claims, proofs, err := s.AccountClaimsAndProofs(address)
 	if err != nil {
 		return nil, fmt.Errorf("RewardsByMonth: %s", err)
 	}
 
-	months := make(map[string]pocket.MonthlyReward, len(txs))
-	for _, tx := range txs {
-		key := fmt.Sprintf("%d-%d", tx.Time.Year(), tx.Time.Month())
-		if _, exists := months[key]; !exists {
-			months[key] = pocket.MonthlyReward{
+	months := make(map[string]pocket.MonthlyReward)
+	for sessionKey, tx := range claims {
+		tx.IsConfirmed = false
+		_, proofExists := proofs[sessionKey]
+		if proofExists {
+			tx.IsConfirmed = true
+		}
+
+		monthKey := fmt.Sprintf("%d-%d", tx.Time.Year(), tx.Time.Month())
+		if _, exists := months[monthKey]; !exists {
+			months[monthKey] = pocket.MonthlyReward{
 				Year:        uint(tx.Time.Year()),
 				Month:       uint(tx.Time.Month()),
 				TotalProofs: 0,
 			}
 		}
-		month := months[key]
-		month.TotalProofs = month.TotalProofs + tx.NumProofs
+		month := months[monthKey]
+		if tx.IsConfirmed {
+			month.TotalProofs = month.TotalProofs + tx.NumProofs
+		}
+
 		month.Transactions = append(month.Transactions, tx)
-		months[key] = month
+		months[monthKey] = month
+	}
+
+	for monthKey, mo := range months {
+		sort.Slice(months[monthKey].Transactions, func(i, j int) bool {
+			return mo.Transactions[i].Time.Before(mo.Transactions[j].Time)
+		})
 	}
 
 	return months, nil
