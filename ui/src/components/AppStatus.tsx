@@ -59,7 +59,7 @@ export const AppStatus = (props: AppStatusProps) => {
                         <Stat align={"center"}>
                             <StatLabel>Top Chain This Month</StatLabel>
                             <StatNumber>{sortedByChain[0]?.name}</StatNumber>
-                            <StatHelpText>{sortedByChain[0]?.num_relays?.toLocaleString()} POKT</StatHelpText>
+                            <StatHelpText>{sortedByChain[0]?.num_relays?.toLocaleString()} relays</StatHelpText>
                         </Stat>
                     </Box>
                     <Box  p={5} minWidth={"185px"}>
