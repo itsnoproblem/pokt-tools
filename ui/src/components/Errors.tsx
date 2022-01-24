@@ -54,7 +54,8 @@ export const Errors = () => {
 
     const switchChains = (e: any) => {
         const ch = e.target.value;
-        console.log("switch chains", ch)
+        console.log("switch chains", ch);
+        setPage(1);
         setChain(ch);
     }
 
