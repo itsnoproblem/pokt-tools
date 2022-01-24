@@ -25,7 +25,7 @@ var allChains = map[string]string{
 	"000A": "FUSE Archival",
 	"0040": "HMY 0",
 	"0044": "IoTeX",
-	"0001": "Pocket Network",
+	"0001": "POKT",
 	"0009": "Polygon",
 	"000B": "Polygon Archival",
 	"000F": "Polygon Mumbai",
