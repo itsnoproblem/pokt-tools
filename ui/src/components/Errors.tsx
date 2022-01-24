@@ -97,7 +97,7 @@ export const Errors = () => {
             </Flex>
             { isLoading && (<SkeletonRows/>) }
             {(errors.length === 0 && !isLoading) && (
-                <Box>No results</Box>
+                <Box align={"center"} m={"auto"}>No results</Box>
             )}
             { (errors.length > 0  && !isLoading) && (
                 <Table variant={"striped"} w={"100%"}>

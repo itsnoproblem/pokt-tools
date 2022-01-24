@@ -96,17 +96,17 @@ export const NodeStatus = (props: NodeProps) => {
                 <>
                     <Button
                         variant={activePath === metricsId ? "outline" : "ghost"}
-                        title={"Metrics"}
+                        title={"Rewards"}
                         onClick={() => window.location.href=`/node/${props.node.address}/rewards`}
                     >
-                        Metrics
+                        Rewards
                     </Button>
                     <Button
                         variant={activePath === errorsId ? "outline" : "ghost"}
-                        title={"Errors"}
+                        title={"Logs"}
                         onClick={() => window.location.href=`/node/${props.node.address}/errors`}
                     >
-                        Errors
+                        Logs
                     </Button>
                 </>
             )}
