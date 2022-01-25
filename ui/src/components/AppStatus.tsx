@@ -93,7 +93,7 @@ export const AppStatus = (props: AppStatusProps) => {
                     </>
                 )}
             </HStack>
-            {(isMobile && node !== undefined) && (<Box ml="auto" mr="auto" mb={6}><em>Updated: {node.lastChecked?.toLocaleString()}</em></Box>)}
+            {(isMobile && node !== undefined) && (<Box ml="auto" mr="auto" mb={6} mt={6}><em>Updated: {node.lastChecked?.toLocaleString()}</em></Box>)}
         </>
 
 )

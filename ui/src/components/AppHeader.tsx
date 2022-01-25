@@ -19,7 +19,7 @@ export const AppHeader = (props: NodeProps) => {
             {window.location.pathname === "/" ? ( <Box/> ) : (
                 <NodeStatus address={params.address} node={props.node} onNodeLoaded={props.onNodeLoaded}/>
             )}
-            <HStack>
+            <HStack alignSelf={"flex-start"}>
                 {/* Color Mode */}
                 <ColorModeSwitcher
                     _focus={{boxShadow: "none"}}
