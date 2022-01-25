@@ -10,7 +10,6 @@ import {useParams} from "react-router-dom";
 export const AppHeader = (props: NodeProps) => {
 
     const params = useParams();
-    console.log(`--AppHeader`, params);
 
     return (
         <HStack justifyContent={"space-between"}>
@@ -20,7 +19,7 @@ export const AppHeader = (props: NodeProps) => {
             {window.location.pathname === "/" ? ( <Box/> ) : (
                 <NodeStatus address={params.address} node={props.node} onNodeLoaded={props.onNodeLoaded}/>
             )}
-            <HStack>
+            <HStack alignSelf={"flex-start"}>
                 {/* Color Mode */}
                 <ColorModeSwitcher
                     _focus={{boxShadow: "none"}}
