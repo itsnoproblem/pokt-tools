@@ -29,16 +29,13 @@ export const Errors = () => {
     const resultsPerPage = 25;
 
     useEffect(() => {
-        const offset = (page * resultsPerPage) - resultsPerPage;
         if(chain === '') {
             return;
         }
 
         setIsLoading(true);
-
-        console.log(`Get chain ${chain}`);
+        const offset = (page * resultsPerPage) - resultsPerPage;
         const rpcUrl = `https://metrics-api.portal.pokt.network:3000/error?and=(nodepublickey.eq.${node.pubkey},blockchain.eq.${chain})&limit=${resultsPerPage}&offset=${offset}`;
-        console.log(rpcUrl);
 
         axios.get(rpcUrl)
             .then(async (response) => {
@@ -54,7 +51,6 @@ export const Errors = () => {
 
     const switchChains = (e: any) => {
         const ch = e.target.value;
-        console.log("switch chains", ch);
         setPage(1);
         setChain(ch);
     }

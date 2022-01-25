@@ -10,7 +10,6 @@ import {useParams} from "react-router-dom";
 export const AppHeader = (props: NodeProps) => {
 
     const params = useParams();
-    console.log(`--AppHeader`, params);
 
     return (
         <HStack justifyContent={"space-between"}>

@@ -8,7 +8,7 @@ import {
     Grid,
     GridItem,
     HStack,
-    SimpleGrid,
+    SimpleGrid, Skeleton,
     Spacer,
     Stack,
     Tab,
@@ -36,9 +36,9 @@ type MonthlyRewardsProps = {
 }
 
 export const MonthlyRewards = (props: MonthlyRewardsProps) => {
-    // const [months, setMonths] = useState([]);
     const [rpcUrl, setRpcUrl] = useState("");
     const [hasLoaded, setHasLoaded] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const node = useContext(NodeContext)
     const isMobile = useBreakpointValue([false, true]);
 
@@ -47,13 +47,15 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
             return;
         }
 
+        setIsLoading(true);
         axios.get(rpcUrl).then((result) => {
             props.onRewardsLoaded(result.data.data);
-            console.log("months result", result.data.data);
-            setHasLoaded(true);
+            // console.log("months result", result.data.data);
         }).catch((err) => {
             console.error("ERROR", err);
+        }).finally(() => {
             setHasLoaded(true);
+            setIsLoading(false);
         });
     },[rpcUrl, props]);
 
@@ -98,7 +100,13 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
         });
     }, []);
 
-    return (
+    return isLoading ? (
+        <Stack w={["100vw", "1280px"]} ml={"auto"} mr={"auto"} mt={2}>
+            {Object.keys(monthNames).map(() => {
+                return (<Skeleton height={'48px'}/>)
+            })}
+        </Stack>
+    ) : (
         <Accordion allowMultiple w={["100vw", "1280px"]} ml={"auto"} mr={"auto"} mt={2}>
             {props.rewards.map((month: MonthlyReward, i) => {
                 const relays = relaysByChain(month)

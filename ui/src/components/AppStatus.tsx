@@ -1,6 +1,7 @@
 import {Box, HStack, Stat, StatHelpText, StatLabel, StatNumber, useBreakpointValue} from "@chakra-ui/react";
-import React from "react";
+import React, {useContext} from "react";
 import {MonthlyReward} from "../types/monthly-reward";
+import {NodeContext} from "../node-context";
 
 interface AppStatusProps {
     // onNodeLoaded: (b: CryptoNode) => void,
@@ -8,10 +9,8 @@ interface AppStatusProps {
 }
 
 export const AppStatus = (props: AppStatusProps) => {
-    // const [rpcEndpoint, setRpcEndpoint] = useState("");
-    // const [hasLoaded, setHasLoaded] = useState(false);
-    // const { address } = useParams();
     const isMobile = useBreakpointValue({base: false, sm: true})
+    const node = useContext(NodeContext);
 
     const avgPoktForLastDays = (numDays: number): number => {
         const today = new Date();
@@ -52,46 +51,50 @@ export const AppStatus = (props: AppStatusProps) => {
         }) : [];
 
     return(
-        <HStack mt={10} mb={8} ml={'auto'} mr={'auto'} p={0}>
-            {isMobile && (
-                <>
-                    <Box  p={5} minWidth={"185px"} borderWidth={1} borderRadius={20} borderColor={"gray.50"}>
-                        <Stat align={"center"}>
-                            <StatLabel>Top Chain This Month</StatLabel>
-                            <StatNumber>{sortedByChain[0]?.name}</StatNumber>
-                            <StatHelpText>{sortedByChain[0]?.num_relays?.toLocaleString()} relays</StatHelpText>
-                        </Stat>
-                    </Box>
-                    <Box  p={5} minWidth={"185px"}>
-                        <Stat align={"center"}>
-                            <StatLabel>10 Day Average</StatLabel>
-                            <StatNumber>{avgPoktForLastDays(10)}</StatNumber>
-                            <StatHelpText>POKT per day</StatHelpText>
-                        </Stat>
-                    </Box>
-                    <Box borderWidth={1} borderRadius={20} p={5} minWidth={"185px"} borderColor={"gray.50"}>
-                        <Stat align={"center"}>
-                            <StatLabel>30 Day Average</StatLabel>
-                            <StatNumber>{avgPoktForLastDays(30)}</StatNumber>
-                            <StatHelpText>POKT per day</StatHelpText>
-                        </Stat>
-                    </Box>
-                    <Box  p={5} minWidth={"185px"}>
-                        <Stat align={"center"}>
-                            <StatLabel>90 Day Average</StatLabel>
-                            <StatNumber>{avgPoktForLastDays(90)}</StatNumber>
-                            <StatHelpText>POKT per day</StatHelpText>
-                        </Stat>
-                    </Box>
-                    <Box  p={5} minWidth={"185px"} borderWidth={1} borderRadius={20} borderColor={"gray.50"}>
-                        <Stat align={"center"}>
-                            <StatLabel>Last 24 hrs</StatLabel>
-                            <StatNumber>{avgPoktForLastDays(1) ?? 0}</StatNumber>
-                            <StatHelpText>POKT earned</StatHelpText>
-                        </Stat>
-                    </Box>
-                </>
-            )}
-        </HStack>
-    )
+        <>
+            <HStack mt={4} ml={'auto'} mr={'auto'} p={0}>
+                {isMobile && (
+                    <>
+                        <Box  p={5} minWidth={"185px"} borderWidth={1} borderRadius={20} borderColor={"gray.50"}>
+                            <Stat align={"center"}>
+                                <StatLabel>Top Chain This Month</StatLabel>
+                                <StatNumber>{sortedByChain[0]?.name}</StatNumber>
+                                <StatHelpText>{sortedByChain[0]?.num_relays?.toLocaleString()} relays</StatHelpText>
+                            </Stat>
+                        </Box>
+                        <Box  p={5} minWidth={"185px"}>
+                            <Stat align={"center"}>
+                                <StatLabel>10 Day Average</StatLabel>
+                                <StatNumber>{avgPoktForLastDays(10)}</StatNumber>
+                                <StatHelpText>POKT per day</StatHelpText>
+                            </Stat>
+                        </Box>
+                        <Box borderWidth={1} borderRadius={20} p={5} minWidth={"185px"} borderColor={"gray.50"}>
+                            <Stat align={"center"}>
+                                <StatLabel>30 Day Average</StatLabel>
+                                <StatNumber>{avgPoktForLastDays(30)}</StatNumber>
+                                <StatHelpText>POKT per day</StatHelpText>
+                            </Stat>
+                        </Box>
+                        <Box  p={5} minWidth={"185px"}>
+                            <Stat align={"center"}>
+                                <StatLabel>90 Day Average</StatLabel>
+                                <StatNumber>{avgPoktForLastDays(90)}</StatNumber>
+                                <StatHelpText>POKT per day</StatHelpText>
+                            </Stat>
+                        </Box>
+                        <Box  p={5} minWidth={"185px"} borderWidth={1} borderRadius={20} borderColor={"gray.50"}>
+                            <Stat align={"center"}>
+                                <StatLabel>Last 24 hrs</StatLabel>
+                                <StatNumber>{avgPoktForLastDays(1) ?? 0}</StatNumber>
+                                <StatHelpText>POKT earned</StatHelpText>
+                            </Stat>
+                        </Box>
+                    </>
+                )}
+            </HStack>
+            {(isMobile && node !== undefined) && (<Box ml="auto" mr="auto" mb={6}><em>Updated: {node.lastChecked?.toLocaleString()}</em></Box>)}
+        </>
+
+)
 }

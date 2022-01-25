@@ -32,7 +32,6 @@ export const App = () => {
     const [node, setNode] = useState(defaultNode);
     const [rewards, setRewards] = useState(defaultRewards);
     const {address} = useParams();
-    console.log("--APP: " + address);
 
     return (
         <ChakraProvider theme={theme}>

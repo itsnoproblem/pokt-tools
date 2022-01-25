@@ -1,7 +1,7 @@
 import {
     Box,
     Button,
-    HStack,
+    HStack, IconButton,
     Popover,
     PopoverBody,
     PopoverContent,
@@ -10,12 +10,15 @@ import {
     Text,
     useBreakpointValue
 } from "@chakra-ui/react";
-import {MdBrightness1} from "react-icons/all";
+import {AiFillStar, AiOutlineStar, MdBrightness1} from "react-icons/all";
 import * as React from "react";
 import {useCallback, useEffect, useState} from "react";
 import axios from "axios";
 import {CryptoNode, NodeProps} from "../types/crypto-node";
 import {useParams} from "react-router-dom";
+import {StarIcon} from "@chakra-ui/icons";
+import {useLocalStorage} from "react-use";
+import {NodeChooser} from "./NodeChooser";
 
 declare const window: any;
 
@@ -24,7 +27,13 @@ export const NodeStatus = (props: NodeProps) => {
     const errorsId = 'errors';
     let activePath = '';
     const {address} = useParams();
-    console.log("--- NoseStatus " + address)
+
+    const [rpcEndpoint, setRpcEndpoint] = useState("");
+    const [hasLoaded, setHasLoaded] = useState(false);
+    const statusColor = (props.node.isJailed || !props.node.exists) ? "#FF0000"   : "#2bd950";
+    const status = (props.node.isJailed || !props.node.exists) ?
+        (props.node.exists ? "Jailed" : "Invalid address") : "Not Jailed";
+    const isMobile = useBreakpointValue({base: false, sm: true});
 
     const pathElements = window.location.pathname.split('/');
     switch(pathElements[pathElements.length-1]) {
@@ -36,20 +45,15 @@ export const NodeStatus = (props: NodeProps) => {
             break;
     }
 
-    const [rpcEndpoint, setRpcEndpoint] = useState("");
-    const [hasLoaded, setHasLoaded] = useState(false);
-
     const updateBalance = useCallback(() => {
         if(rpcEndpoint === "" || address === "") {
-            console.log(`ABORT addr: ${address} rpc: ${rpcEndpoint}`)
+            console.error(`ABORT addr: ${address} rpc: ${rpcEndpoint}`)
             return;
         }
 
-        console.log(`Usinf addr: ${address} rpc: ${rpcEndpoint}`)
         axios.get(rpcEndpoint)
             .then(async (result) => {
-                console.log("Node status result", result);
-
+                // console.log("Node status result", result);
                 const node: CryptoNode = {
                     exists: result.data.data.address !== "",
                     address: result.data.data.address,
@@ -61,9 +65,6 @@ export const NodeStatus = (props: NodeProps) => {
                 }
                 node.lastChecked = new Date();
                 props.onNodeLoaded(node);
-                console.log("node loaded", node);
-
-                console.log(rpcEndpoint, node);
                 setHasLoaded(true);
             })
             .catch((err) => {
@@ -76,19 +77,13 @@ export const NodeStatus = (props: NodeProps) => {
 
     useEffect(() => {
         if(!hasLoaded) {
-            const rpcUrl = `${window._env_.RPC_URL}/node/${address}`
+            const rpcUrl = `${window._env_.RPC_URL}/node/${address}`;
             setRpcEndpoint(rpcUrl);
             updateBalance();
         }
-    }, [address, hasLoaded, props, updateBalance])
+    }, [address, hasLoaded, props, updateBalance]);
 
-    console.log("activePath", activePath)
 
-    const statusColor = (props.node.isJailed || !props.node.exists) ? "#FF0000"   : "#2bd950";
-    const status = (props.node.isJailed || !props.node.exists) ?
-        (props.node.exists ? "Jailed" : "Invalid address") : "Not Jailed";
-    const formattedDate = `${props.node.lastChecked?.toLocaleString()}`;
-    const isMobile = useBreakpointValue({base: false, sm: true})
 
     return (
         <>
@@ -111,7 +106,6 @@ export const NodeStatus = (props: NodeProps) => {
                 </>
             )}
             <Spacer/>
-            {isMobile && (<Box><em>Updated: {formattedDate}</em></Box>)}
             <Box>
                 <Popover placement={"bottom"} strategy={"fixed"}>
                     <PopoverTrigger>
@@ -127,15 +121,7 @@ export const NodeStatus = (props: NodeProps) => {
                 </Popover>
             </Box>
 
-            <HStack spacing={0}>
-                <Button alignSelf="flex-end" colorScheme={"gray"} marginLeft={0} borderRadius={25} borderRightRadius={0} marginRight={0} _focus={{boxShadow: "none"}}>
-                    {props.node.address.substring(0,6)}...{props.node.address.substring(props.node.address.length-4, props.node.address.length)}
-                </Button>
-                <Button alignSelf="flex-end" colorScheme={"blue"}  borderRadius={25} borderLeftRadius={0} marginStart={0} marginInlineStart={0} ml={0} _focus={{boxShadow: "none"}}>
-                    {Number(props.node.balance/1000000).toFixed(2)}&nbsp;
-                    <Text d={"inline"} fontSize={"xs"}> POKT</Text>
-                </Button>
-            </HStack>
+            <NodeChooser/>
         </>
     )
 }
