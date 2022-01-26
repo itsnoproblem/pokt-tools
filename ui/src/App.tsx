@@ -6,14 +6,14 @@ import theme from "./theme";
 import {NodeContext} from "./node-context";
 import {CryptoNode} from "./types/crypto-node";
 import {ColorModeSwitcher} from "./components/ColorModeSwitcher";
-import {Home} from "./components/Home";
+import {Home} from "./pages/Home";
 import {HomeButton} from "./components/HomeButton";
-import {Rewards} from "./components/Rewards";
+import {Rewards} from "./pages/Rewards";
 import {NodeStatus} from "./components/NodeStatus";
 import {MonthlyReward} from "./types/monthly-reward";
 import {Icon} from "@chakra-ui/icons";
 import {FaGithub} from "react-icons/all";
-import {Errors} from "./components/Errors";
+import {Errors} from "./pages/Errors";
 import {AppHeader} from "./components/AppHeader";
 
 export const App = () => {
@@ -36,7 +36,7 @@ export const App = () => {
     return (
         <ChakraProvider theme={theme}>
             <NodeContext.Provider value={node}>
-                <Flex direction={"column"} className={"outer-grid"} minH="100vh" w="100%" p={3}>
+                <Flex direction={"column"} className={"outer-grid"} minH="100vh" w={["100vw", "100%"]} p={3}>
                     <Router>
                         <Routes>
                             <Route

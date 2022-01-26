@@ -3,8 +3,8 @@ import * as React from "react";
 import {useContext} from "react";
 import {NodeContext} from "../node-context";
 import {CryptoNode} from "../types/crypto-node";
-import {AppStatus} from "./AppStatus";
-import {MonthlyRewards} from "./MonthlyRewards";
+import {AppStatus} from "../components/AppStatus";
+import {MonthlyRewards} from "../components/MonthlyRewards";
 import {useParams} from "react-router-dom";
 import {MonthlyReward} from "../types/monthly-reward";
 

@@ -1,5 +1,5 @@
 import {Transaction} from "../types/transaction";
-import {Box, GridItem, IconButton, Text, useClipboard} from "@chakra-ui/react";
+import {Box, GridItem, IconButton, Text, useBreakpointValue, useClipboard} from "@chakra-ui/react";
 import {CheckCircleIcon, CheckIcon, CopyIcon, TimeIcon} from "@chakra-ui/icons";
 import React from 'react';
 
@@ -16,6 +16,7 @@ export const RewardTransaction = (props: RewardTransactionProps) => {
     const {hasCopied, onCopy} = useClipboard(tx.hash);
     const {hasCopied: pubkeyHasCopied, onCopy: pubkeyCopy} = useClipboard(tx.app_pubkey);
     const time = new Date(tx.time);
+    const isMobile = useBreakpointValue([true, false]);
 
     return (
         <React.Fragment key={tx.hash}>
@@ -25,35 +26,33 @@ export const RewardTransaction = (props: RewardTransactionProps) => {
                     {time.toLocaleString()}
                 </Box>
             </GridItem>
-            <GridItem padding={2} backgroundColor={props.color} pr={4} align={"left"}>{description}</GridItem>
+            {!isMobile && (<GridItem padding={2} backgroundColor={props.color} pr={4} align={"right"}>{tx.num_proofs.toLocaleString()} relays</GridItem>)}
             <GridItem padding={2} backgroundColor={props.color} align={"right"}>{amount}</GridItem>
-            <GridItem padding={2} backgroundColor={props.color} align={"center"}>{tx.type.replace('pocketcore/', '')}</GridItem>
-            <GridItem padding={2} backgroundColor={props.color} align={"center"}>{tx.session_height ?? '?'}</GridItem>
-            <GridItem padding={2} backgroundColor={props.color}>
-                <Text title={tx.app_pubkey}>
-                    {tx.app_pubkey.substring(0, 6)}...{tx.app_pubkey.substring(tx.app_pubkey.length - 4, tx.app_pubkey.length)}&nbsp;
-                    {pubkeyHasCopied && <CheckIcon/>}
-                    {!pubkeyHasCopied && <CopyIcon  onClick={pubkeyCopy} cursor={"pointer"}/>}
-                </Text>
-            </GridItem>
-            <GridItem padding={2} backgroundColor={props.color}>
-                <Text title={tx.hash}>
-                    {tx.hash.substring(0, 6)}...{tx.hash.substring(tx.hash.length - 4, tx.hash.length)}&nbsp;
-                    {hasCopied && <CheckIcon/>}
-                    {!hasCopied && <CopyIcon  onClick={onCopy} cursor={"pointer"}/>}
-                </Text>
-            </GridItem>
+            <GridItem padding={2} backgroundColor={props.color} pr={4} align={"center"}>{tx.chain_id}</GridItem>
+            {!isMobile && (
+                <GridItem padding={2} backgroundColor={props.color}>
+                    <Text title={tx.app_pubkey}>
+                        {tx.app_pubkey.substring(0, 4)}...{tx.app_pubkey.substring(tx.app_pubkey.length - 2, tx.app_pubkey.length)}&nbsp;
+                        {pubkeyHasCopied && <CheckIcon/>}
+                        {!pubkeyHasCopied && <CopyIcon  onClick={pubkeyCopy} cursor={"pointer"}/>}
+                    </Text>
+                </GridItem>
+            )}
+            {!isMobile && (
+                <GridItem padding={2} backgroundColor={props.color}>
+                    <Text title={tx.hash}>
+                        {tx.hash.substring(0, 4)}...{tx.hash.substring(tx.hash.length - 2, tx.hash.length)}&nbsp;
+                        {hasCopied && <CheckIcon/>}
+                        {!hasCopied && <CopyIcon  onClick={onCopy} cursor={"pointer"}/>}
+                    </Text>
+                </GridItem>
+            )}
             <GridItem backgroundColor={props.color} align={"center"}>
-
-                    {tx.is_confirmed ?
-                        (<IconButton variant="ghost" boxShadow={0} _focus={{boxShadow: "none"}} _hover={{}} cursor={"default"} aria-label="proof accepted" title="proof accepted" icon={(<CheckCircleIcon color="green.400"/>)}/>) :
-                        (<IconButton variant="ghost" boxShadow={0} _focus={{boxShadow: "none"}} _hover={{}} cursor={"default"} aria-label="unconfirmed" title="unconfirmed" icon={(<TimeIcon  color="yellow.400"/>)}/>)
-                    }
-
+                {tx.is_confirmed ?
+                    (<IconButton variant="ghost" boxShadow={0} _focus={{boxShadow: "none"}} _hover={{}} cursor={"default"} aria-label="confirmed" title={`confirmed for session height ${tx.session_height}`} icon={(<CheckCircleIcon color="green.400"/>)}/>) :
+                    (<IconButton variant="ghost" boxShadow={0} _focus={{boxShadow: "none"}} _hover={{}} cursor={"default"} aria-label="unconfirmed" title="unconfirmed" icon={(<TimeIcon  color="yellow.400"/>)}/>)
+                }
             </GridItem>
-
-
-
         </React.Fragment>
     )
 }

@@ -40,7 +40,7 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
     const [hasLoaded, setHasLoaded] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const node = useContext(NodeContext)
-    const isMobile = useBreakpointValue([false, true]);
+    const isMobile = useBreakpointValue([true, false]);
 
     const getRewards = useCallback(() => {
         if(rpcUrl === "") {
@@ -107,7 +107,7 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
             })}
         </Stack>
     ) : (
-        <Accordion allowMultiple w={["100vw", "1280px"]} ml={"auto"} mr={"auto"} mt={2}>
+        <Accordion allowMultiple maxW="100%" w={["100%", "1280px"]} ml={"auto"} mr={"auto"} mt={[2,8]} p={0}>
             {props.rewards.map((month: MonthlyReward, i) => {
                 const relays = relaysByChain(month)
                 return (
@@ -118,7 +118,7 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
                                     <HStack pt={1} pb={1}>
                                         <Box pl={[1,8]} w={["200px", "200px"]} textAlign='left'>{monthNames[month.month]} {month.year}</Box>
                                         <Spacer/>
-                                        { isMobile && (<Box flexGrow={1} textAlign={"right"}>{Number(month.num_relays).toLocaleString()} relays</Box>) }
+                                        { !isMobile && (<Box flexGrow={1} textAlign={"right"}>{Number(month.num_relays).toLocaleString()} relays</Box>) }
                                         <Box pr={[2,8]} flexGrow={1} textAlign='right'>
                                             {month.pokt_amount} <Text d="inline" fontSize={"xs"} textTransform={"uppercase"}>pokt</Text>
                                         </Box>
@@ -134,16 +134,15 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
                                     <Tab>Metrics</Tab>
                                 </TabList>
                                 <TabPanels>
-                                    <TabPanel>
-                                        <Grid templateColumns='repeat(9, auto)' fontFamily={"monospace"} fontSize={"xs"} p={5}>
+                                    <TabPanel p={0}>
+                                        <Grid templateColumns={['repeat(5, auto)', 'repeat(8, auto)']} fontFamily={"monospace"} fontSize={"xs"} p={[1, 5]}>
                                             <GridItem padding={2} fontWeight={900} align="left" pl={4}>Height</GridItem>
                                             <GridItem padding={2} fontWeight={900}>Time</GridItem>
-                                            <GridItem padding={2} fontWeight={900} pr={4} align={"left"}>Description</GridItem>
-                                            <GridItem padding={2} fontWeight={900} align={"right"} >Amount</GridItem>
-                                            <GridItem padding={2} fontWeight={900} align={"center"}>Tx Type</GridItem>
-                                            <GridItem padding={2} fontWeight={900} align={"center"}>Sess Height</GridItem>
-                                            <GridItem padding={2} fontWeight={900}>App Pubkey</GridItem>
-                                            <GridItem padding={2} fontWeight={900}>Hash</GridItem>
+                                            {!isMobile && (<GridItem padding={2} fontWeight={900} pr={4} align={"right"}>Proofs</GridItem>)}
+                                            <GridItem padding={2} fontWeight={900} pr={4} align={"right"} >Amount</GridItem>
+                                            <GridItem padding={2} fontWeight={900} align={"center"}>Chain</GridItem>
+                                            {!isMobile && (<GridItem padding={2} fontWeight={900}>App Pubkey</GridItem>)}
+                                            {!isMobile && (<GridItem padding={2} fontWeight={900}>Hash</GridItem>)}
                                             <GridItem padding={2} fontWeight={900}>Confirmed</GridItem>
                                             {month.transactions.slice(0).reverse().map((tx, j) => {
                                                 const rowColor = (j % 2 === 0) ? bgEven : bgOdd;
