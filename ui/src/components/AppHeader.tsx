@@ -1,4 +1,4 @@
-import {Box, HStack, IconButton} from "@chakra-ui/react";
+import {Box, HStack, IconButton, useBreakpointValue} from "@chakra-ui/react";
 import {HomeButton} from "./HomeButton";
 import {NodeStatus} from "./NodeStatus";
 import {ColorModeSwitcher} from "./ColorModeSwitcher";
@@ -10,6 +10,7 @@ import {useParams} from "react-router-dom";
 export const AppHeader = (props: NodeProps) => {
 
     const params = useParams();
+    const isMobile = useBreakpointValue([true, false]);
 
     return (
         <HStack justifyContent={"space-between"}>
@@ -19,26 +20,28 @@ export const AppHeader = (props: NodeProps) => {
             {window.location.pathname === "/" ? ( <Box/> ) : (
                 <NodeStatus address={params.address} node={props.node} onNodeLoaded={props.onNodeLoaded}/>
             )}
-            <HStack alignSelf={"flex-start"}>
-                {/* Color Mode */}
-                <ColorModeSwitcher
-                    _focus={{boxShadow: "none"}}
-                    alignSelf="flex-end"
-                />
-                 {/* Source code link */}
-                <IconButton
-                    aria-label={"Source code"}
-                    icon={(<FaGithub/>)}
-                    onClick={() => { window.location.href="https://github.com/itsnoproblem/pokt-calculator"} }
-                    _focus={{boxShadow: "none"}}
-                    alignSelf="flex-end"
-                    size="md"
-                    fontSize="lg"
-                    variant="ghost"
-                    color="current"
-                    marginLeft="2"
-                />
-            </HStack>
+            {!isMobile && (
+                <HStack alignSelf={"flex-start"}>
+                    {/* Color Mode */}
+                    <ColorModeSwitcher
+                        _focus={{boxShadow: "none"}}
+                        alignSelf="flex-end"
+                    />
+                     {/* Source code link */}
+                    <IconButton
+                        aria-label={"Source code"}
+                        icon={(<FaGithub/>)}
+                        onClick={() => { window.location.href="https://github.com/itsnoproblem/pokt-calculator"} }
+                        _focus={{boxShadow: "none"}}
+                        alignSelf="flex-end"
+                        size="md"
+                        fontSize="lg"
+                        variant="ghost"
+                        color="current"
+                        marginLeft="2"
+                    />
+                </HStack>
+            )}
         </HStack>
     )
 }

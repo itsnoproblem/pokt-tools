@@ -9,7 +9,7 @@ interface AppStatusProps {
 }
 
 export const AppStatus = (props: AppStatusProps) => {
-    const isMobile = useBreakpointValue({base: false, sm: true})
+    const isMobile = useBreakpointValue([true, false])
     const node = useContext(NodeContext);
 
     const avgPoktForLastDays = (numDays: number): number => {
@@ -53,7 +53,7 @@ export const AppStatus = (props: AppStatusProps) => {
     return(
         <>
             <HStack mt={4} ml={'auto'} mr={'auto'} p={0}>
-                {isMobile && (
+                {!isMobile && (
                     <>
                         <Box  p={5} minWidth={"185px"} borderWidth={1} borderRadius={20} borderColor={"gray.50"}>
                             <Stat align={"center"}>
