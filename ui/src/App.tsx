@@ -71,7 +71,16 @@ export const App = () => {
                                     </>
                                 )}
                             />
-                            <Route path={"/"} element={(<Home/>)}/>
+                            <Route path={"/"} element={(
+                                <>
+                                    <AppHeader
+                                        address={address}
+                                        node={node}
+                                        onNodeLoaded={setNode}
+                                    />
+                                    <Home/>
+                                </>
+                            )}/>
                         </Routes>
 
                     </Router>
