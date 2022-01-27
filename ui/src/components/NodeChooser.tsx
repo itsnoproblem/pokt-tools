@@ -28,16 +28,17 @@ import {MutableRefObject, SyntheticEvent, useContext, useState} from "react";
 import {useLocalStorage} from "react-use";
 import ReactFocusLock from "react-focus-lock";
 
-export const NodeChooser = () => {
+type NodeChooserProps = {
+    address: string
+}
+
+export const NodeChooser = (props: NodeChooserProps) => {
     const node = useContext(NodeContext);
     let addressIsSaved = false;
     const defaultSavedAddresses: Array<string> = [];
     const [savedAddresses, setSavedAddresses] = useLocalStorage("savedAddresses", defaultSavedAddresses);
     addressIsSaved = savedAddresses?.includes(node.address) ?? false;
-    const { isOpen, onOpen, onClose } = useDisclosure();
-    const [input, setInput] = useState('');
-
-
+    const {isOpen, onOpen, onClose} = useDisclosure();
 
     return (
         <HStack spacing={0}>
@@ -55,7 +56,10 @@ export const NodeChooser = () => {
                             onMouseOver={onOpen}
                             onMouseOut={onClose}
                         >
-                            {node.address.substring(0,4)}...{node.address.substring(node.address.length-4, node.address.length)}
+                            {props.address === "" ?
+                                (<>Connect</>) :
+                                (<>{props.address.substring(0,4)}...{props.address.substring(props.address.length-4, props.address.length)}</>)
+                            }
                         </Button>
                     </PopoverTrigger>
                     <Portal>
@@ -64,8 +68,8 @@ export const NodeChooser = () => {
                             <PopoverCloseButton />
                             <PopoverBody>
                                 <VStack align={"left"}>
-                                {savedAddresses?.filter((val) => !(val === node.address)).map((addr) => (
-                                    <Link d="flex" href={`/node/${addr}/rewards`} colorScheme='blue'>
+                                {savedAddresses?.filter((val) => !(val === props.address)).map((addr, i) => (
+                                    <Link key={i} d="flex" href={`/node/${addr}/rewards`} colorScheme='blue'>
                                         <Box pt={1} pr={2}><FaBookmark/></Box>
                                         <Box>
                                             {addr.substring(0,12)}...{addr.substring(addr.length-4, addr.length)}
@@ -98,18 +102,18 @@ export const NodeChooser = () => {
                 title={addressIsSaved ? 'remove bookmark' : 'add bookmark'}
                 icon={addressIsSaved ? (<AiFillStar/>) : (<AiOutlineStar/>)}
                 onClick={() => {
-                    if(!node.address || !savedAddresses) {
+                    if(!props.address || !savedAddresses) {
                         console.log(`No address ${node.address} or saved addresses `, savedAddresses)
                         return;
                     }
                     if(addressIsSaved) {
-                        const index = savedAddresses.indexOf(node.address);
+                        const index = savedAddresses.indexOf(props.address);
                         if(index > -1) {
                             savedAddresses.splice(index, 1);
                             setSavedAddresses(savedAddresses);
                         }
                     } else {
-                        savedAddresses?.push(node.address);
+                        savedAddresses?.push(props.address);
                         setSavedAddresses(savedAddresses);
                     }
                 }}

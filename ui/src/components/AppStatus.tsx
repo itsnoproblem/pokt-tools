@@ -1,4 +1,14 @@
-import {Box, HStack, Stat, StatHelpText, StatLabel, StatNumber, useBreakpointValue} from "@chakra-ui/react";
+import {
+    Badge,
+    Box, Grid, GridItem,
+    HStack, Popover, PopoverBody, PopoverContent, PopoverTrigger, SimpleGrid,
+    Stat,
+    StatHelpText,
+    StatLabel,
+    StatNumber,
+    useBreakpointValue,
+    useDisclosure
+} from "@chakra-ui/react";
 import React, {useContext} from "react";
 import {MonthlyReward} from "../types/monthly-reward";
 import {NodeContext} from "../node-context";
@@ -11,6 +21,7 @@ interface AppStatusProps {
 export const AppStatus = (props: AppStatusProps) => {
     const isMobile = useBreakpointValue([true, false])
     const node = useContext(NodeContext);
+    const {isOpen, onOpen, onClose} = useDisclosure();
 
     const avgPoktForLastDays = (numDays: number): number => {
         const today = new Date();
@@ -41,10 +52,7 @@ export const AppStatus = (props: AppStatusProps) => {
         return Math.round(relays * 0.0089);
     }
 
-    const sortedRewards = props.rewards; /*.sort((i, j) => {
-        return (i.num_relays < j.num_relays) ? 1 : -1;
-    });*/
-
+    const sortedRewards = props.rewards;
     const sortedByChain = (sortedRewards[0] !== undefined) ?
         sortedRewards[0].relays_by_chain.sort((a, b) => {
             return (a.num_relays > b.num_relays) ? -1 : 1;
@@ -93,7 +101,34 @@ export const AppStatus = (props: AppStatusProps) => {
                     </>
                 )}
             </HStack>
-            {(isMobile && node !== undefined) && (<Box ml="auto" mr="auto" mb={6} mt={6}><em>Updated: {node.lastChecked?.toLocaleString()}</em></Box>)}
+            {(!isMobile && node !== undefined) && (
+                <>
+                    <Box ml="auto" mr="auto" mb={4} mt={12}>
+                        <em>Updated: {node.lastChecked?.toLocaleString()}</em>
+                        <Popover trigger={"hover"}>
+                            <PopoverTrigger>
+                                <Badge ml={8} p={2} variant='solid' colorScheme='green'>
+                                    {node.chains.length} chains connected
+                                </Badge>
+                            </PopoverTrigger>
+                            <PopoverContent>
+                                <PopoverBody>
+                                    <SimpleGrid columns={2}>
+                                        <GridItem borderBottomWidth={1} color={"gray.50"}>ID</GridItem>
+                                        <GridItem borderBottomWidth={1} color={"gray.50"}>Name</GridItem>
+                                        {node.chains.map((ch, i) => (
+                                            <>
+                                                <GridItem>{ch.id}</GridItem>
+                                                <GridItem>{ch.name}</GridItem>
+                                            </>
+                                        ))}
+                                    </SimpleGrid>
+                                </PopoverBody>
+                            </PopoverContent>
+                        </Popover>
+                    </Box>
+                </>
+            )}
         </>
 
 )
