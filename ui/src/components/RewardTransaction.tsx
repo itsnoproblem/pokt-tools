@@ -11,7 +11,6 @@ interface RewardTransactionProps {
 export const RewardTransaction = (props: RewardTransactionProps) => {
     const tx = props.tx;
     const numProofs = tx.num_proofs;
-    const description = (tx.type === 'pocketcore/proof') ? '' : numProofs + " relays on [" + tx.chain_id + "]";
     const amount = (tx.type === 'pocketcore/proof') ? '-' : Number(numProofs?.valueOf() * 0.0089).toFixed(4) + " POKT";
     const {hasCopied, onCopy} = useClipboard(tx.hash);
     const {hasCopied: pubkeyHasCopied, onCopy: pubkeyCopy} = useClipboard(tx.app_pubkey);
@@ -49,8 +48,29 @@ export const RewardTransaction = (props: RewardTransactionProps) => {
             )}
             <GridItem backgroundColor={props.color} align={"center"}>
                 {tx.is_confirmed ?
-                    (<IconButton variant="ghost" boxShadow={0} _focus={{boxShadow: "none"}} _hover={{}} cursor={"default"} aria-label="confirmed" title={`confirmed for session height ${tx.session_height}`} icon={(<CheckCircleIcon color="green.400"/>)}/>) :
-                    (<IconButton variant="ghost" boxShadow={0} _focus={{boxShadow: "none"}} _hover={{}} cursor={"default"} aria-label="unconfirmed" title="unconfirmed" icon={(<TimeIcon  color="yellow.400"/>)}/>)
+                    (
+                        <IconButton
+                            variant="ghost"
+                            boxShadow={0}
+                            _focus={{boxShadow: "none"}}
+                            _hover={{}}
+                            cursor={"default"}
+                            aria-label="confirmed"
+                            title={`confirmed for session height ${tx.session_height}`}
+                            icon={(<CheckCircleIcon color="green.400"/>)}
+                        />
+                    ) : (
+                        <IconButton
+                            variant="ghost"
+                            boxShadow={0}
+                            _focus={{boxShadow: "none"}}
+                            _hover={{}}
+                            cursor={"default"}
+                            aria-label="unconfirmed"
+                            title={`unconfirmed, expires at block ${tx.expire_height}`}
+                            icon={(<TimeIcon  color="yellow.400"/>)}
+                        />
+                    )
                 }
             </GridItem>
         </React.Fragment>
