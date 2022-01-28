@@ -1,7 +1,7 @@
 import {
     Badge,
-    Box, Grid, GridItem,
-    HStack, Popover, PopoverBody, PopoverContent, PopoverTrigger, SimpleGrid,
+    Box, ButtonSpinner, Flex, Grid, GridItem,
+    HStack, IconButton, Popover, PopoverBody, PopoverContent, PopoverTrigger, SimpleGrid, Spinner,
     Stat,
     StatHelpText,
     StatLabel,
@@ -12,6 +12,9 @@ import {
 import React, {useContext} from "react";
 import {MonthlyReward} from "../types/monthly-reward";
 import {NodeContext} from "../node-context";
+import {MdRefresh} from "react-icons/all";
+import {SpinnerIcon} from "@chakra-ui/icons";
+import {ConnectedChainsBadge} from "./badges/ConnectedChainsBadge";
 
 interface AppStatusProps {
     // onNodeLoaded: (b: CryptoNode) => void,
@@ -21,7 +24,7 @@ interface AppStatusProps {
 export const AppStatus = (props: AppStatusProps) => {
     const isMobile = useBreakpointValue([true, false])
     const node = useContext(NodeContext);
-    const {isOpen, onOpen, onClose} = useDisclosure();
+    const {isOpen: isSpinning, onOpen: startSpinner, onClose: stopSpinner, onToggle: toggleSpinner} = useDisclosure();
 
     const avgPoktForLastDays = (numDays: number): number => {
         const today = new Date();
@@ -102,32 +105,22 @@ export const AppStatus = (props: AppStatusProps) => {
                 )}
             </HStack>
             {(!isMobile && node !== undefined) && (
-                <>
+                <Flex>
                     <Box ml="auto" mr="auto" mb={4} mt={12}>
                         <em>Updated: {node.lastChecked?.toLocaleString()}</em>
-                        <Popover trigger={"hover"}>
-                            <PopoverTrigger>
-                                <Badge ml={8} p={2} variant='solid' colorScheme='green'>
-                                    {node.chains.length} chains connected
-                                </Badge>
-                            </PopoverTrigger>
-                            <PopoverContent>
-                                <PopoverBody>
-                                    <SimpleGrid columns={2}>
-                                        <GridItem borderBottomWidth={1} color={"gray.50"}>ID</GridItem>
-                                        <GridItem borderBottomWidth={1} color={"gray.50"}>Name</GridItem>
-                                        {node.chains.map((ch, i) => (
-                                            <>
-                                                <GridItem>{ch.id}</GridItem>
-                                                <GridItem>{ch.name}</GridItem>
-                                            </>
-                                        ))}
-                                    </SimpleGrid>
-                                </PopoverBody>
-                            </PopoverContent>
-                        </Popover>
+
+                        <IconButton
+                            ml={4} mr={4}
+                            aria-label={"Refresh"}
+                            variant={"ghost"}
+                            _focus={{boxShadow: 0}}
+                            icon={isSpinning ? (<Spinner size={"xs"}/>) : (<MdRefresh/>)}
+                            onClick={toggleSpinner}
+                        />
+
+                        <ConnectedChainsBadge/>
                     </Box>
-                </>
+                </Flex>
             )}
         </>
 
