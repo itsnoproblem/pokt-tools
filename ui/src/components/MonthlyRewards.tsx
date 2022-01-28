@@ -28,6 +28,7 @@ import {MonthlyReward} from "../types/monthly-reward";
 import {RewardTransaction} from "./RewardTransaction";
 import {PieChart} from "./PieChart";
 import {getClaims} from "../MonitoringService";
+import React from "react";
 
 declare const window: any;
 
@@ -97,8 +98,10 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
 
     return props.isRefreshing ? (
         <Stack w={["100vw", "1280px"]} ml={"auto"} mr={"auto"} mt={2}>
-            {Object.keys(monthNames).map(() => {
-                return (<Skeleton height={'48px'}/>)
+            
+            {Object.keys(monthNames).map((k, i) => {
+                i++;
+                return (<Skeleton key={i} height={'48px'}/>)
             })}
         </Stack>
     ) : (
@@ -106,7 +109,7 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
             {props.rewards.map((month: MonthlyReward, i) => {
                 const relays = relaysByChain(month)
                 return (
-                    <AccordionItem key={i.toString()}>
+                    <AccordionItem key={i}>
                         <h2>
                             <AccordionButton>
                                 <Box flex='1'>
@@ -157,13 +160,13 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
                                                     <Box padding={3} backgroundColor={"blue.900"}>Chain</Box>
                                                     <Box padding={3} backgroundColor={"blue.900"} align={"right"}>Relays</Box>
                                                     <Box padding={3} backgroundColor={"blue.900"} align={"right"}>Percent</Box>
-                                                    { relays.map((r) => {
+                                                    { relays.map((r, z) => {
                                                         return (
-                                                            <>
+                                                            <React.Fragment key={z}>
                                                                 <Box padding={3}>{r.id}</Box>
                                                                 <Box padding={3} align={"right"}>{Number(r.value).toLocaleString()}</Box>
                                                                 <Box padding={3} align={"right"}>{Number((r.value/month.num_relays)*100).toPrecision(4)}%</Box>
-                                                            </>
+                                                            </React.Fragment>
                                                         )
                                                     })}
                                                 </SimpleGrid>
