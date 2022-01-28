@@ -1,30 +1,38 @@
 import {
-    Badge,
-    Box, ButtonSpinner, Flex, Grid, GridItem,
-    HStack, IconButton, Popover, PopoverBody, PopoverContent, PopoverTrigger, SimpleGrid, Spinner,
+    Box, Center,
+    Flex,
+    HStack,
+    IconButton, Kbd,
+    Spinner,
     Stat,
     StatHelpText,
     StatLabel,
-    StatNumber,
+    StatNumber, Text,
     useBreakpointValue,
-    useDisclosure
 } from "@chakra-ui/react";
-import React, {useContext} from "react";
-import {MonthlyReward} from "../types/monthly-reward";
-import {NodeContext} from "../node-context";
 import {MdRefresh} from "react-icons/all";
-import {SpinnerIcon} from "@chakra-ui/icons";
+import React, {useCallback, useContext, useState} from "react";
+
+import {CryptoNode} from "../types/crypto-node";
+import {MonthlyReward} from "../types/monthly-reward";
+import {NodeContext} from "../context";
+
 import {ConnectedChainsBadge} from "./badges/ConnectedChainsBadge";
+import {getClaims, getNode, getHeight} from "../MonitoringService";
 
 interface AppStatusProps {
-    // onNodeLoaded: (b: CryptoNode) => void,
     rewards: MonthlyReward[],
+    onNodeLoaded: (node: CryptoNode) => void,
+    onRewardsLoaded: (months: MonthlyReward[]) => void,
+    isRefreshing: boolean,
+    setIsRefreshing: (is: boolean) => void,
 }
 
 export const AppStatus = (props: AppStatusProps) => {
+    const POKTPerRelay = 0.0089;
+    const [currentHeight, setCurrentHeight] = useState(0);
     const isMobile = useBreakpointValue([true, false])
     const node = useContext(NodeContext);
-    const {isOpen: isSpinning, onOpen: startSpinner, onClose: stopSpinner, onToggle: toggleSpinner} = useDisclosure();
 
     const avgPoktForLastDays = (numDays: number): number => {
         const today = new Date();
@@ -52,7 +60,7 @@ export const AppStatus = (props: AppStatusProps) => {
             relays = (total/numDays);
         }
 
-        return Math.round(relays * 0.0089);
+        return Math.round(relays * POKTPerRelay);
     }
 
     const sortedRewards = props.rewards;
@@ -60,10 +68,40 @@ export const AppStatus = (props: AppStatusProps) => {
         sortedRewards[0].relays_by_chain.sort((a, b) => {
             return (a.num_relays > b.num_relays) ? -1 : 1;
         }) : [];
+    // console.log("this month", sortedRewards[0]);
+    // sortedRewards[0].transactions.map((tx, i) => {
+    //     if(!tx.is_confirmed) {
+    //         if(currentHeight <= tx.expire_height) {
+    //
+    //         }
+    //     }
+    //     return true;
+    // });
+
+    const updateNodeData = useCallback(async () => {
+        if(!node.address) {
+            return;
+        }
+
+        props.setIsRefreshing(true);
+        try {
+            const h = await getHeight();
+            setCurrentHeight(h);
+            const n = await getNode(node.address);
+            props.onNodeLoaded(n);
+            const c = await getClaims(node.address);
+            props.onRewardsLoaded(c);
+        }
+        catch (err) {
+            console.error("updateNodeData", err);
+        }
+        props.setIsRefreshing(false);
+
+    }, [node, props]);
 
     return(
         <>
-            <HStack mt={4} ml={'auto'} mr={'auto'} p={0}>
+            <HStack mt={8} ml={'auto'} mr={'auto'} p={0}>
                 {!isMobile && (
                     <>
                         <Box  p={5} minWidth={"185px"} borderWidth={1} borderRadius={20} borderColor={"gray.50"}>
@@ -105,24 +143,22 @@ export const AppStatus = (props: AppStatusProps) => {
                 )}
             </HStack>
             {(!isMobile && node !== undefined) && (
-                <Flex>
-                    <Box ml="auto" mr="auto" mb={4} mt={12}>
-                        <em>Updated: {node.lastChecked?.toLocaleString()}</em>
-
+                <Box mb={4} mt={12}>
+                    <Center ml="auto" mr="auto">
+                        <Text>Height: <Kbd>{currentHeight}</Kbd></Text>
+                        <Box  color={"gray.400"} ml={8}><em>Updated: {node.lastChecked?.toLocaleString()}</em></Box>
                         <IconButton
                             ml={4} mr={4}
                             aria-label={"Refresh"}
                             variant={"ghost"}
                             _focus={{boxShadow: 0}}
-                            icon={isSpinning ? (<Spinner size={"xs"}/>) : (<MdRefresh/>)}
-                            onClick={toggleSpinner}
+                            icon={props.isRefreshing ? (<Spinner size={"xs"}/>) : (<MdRefresh/>)}
+                            onClick={updateNodeData}
                         />
-
                         <ConnectedChainsBadge/>
-                    </Box>
-                </Flex>
+                    </Center>
+                </Box>
             )}
         </>
 
-)
-}
+)}

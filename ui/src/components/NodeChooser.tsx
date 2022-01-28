@@ -23,7 +23,7 @@ import {
 } from "@chakra-ui/react";
 import {AiFillStar, AiOutlineStar, BiBookBookmark, FaBookmark, FaRegBookmark} from "react-icons/all";
 import * as React from "react";
-import {NodeContext} from "../node-context";
+import {NodeContext} from "../context";
 import {MutableRefObject, SyntheticEvent, useContext, useState} from "react";
 import {useLocalStorage} from "react-use";
 import ReactFocusLock from "react-focus-lock";

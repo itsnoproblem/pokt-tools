@@ -1,6 +1,6 @@
 import {Badge, GridItem, Popover, PopoverBody, PopoverContent, PopoverTrigger, SimpleGrid} from "@chakra-ui/react";
 import React, {useContext} from "react";
-import {NodeContext} from "../../node-context";
+import {NodeContext} from "../../context";
 
 export const ConnectedChainsBadge = () => {
     const node = useContext(NodeContext);

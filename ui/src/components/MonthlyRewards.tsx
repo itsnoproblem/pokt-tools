@@ -23,41 +23,38 @@ import {
 
 import {useCallback, useContext, useEffect, useState} from "react";
 import axios from "axios";
-import {NodeContext} from "../node-context";
+import {AppContext, NodeContext} from "../context";
 import {MonthlyReward} from "../types/monthly-reward";
 import {RewardTransaction} from "./RewardTransaction";
 import {PieChart} from "./PieChart";
+import {getClaims} from "../MonitoringService";
 
 declare const window: any;
 
 type MonthlyRewardsProps = {
     rewards: MonthlyReward[],
     onRewardsLoaded: (r: MonthlyReward[]) => void,
+    isRefreshing: boolean,
+    setIsRefreshing: (is: boolean) => void,
 }
 
 export const MonthlyRewards = (props: MonthlyRewardsProps) => {
-    const [rpcUrl, setRpcUrl] = useState("");
     const [hasLoaded, setHasLoaded] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
+
     const node = useContext(NodeContext)
     const isMobile = useBreakpointValue([true, false]);
 
     const getRewards = useCallback(() => {
-        if(rpcUrl === "") {
-            return;
-        }
-
-        setIsLoading(true);
-        axios.get(rpcUrl).then((result) => {
-            props.onRewardsLoaded(result.data.data);
-            // console.log("months result", result.data.data);
+        props.setIsRefreshing(true);
+        getClaims(node.address).then((months) => {
+            props.onRewardsLoaded(months);
         }).catch((err) => {
             console.error("ERROR", err);
         }).finally(() => {
             setHasLoaded(true);
-            setIsLoading(false);
+            props.setIsRefreshing(false);
         });
-    },[rpcUrl, props]);
+    },[node, props]);
 
     const monthNames: Record<number, string> = {
         1: "January",
@@ -76,11 +73,9 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
 
     useEffect(() => {
         if(!hasLoaded) {
-            const url = `${window._env_.RPC_URL}/node/${node.address}/rewards`;
-            setRpcUrl(url);
             getRewards();
         }
-    },  [hasLoaded, node.address, getRewards]);
+    },  [hasLoaded]);
 
     const bgOdd = useColorModeValue("gray.200", "gray.800");
     const bgEven = useColorModeValue("gray.50", "gray.700");
@@ -100,7 +95,7 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
         });
     }, []);
 
-    return isLoading ? (
+    return props.isRefreshing ? (
         <Stack w={["100vw", "1280px"]} ml={"auto"} mr={"auto"} mt={2}>
             {Object.keys(monthNames).map(() => {
                 return (<Skeleton height={'48px'}/>)

@@ -1,5 +1,6 @@
 #!/bin/bash
 
+OUTFILE=./src/configuration.ts
 ENVFILE=$1
 
 if [ "$ENVFILE" == "" ]
@@ -8,11 +9,8 @@ then
 fi
 
 # Recreate config file
-rm -rf ./env-config.js
-touch ./env-config.js
-
-# Add assignment
-echo "window._env_ = {" >> ./env-config.js
+rm -rf $OUTFILE
+touch $OUTFILE
 
 # Read each line in .env file
 # Each line represents key=value pairs
@@ -30,7 +28,8 @@ do
   [[ -z $value ]] && value=${varvalue}
 
   # Append configuration property to JS file
-  echo "  $varname: \"$value\"," >> ./env-config.js
+  echo "export const $varname = \"$value\";
+" >> $OUTFILE
 done < $ENVFILE
 
 echo "}" >> ./env-config.js

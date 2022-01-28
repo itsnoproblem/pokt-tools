@@ -9,7 +9,7 @@ import {
     useBreakpointValue
 } from "@chakra-ui/react";
 import {HomeButton} from "./HomeButton";
-import {NodeContext} from "../node-context";
+import {NodeContext} from "../context";
 import {ColorModeSwitcher} from "./ColorModeSwitcher";
 import {FaGithub, MdBrightness1} from "react-icons/all";
 import * as React from "react";
@@ -18,8 +18,9 @@ import {useParams} from "react-router-dom";
 import {NodeChooser} from "./NodeChooser";
 import {useCallback, useContext, useEffect, useState} from "react";
 import axios from "axios";
-import {NodeStatus} from "./NodeStatus";
+
 import {useLocalStorage} from "react-use";
+import {getNode} from "../MonitoringService";
 
 declare const window: any;
 
@@ -60,44 +61,25 @@ export const AppHeader = (props: NodeProps) => {
     }
 
     const updateBalance = useCallback(() => {
-        if(rpcEndpoint === "" || address === "") {
-            console.error(`ABORT addr: ${address} rpc: ${rpcEndpoint}`)
+        if(!address) {
             return;
         }
 
-        axios.get(rpcEndpoint)
-            .then(async (result) => {
-                // console.log("Node status result", result);
-                const node: CryptoNode = {
-                    exists: result.data.data.address !== "",
-                    address: result.data.data.address,
-                    balance: result.data.data.balance,
-                    chains: result.data.data.chains,
-                    isJailed: result.data.data.is_jailed,
-                    pubkey: result.data.data.pubkey,
-                    stakedBalance: result.data.data.staked_balance,
-                }
-                node.lastChecked = new Date();
-                props.onNodeLoaded(node);
-                setCurrentAddress(node.address);
-                setHasLoaded(true);
-            })
-            .catch((err) => {
-                console.error(err);
-                // node.exists = false;
-                // props.onNodeLoaded(node);
-                setHasLoaded(true);
-            });
+        getNode(address).then((node) => {
+            setCurrentAddress(node.address);
+            props.onNodeLoaded(node);
+        })
+        .catch((err) => console.error(err))
+        .finally(() => {
+            setHasLoaded(true);
+        });
     }, [props, address, rpcEndpoint]);
 
     useEffect(() => {
         if(!hasLoaded) {
-            const rpcUrl = `${window._env_.RPC_URL}/node/${address}`;
-            setRpcEndpoint(rpcUrl);
             updateBalance();
         }
-    }, [address, hasLoaded, props, updateBalance]);
-
+    });
 
     return (
         <HStack justifyContent={"space-between"}>

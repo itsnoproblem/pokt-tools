@@ -1,7 +1,7 @@
 import {Flex} from "@chakra-ui/react";
 import * as React from "react";
 import {useContext} from "react";
-import {NodeContext} from "../node-context";
+import {NodeContext} from "../context";
 import {CryptoNode} from "../types/crypto-node";
 import {AppStatus} from "../components/AppStatus";
 import {MonthlyRewards} from "../components/MonthlyRewards";
@@ -9,9 +9,11 @@ import {useParams} from "react-router-dom";
 import {MonthlyReward} from "../types/monthly-reward";
 
 interface RewardsProps {
-    // onNodeLoaded: (n: CryptoNode) => void,
+    onNodeLoaded: (n: CryptoNode) => void,
     rewards: MonthlyReward[],
-    onRewardsLoaded: (m: MonthlyReward[]) => void
+    onRewardsLoaded: (m: MonthlyReward[]) => void,
+    isRefreshing: boolean,
+    setIsRefreshing: (b: boolean) => void,
 }
 
 export const Rewards = (props: RewardsProps) => {
@@ -20,15 +22,25 @@ export const Rewards = (props: RewardsProps) => {
     const address = params["address"];
     if(address !== "") {
         node.address = address ?? "";
-        // props.onNodeLoaded(node);
     }
 
     return (
         <Flex direction="column" className="outer-grid" minH="100vh" w={["100vw", "100%"]} p={[1, 3]}>
             {node.address && (
             <>
-                <AppStatus rewards={props.rewards}/>
-                <MonthlyRewards rewards={props.rewards} onRewardsLoaded={props.onRewardsLoaded}/>
+                <AppStatus
+                    rewards={props.rewards}
+                    onNodeLoaded={props.onNodeLoaded}
+                    onRewardsLoaded={props.onRewardsLoaded}
+                    isRefreshing={props.isRefreshing}
+                    setIsRefreshing={props.setIsRefreshing}
+                />
+                <MonthlyRewards
+                    rewards={props.rewards}
+                    onRewardsLoaded={props.onRewardsLoaded}
+                    isRefreshing={props.isRefreshing}
+                    setIsRefreshing={props.setIsRefreshing}
+                />
             </>
             )}
         </Flex>
