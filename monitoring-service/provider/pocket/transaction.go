@@ -7,6 +7,10 @@ import (
 	"monitoring-service/pocket"
 )
 
+const (
+	ClaimExpirationBlocks = 12
+)
+
 type accountTransactionsRequest struct {
 	Address string `json:"address"`
 	Height  uint   `json:"height"`
@@ -68,6 +72,7 @@ func (t *transactionResponse) Transaction() (pocket.Transaction, error) {
 		}
 
 		tx.SessionHeight = uint(sessionHeight)
+		tx.ExpireHeight = uint(sessionHeight + ClaimExpirationBlocks)
 		tx.ChainID = t.StdTx.Message.Value.Header.Chain
 		tx.AppPubkey = t.StdTx.Message.Value.Header.AppPubKey
 		break

@@ -97,6 +97,7 @@ func MonthlyRewardsEndpoint(svc Service) endpoint.Endpoint {
 					Type:          tx.Type,
 					ChainID:       tx.ChainID,
 					SessionHeight: tx.SessionHeight,
+					ExpireHeight:  tx.ExpireHeight,
 					AppPubkey:     tx.AppPubkey,
 					NumProofs:     tx.NumProofs,
 					IsConfirmed:   tx.IsConfirmed,
@@ -170,6 +171,7 @@ type transactionResponse struct {
 	Type          string    `json:"type"`
 	ChainID       string    `json:"chain_id"`
 	SessionHeight uint      `json:"session_height"`
+	ExpireHeight  uint      `json:"expire_height"`
 	AppPubkey     string    `json:"app_pubkey"`
 	NumProofs     uint      `json:"num_proofs"`
 	IsConfirmed   bool      `json:"is_confirmed"`
@@ -238,6 +240,7 @@ func AccountTransactionsEndpoint(svc Service) endpoint.Endpoint {
 				Type:          tx.Type,
 				ChainID:       tx.ChainID,
 				SessionHeight: tx.SessionHeight,
+				ExpireHeight:  tx.ExpireHeight,
 				AppPubkey:     tx.AppPubkey,
 				NumProofs:     tx.NumProofs,
 			}

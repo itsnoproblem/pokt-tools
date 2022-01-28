@@ -52,7 +52,7 @@ func main() {
 	}(bitcaskDB)
 	blockTimesRepo := db.NewBlockTimesRepo(bitcaskDB)
 
-	// provider + service
+	// provider + MonitoringService
 	prv := pocket.NewPocketProvider(httpClient, *pocketRpcURL, blockTimesRepo)
 	pocketProvider := prv.WithLogger(logger)
 	nodeSvc := monitoring.NewService(pocketProvider)
