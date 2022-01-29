@@ -8,7 +8,8 @@ import {
     Grid,
     GridItem,
     HStack,
-    SimpleGrid, Skeleton,
+    SimpleGrid,
+    Skeleton,
     Spacer,
     Stack,
     Tab,
@@ -20,44 +21,37 @@ import {
     useBreakpointValue,
     useColorModeValue
 } from "@chakra-ui/react";
-
-import {useCallback, useContext, useEffect, useState} from "react";
-import axios from "axios";
-import {NodeContext} from "../node-context";
+import React, {useCallback, useContext, useEffect, useState} from "react";
+import {NodeContext} from "../context";
 import {MonthlyReward} from "../types/monthly-reward";
 import {RewardTransaction} from "./RewardTransaction";
 import {PieChart} from "./PieChart";
-
-declare const window: any;
+import {getClaims} from "../MonitoringService";
 
 type MonthlyRewardsProps = {
     rewards: MonthlyReward[],
     onRewardsLoaded: (r: MonthlyReward[]) => void,
+    isRefreshing: boolean,
+    setIsRefreshing: (is: boolean) => void,
 }
 
 export const MonthlyRewards = (props: MonthlyRewardsProps) => {
-    const [rpcUrl, setRpcUrl] = useState("");
     const [hasLoaded, setHasLoaded] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
+
     const node = useContext(NodeContext)
     const isMobile = useBreakpointValue([true, false]);
 
     const getRewards = useCallback(() => {
-        if(rpcUrl === "") {
-            return;
-        }
-
-        setIsLoading(true);
-        axios.get(rpcUrl).then((result) => {
-            props.onRewardsLoaded(result.data.data);
-            // console.log("months result", result.data.data);
+        props.setIsRefreshing(true);
+        getClaims(node.address).then((months) => {
+            props.onRewardsLoaded(months);
         }).catch((err) => {
             console.error("ERROR", err);
         }).finally(() => {
             setHasLoaded(true);
-            setIsLoading(false);
+            props.setIsRefreshing(false);
         });
-    },[rpcUrl, props]);
+    },[node, props]);
 
     const monthNames: Record<number, string> = {
         1: "January",
@@ -76,11 +70,9 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
 
     useEffect(() => {
         if(!hasLoaded) {
-            const url = `${window._env_.RPC_URL}/node/${node.address}/rewards`;
-            setRpcUrl(url);
             getRewards();
         }
-    },  [hasLoaded, node.address, getRewards]);
+    },  [hasLoaded, getRewards]);
 
     const bgOdd = useColorModeValue("gray.200", "gray.800");
     const bgEven = useColorModeValue("gray.50", "gray.700");
@@ -100,10 +92,12 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
         });
     }, []);
 
-    return isLoading ? (
+    return props.isRefreshing ? (
         <Stack w={["100vw", "1280px"]} ml={"auto"} mr={"auto"} mt={2}>
-            {Object.keys(monthNames).map(() => {
-                return (<Skeleton height={'48px'}/>)
+
+            {Object.keys(monthNames).map((k, i) => {
+                i++;
+                return (<Skeleton key={i} height={'48px'}/>)
             })}
         </Stack>
     ) : (
@@ -111,7 +105,7 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
             {props.rewards.map((month: MonthlyReward, i) => {
                 const relays = relaysByChain(month)
                 return (
-                    <AccordionItem key={i.toString()}>
+                    <AccordionItem key={i}>
                         <h2>
                             <AccordionButton>
                                 <Box flex='1'>
@@ -162,13 +156,13 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
                                                     <Box padding={3} backgroundColor={"blue.900"}>Chain</Box>
                                                     <Box padding={3} backgroundColor={"blue.900"} align={"right"}>Relays</Box>
                                                     <Box padding={3} backgroundColor={"blue.900"} align={"right"}>Percent</Box>
-                                                    { relays.map((r) => {
+                                                    { relays.map((r, z) => {
                                                         return (
-                                                            <>
+                                                            <React.Fragment key={z}>
                                                                 <Box padding={3}>{r.id}</Box>
                                                                 <Box padding={3} align={"right"}>{Number(r.value).toLocaleString()}</Box>
                                                                 <Box padding={3} align={"right"}>{Number((r.value/month.num_relays)*100).toPrecision(4)}%</Box>
-                                                            </>
+                                                            </React.Fragment>
                                                         )
                                                     })}
                                                 </SimpleGrid>

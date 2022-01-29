@@ -97,6 +97,7 @@ func MonthlyRewardsEndpoint(svc Service) endpoint.Endpoint {
 					Type:          tx.Type,
 					ChainID:       tx.ChainID,
 					SessionHeight: tx.SessionHeight,
+					ExpireHeight:  tx.ExpireHeight,
 					AppPubkey:     tx.AppPubkey,
 					NumProofs:     tx.NumProofs,
 					IsConfirmed:   tx.IsConfirmed,
@@ -170,6 +171,7 @@ type transactionResponse struct {
 	Type          string    `json:"type"`
 	ChainID       string    `json:"chain_id"`
 	SessionHeight uint      `json:"session_height"`
+	ExpireHeight  uint      `json:"expire_height"`
 	AppPubkey     string    `json:"app_pubkey"`
 	NumProofs     uint      `json:"num_proofs"`
 	IsConfirmed   bool      `json:"is_confirmed"`
@@ -238,6 +240,7 @@ func AccountTransactionsEndpoint(svc Service) endpoint.Endpoint {
 				Type:          tx.Type,
 				ChainID:       tx.ChainID,
 				SessionHeight: tx.SessionHeight,
+				ExpireHeight:  tx.ExpireHeight,
 				AppPubkey:     tx.AppPubkey,
 				NumProofs:     tx.NumProofs,
 			}
@@ -254,8 +257,9 @@ type nodeRequest struct {
 type nodeResponse struct {
 	Address           string          `json:"address"`
 	Pubkey            string          `json:"pubkey"`
+	ServiceURL        string          `json:"service_url"`
 	Balance           uint            `json:"balance"`
-	StakedBalance     string          `json:"staked_balance"`
+	StakedBalance     uint            `json:"staked_balance"`
 	IsJailed          bool            `json:"is_jailed"`
 	Chains            []chainResponse `json:"chains"`
 	IsSynced          bool            `json:"is_synced"`
@@ -297,6 +301,7 @@ func NodeEndpoint(svc Service) endpoint.Endpoint {
 			Address:           node.Address,
 			Balance:           node.Balance,
 			Pubkey:            node.Pubkey,
+			ServiceURL:        node.ServiceURL,
 			StakedBalance:     node.StakedBalance,
 			IsJailed:          node.IsJailed,
 			Chains:            chains,

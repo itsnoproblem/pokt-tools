@@ -1,14 +1,11 @@
 import {
     Box,
     Button,
-    ButtonGroup,
-    FormControl,
-    FormLabel,
     HStack,
     IconButton,
-    Input, Link, LinkBox,
+    Input,
+    Link,
     Popover,
-    PopoverArrow,
     PopoverBody,
     PopoverCloseButton,
     PopoverContent,
@@ -16,17 +13,15 @@ import {
     PopoverHeader,
     PopoverTrigger,
     Portal,
-    Stack,
     Text,
     useDisclosure,
     VStack
 } from "@chakra-ui/react";
-import {AiFillStar, AiOutlineStar, BiBookBookmark, FaBookmark, FaRegBookmark} from "react-icons/all";
+import {AiFillStar, AiOutlineStar, FaBookmark} from "react-icons/all";
 import * as React from "react";
-import {NodeContext} from "../node-context";
-import {MutableRefObject, SyntheticEvent, useContext, useState} from "react";
+import {SyntheticEvent, useContext} from "react";
+import {NodeContext} from "../context";
 import {useLocalStorage} from "react-use";
-import ReactFocusLock from "react-focus-lock";
 
 type NodeChooserProps = {
     address: string
@@ -38,7 +33,7 @@ export const NodeChooser = (props: NodeChooserProps) => {
     const defaultSavedAddresses: Array<string> = [];
     const [savedAddresses, setSavedAddresses] = useLocalStorage("savedAddresses", defaultSavedAddresses);
     addressIsSaved = savedAddresses?.includes(node.address) ?? false;
-    const {isOpen, onOpen, onClose} = useDisclosure();
+    const {onOpen, onClose} = useDisclosure();
 
     return (
         <HStack spacing={0}>
@@ -64,7 +59,7 @@ export const NodeChooser = (props: NodeChooserProps) => {
                     </PopoverTrigger>
                     <Portal>
                         <PopoverContent>
-                            <PopoverHeader>Select a servicer node</PopoverHeader>
+                            <PopoverHeader>Select a node</PopoverHeader>
                             <PopoverCloseButton />
                             <PopoverBody>
                                 <VStack align={"left"}>

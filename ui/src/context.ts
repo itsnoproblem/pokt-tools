@@ -1,9 +1,10 @@
 import {createContext} from "react";
 import {CryptoNode} from "./types/crypto-node";
 
-export const defaultNodeContext: CryptoNode = {
+const defaultNodeContext: CryptoNode = {
     exists: false,
-    address: "",
+    address: '',
+    service_url: '',
     balance: 0,
     chains: [],
     isJailed: true,
@@ -12,3 +13,4 @@ export const defaultNodeContext: CryptoNode = {
 };
 
 export const NodeContext = createContext(defaultNodeContext);
+

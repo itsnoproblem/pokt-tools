@@ -1,4 +1,4 @@
-import {NodeContext} from "../node-context";
+import {NodeContext} from "../context";
 import {useContext, useEffect, useState} from "react";
 import axios from "axios";
 import {PocketError} from "../types/error";

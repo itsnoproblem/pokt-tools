@@ -1,36 +1,35 @@
-import {
-    Box, Button,
-    HStack,
-    IconButton,
-    Popover,
-    PopoverBody,
-    PopoverContent,
-    PopoverTrigger, Spacer,
-    useBreakpointValue
-} from "@chakra-ui/react";
-import {HomeButton} from "./HomeButton";
-import {NodeContext} from "../node-context";
+import {Box, HStack, IconButton, Kbd, Spacer, Spinner, Text, useBreakpointValue, useInterval} from "@chakra-ui/react";
+import {NodeContext} from "../context";
 import {ColorModeSwitcher} from "./ColorModeSwitcher";
-import {FaGithub, MdBrightness1} from "react-icons/all";
+import {MdBrightness1, MdRefresh} from "react-icons/all";
 import * as React from "react";
-import {CryptoNode, NodeProps} from '../types/crypto-node';
+import {useCallback, useContext, useEffect, useState} from "react";
+import {CryptoNode} from '../types/crypto-node';
 import {useParams} from "react-router-dom";
 import {NodeChooser} from "./NodeChooser";
-import {useCallback, useContext, useEffect, useState} from "react";
-import axios from "axios";
-import {NodeStatus} from "./NodeStatus";
+
 import {useLocalStorage} from "react-use";
+import {getClaims, getHeight, getNode} from "../MonitoringService";
+import {HamburgerMenu} from "./HamburgerMenu";
+import {PendingRelaysBadge} from "./badges/PendingRelaysBadge";
+import {MonthlyReward} from "../types/monthly-reward";
 
-declare const window: any;
+type AppHeaderProps = {
+    address: string,
+    onNodeLoaded: (n: CryptoNode) => void,
+    rewards: MonthlyReward[],
+    onRewardsLoaded: (m: MonthlyReward[]) => void,
+    isRefreshing: boolean,
+    setIsRefreshing: (is: boolean) => void,
+}
 
-export const AppHeader = (props: NodeProps) => {
-    const pathIdRewards = 'rewards';
-    const pathIdErrors = 'errors';
-
-    const isMobile = useBreakpointValue([true, false]);
+export const AppHeader = (props: AppHeaderProps) => {
     const defaultSavedAddresses: Array<string> = [];
-    const [savedAddresses, setSavedAddresses] = useLocalStorage("savedAddresses", defaultSavedAddresses);
+    const [savedAddresses] = useLocalStorage("savedAddresses", defaultSavedAddresses);
     const [currentAddress, setCurrentAddress] = useLocalStorage("currentAddress", "");
+    const isMobile = useBreakpointValue([true, false]);
+    const [currentHeight, setCurrentHeight] = useState(0);
+    const [pendingRelays, setPendingRelays] = useState(0);
     const node = useContext(NodeContext);
 
     let {address} = useParams();
@@ -41,86 +40,90 @@ export const AppHeader = (props: NodeProps) => {
             setCurrentAddress(savedAddresses[0]);
         }
     }
-    let activePath = '';
 
-    const [rpcEndpoint, setRpcEndpoint] = useState("");
     const [hasLoaded, setHasLoaded] = useState(false);
-    const statusColor = (props.node.isJailed || !props.node.exists) ? "#FF0000"   : "#2bd950";
-    const status = (props.node.isJailed || !props.node.exists) ?
-        (props.node.exists ? "Jailed" : "Invalid address") : "Not Jailed";
+    const statusColor = (node.isJailed || !node.exists) ? "#FF0000"   : "#2bd950";
+    const status = (node.isJailed || !node.exists) ?
+        (node.exists ? "Jailed" : "Invalid address") : "Not Jailed";
 
-    const pathElements = window.location.pathname.split('/');
-    switch(pathElements[pathElements.length-1]) {
-        case pathIdRewards:
-            activePath = pathIdRewards;
-            break;
-        case pathIdErrors:
-            activePath = pathIdErrors;
-            break;
-    }
-
-    const updateBalance = useCallback(() => {
-        if(rpcEndpoint === "" || address === "") {
-            console.error(`ABORT addr: ${address} rpc: ${rpcEndpoint}`)
+    const updateNodeData = useCallback(async () => {
+        if(!node.address) {
             return;
         }
 
-        axios.get(rpcEndpoint)
-            .then(async (result) => {
-                // console.log("Node status result", result);
-                const node: CryptoNode = {
-                    exists: result.data.data.address !== "",
-                    address: result.data.data.address,
-                    balance: result.data.data.balance,
-                    chains: result.data.data.chains,
-                    isJailed: result.data.data.is_jailed,
-                    pubkey: result.data.data.pubkey,
-                    stakedBalance: result.data.data.staked_balance,
-                }
-                node.lastChecked = new Date();
-                props.onNodeLoaded(node);
-                setCurrentAddress(node.address);
-                setHasLoaded(true);
-            })
-            .catch((err) => {
-                console.error(err);
-                // node.exists = false;
-                // props.onNodeLoaded(node);
-                setHasLoaded(true);
-            });
-    }, [props, address, rpcEndpoint]);
+        props.setIsRefreshing(true);
+        try {
+            const n = await getNode(node.address);
+            props.onNodeLoaded(n);
+            const c = await getClaims(node.address);
+            props.onRewardsLoaded(c);
+        }
+        catch (err) {
+            console.error("updateNodeData", err);
+        }
+        props.setIsRefreshing(false);
+
+    }, [node, props]);
+    const thing = useInterval(updateNodeData, 900000);
+
+    const updateBalance = useCallback(() => {
+        if(!address) {
+            return;
+        }
+
+        getNode(address).then((node) => {
+            setCurrentAddress(node.address);
+            props.onNodeLoaded(node);
+        })
+        .catch((err) => console.error(err))
+        .finally(() => {
+            setHasLoaded(true);
+        });
+    }, [props, address, setCurrentAddress]);
 
     useEffect(() => {
         if(!hasLoaded) {
-            const rpcUrl = `${window._env_.RPC_URL}/node/${address}`;
-            setRpcEndpoint(rpcUrl);
             updateBalance();
         }
-    }, [address, hasLoaded, props, updateBalance]);
+
+        getHeight().then((h) => setCurrentHeight(h));
+
+        if(props.rewards[0]) {
+            let pending = 0;
+            props.rewards[0].transactions.map((t) => {
+                if(!t.is_confirmed && t.expire_height > currentHeight) {
+                    pending += t.num_proofs;
+                }
+                return t;
+            })
+            setPendingRelays(pending);
+        }
+    }, [pendingRelays, props, currentHeight, hasLoaded, updateBalance]);
 
 
     return (
-        <HStack justifyContent={"space-between"}>
-            {/* Nav Links */}
-            {window.location.pathname === "/" ? ( <Box/> ) : ( <HomeButton alignSelf="flex-start"/> )}
-            {(node.address && !isMobile) && (
-                <>
-                    <Button
-                        variant={activePath === pathIdRewards ? "outline" : "ghost"}
-                        title={"Rewards"}
-                        onClick={() => window.location.href=`/node/${props.node.address}/rewards`}
-                    >
-                        Rewards
-                    </Button>
-                    <Button
-                        variant={activePath === pathIdErrors ? "outline" : "ghost"}
-                        title={"Logs"}
-                        onClick={() => window.location.href=`/node/${props.node.address}/errors`}
-                    >
-                        Logs
-                    </Button>
-                </>
+        <HStack justifyContent={"space-between"} mt={[1,2]}>
+            <HamburgerMenu/>
+            {(!isMobile && node.address !== '') && (
+                <HStack pl={2}>
+                    {/*<ConnectedChainsBadge/>*/}
+                    <Box>
+                        <Text d="inline" fontSize="xs" fontWeight={600} textTransform={"uppercase"}>height:</Text>
+                        <Kbd>{currentHeight}</Kbd>
+                    </Box>
+                    <IconButton
+                        ml={4} mr={4}
+                        aria-label={"Refresh"}
+                        variant={"ghost"}
+                        _focus={{boxShadow: 0}}
+                        icon={props.isRefreshing ? (<Spinner size={"xs"}/>) : (<MdRefresh/>)}
+                        onClick={updateNodeData}
+                    />
+                    <Box  color={"gray.400"} ml={8}><em>Updated: {node.lastChecked?.toLocaleString()}</em></Box>
+                </HStack>
+
             )}
+            <Box ml={2}><PendingRelaysBadge num={pendingRelays}/></Box>
             <Spacer/>
             <Box>
                 <MdBrightness1
@@ -139,19 +142,7 @@ export const AppHeader = (props: NodeProps) => {
                         _focus={{boxShadow: "none"}}
                         alignSelf="flex-end"
                     />
-                     {/* Source code link */}
-                    <IconButton
-                        aria-label={"Source code"}
-                        icon={(<FaGithub/>)}
-                        onClick={() => { window.location.href="https://github.com/itsnoproblem/pokt-calculator"} }
-                        _focus={{boxShadow: "none"}}
-                        alignSelf="flex-end"
-                        size="md"
-                        fontSize="lg"
-                        variant="ghost"
-                        color="current"
-                        marginLeft="2"
-                    />
+
                 </HStack>
             )}
         </HStack>

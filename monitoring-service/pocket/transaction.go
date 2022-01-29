@@ -13,6 +13,7 @@ type Transaction struct {
 	ChainID       string
 	NumProofs     uint
 	SessionHeight uint
+	ExpireHeight  uint
 	AppPubkey     string
 	IsConfirmed   bool
 }

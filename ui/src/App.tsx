@@ -1,18 +1,13 @@
 import * as React from "react"
 import {useState} from "react"
-import {Box, ChakraProvider, Flex, HStack, IconButton, useBreakpointValue} from "@chakra-ui/react"
+import {ChakraProvider, Flex} from "@chakra-ui/react"
 import {BrowserRouter as Router, Route, Routes, useParams} from "react-router-dom";
 import theme from "./theme";
-import {NodeContext} from "./node-context";
+import {NodeContext} from "./context";
 import {CryptoNode} from "./types/crypto-node";
-import {ColorModeSwitcher} from "./components/ColorModeSwitcher";
-import {Home} from "./pages/Home";
-import {HomeButton} from "./components/HomeButton";
-import {Rewards} from "./pages/Rewards";
-import {NodeStatus} from "./components/NodeStatus";
 import {MonthlyReward} from "./types/monthly-reward";
-import {Icon} from "@chakra-ui/icons";
-import {FaGithub} from "react-icons/all";
+import {Home} from "./pages/Home";
+import {Rewards} from "./pages/Rewards";
 import {Errors} from "./pages/Errors";
 import {AppHeader} from "./components/AppHeader";
 
@@ -20,17 +15,18 @@ export const App = () => {
     const defaultNode: CryptoNode = {
         exists: false,
         address: '',
+        service_url: '',
         balance: 0,
         chains: [],
         isJailed: true,
         pubkey: '',
         stakedBalance: 0,
     }
-
-    let defaultRewards: MonthlyReward[] = [];
-
+    const defaultRewards: MonthlyReward[] = [];
     const [node, setNode] = useState(defaultNode);
     const [rewards, setRewards] = useState(defaultRewards);
+    const [isRefreshing, setIsRefreshing] = useState(false);
+
     const {address} = useParams();
 
     return (
@@ -43,15 +39,21 @@ export const App = () => {
                                 path={"/node/:address/rewards"}
                                 element={(
                                     <>
-                                        {/* Home link, node status colormode switcher */}
                                         <AppHeader
-                                            address={address}
-                                            node={node}
+                                            address={address ?? ''}
+                                            isRefreshing={isRefreshing}
+                                            setIsRefreshing={setIsRefreshing}
                                             onNodeLoaded={setNode}
+                                            rewards={rewards}
+                                            onRewardsLoaded={setRewards}
                                         />
                                         {/* Rewards Page */}
-                                        <Rewards rewards={rewards}
+                                        <Rewards
+                                            onNodeLoaded={setNode}
                                             onRewardsLoaded={setRewards}
+                                            rewards={rewards}
+                                            isRefreshing={isRefreshing}
+                                            setIsRefreshing={setIsRefreshing}
                                         />
                                     </>
                                 )}
@@ -60,13 +62,14 @@ export const App = () => {
                                 path={"/node/:address/errors"}
                                 element={(
                                     <>
-                                        {/* Home link, node status colormode switcher */}
                                         <AppHeader
-                                            address={address}
-                                            node={node}
+                                            address={address ?? ''}
+                                            isRefreshing={isRefreshing}
+                                            setIsRefreshing={setIsRefreshing}
                                             onNodeLoaded={setNode}
+                                            rewards={rewards}
+                                            onRewardsLoaded={setRewards}
                                         />
-                                        {/* Error reports */}
                                         <Errors/>
                                     </>
                                 )}
@@ -74,9 +77,12 @@ export const App = () => {
                             <Route path={"/"} element={(
                                 <>
                                     <AppHeader
-                                        address={address}
-                                        node={node}
+                                        address={address ?? ''}
+                                        isRefreshing={isRefreshing}
+                                        setIsRefreshing={setIsRefreshing}
                                         onNodeLoaded={setNode}
+                                        rewards={rewards}
+                                        onRewardsLoaded={setRewards}
                                     />
                                     <Home/>
                                 </>

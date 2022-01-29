@@ -6,7 +6,8 @@ type Node struct {
 	Address           string
 	Pubkey            string
 	Balance           uint
-	StakedBalance     string
+	StakedBalance     uint
+	ServiceURL        string
 	IsJailed          bool
 	Chains            []Chain
 	IsSynced          bool

@@ -11,6 +11,7 @@
 /build
 /public/env-config.js
 env-config.js
+configuration.ts
 
 # misc
 .DS_Store

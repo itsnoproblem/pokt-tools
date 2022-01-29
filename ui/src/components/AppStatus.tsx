@@ -1,27 +1,22 @@
-import {
-    Badge,
-    Box, Grid, GridItem,
-    HStack, Popover, PopoverBody, PopoverContent, PopoverTrigger, SimpleGrid,
-    Stat,
-    StatHelpText,
-    StatLabel,
-    StatNumber,
-    useBreakpointValue,
-    useDisclosure
-} from "@chakra-ui/react";
-import React, {useContext} from "react";
+import {Box, HStack, Stat, StatHelpText, StatLabel, StatNumber, useBreakpointValue,} from "@chakra-ui/react";
+import React from "react";
+
+import {CryptoNode} from "../types/crypto-node";
 import {MonthlyReward} from "../types/monthly-reward";
-import {NodeContext} from "../node-context";
 
 interface AppStatusProps {
-    // onNodeLoaded: (b: CryptoNode) => void,
     rewards: MonthlyReward[],
+    onNodeLoaded: (node: CryptoNode) => void,
+    onRewardsLoaded: (months: MonthlyReward[]) => void,
+    isRefreshing: boolean,
+    setIsRefreshing: (is: boolean) => void,
 }
 
 export const AppStatus = (props: AppStatusProps) => {
+    const POKTPerRelay = 0.0089;
+
     const isMobile = useBreakpointValue([true, false])
-    const node = useContext(NodeContext);
-    const {isOpen, onOpen, onClose} = useDisclosure();
+
 
     const avgPoktForLastDays = (numDays: number): number => {
         const today = new Date();
@@ -49,7 +44,7 @@ export const AppStatus = (props: AppStatusProps) => {
             relays = (total/numDays);
         }
 
-        return Math.round(relays * 0.0089);
+        return Math.round(relays * POKTPerRelay);
     }
 
     const sortedRewards = props.rewards;
@@ -60,7 +55,7 @@ export const AppStatus = (props: AppStatusProps) => {
 
     return(
         <>
-            <HStack mt={4} ml={'auto'} mr={'auto'} p={0}>
+            <HStack mt={8} ml={'auto'} mr={'auto'} p={0}>
                 {!isMobile && (
                     <>
                         <Box  p={5} minWidth={"185px"} borderWidth={1} borderRadius={20} borderColor={"gray.50"}>
@@ -101,35 +96,7 @@ export const AppStatus = (props: AppStatusProps) => {
                     </>
                 )}
             </HStack>
-            {(!isMobile && node !== undefined) && (
-                <>
-                    <Box ml="auto" mr="auto" mb={4} mt={12}>
-                        <em>Updated: {node.lastChecked?.toLocaleString()}</em>
-                        <Popover trigger={"hover"}>
-                            <PopoverTrigger>
-                                <Badge ml={8} p={2} variant='solid' colorScheme='green'>
-                                    {node.chains.length} chains connected
-                                </Badge>
-                            </PopoverTrigger>
-                            <PopoverContent>
-                                <PopoverBody>
-                                    <SimpleGrid columns={2}>
-                                        <GridItem borderBottomWidth={1} color={"gray.50"}>ID</GridItem>
-                                        <GridItem borderBottomWidth={1} color={"gray.50"}>Name</GridItem>
-                                        {node.chains.map((ch, i) => (
-                                            <>
-                                                <GridItem>{ch.id}</GridItem>
-                                                <GridItem>{ch.name}</GridItem>
-                                            </>
-                                        ))}
-                                    </SimpleGrid>
-                                </PopoverBody>
-                            </PopoverContent>
-                        </Popover>
-                    </Box>
-                </>
-            )}
+
         </>
 
-)
-}
+)}
