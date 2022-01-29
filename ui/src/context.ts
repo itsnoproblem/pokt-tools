@@ -3,7 +3,8 @@ import {CryptoNode} from "./types/crypto-node";
 
 const defaultNodeContext: CryptoNode = {
     exists: false,
-    address: "",
+    address: '',
+    service_url: '',
     balance: 0,
     chains: [],
     isJailed: true,
@@ -11,12 +12,5 @@ const defaultNodeContext: CryptoNode = {
     stakedBalance: 0,
 };
 
-const defaultAppContext = {
-    isRefreshing: true,
-    setIsRefreshing: (is: boolean) => { console.log("default"); },
-}
-
 export const NodeContext = createContext(defaultNodeContext);
-export const AppContext = createContext(defaultAppContext);
-
 

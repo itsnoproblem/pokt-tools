@@ -14,6 +14,7 @@ export const getNode = async (address: string): Promise<CryptoNode> => {
             node = {
                 exists: result.data.data.address !== "",
                 address: result.data.data.address,
+                service_url: result.data.data.service_url,
                 balance: result.data.data.balance,
                 chains: result.data.data.chains,
                 isJailed: result.data.data.is_jailed,

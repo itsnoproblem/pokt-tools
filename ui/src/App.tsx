@@ -15,6 +15,7 @@ export const App = () => {
     const defaultNode: CryptoNode = {
         exists: false,
         address: '',
+        service_url: '',
         balance: 0,
         chains: [],
         isJailed: true,

@@ -64,7 +64,7 @@ export const AppHeader = (props: AppHeaderProps) => {
         props.setIsRefreshing(false);
 
     }, [node, props]);
-    useInterval(updateNodeData, 900000);
+    const thing = useInterval(updateNodeData, 900000);
 
     const updateBalance = useCallback(() => {
         if(!address) {
@@ -120,10 +120,10 @@ export const AppHeader = (props: AppHeaderProps) => {
                         onClick={updateNodeData}
                     />
                     <Box  color={"gray.400"} ml={8}><em>Updated: {node.lastChecked?.toLocaleString()}</em></Box>
-                    <PendingRelaysBadge num={pendingRelays}/>
                 </HStack>
 
             )}
+            <Box ml={2}><PendingRelaysBadge num={pendingRelays}/></Box>
             <Spacer/>
             <Box>
                 <MdBrightness1

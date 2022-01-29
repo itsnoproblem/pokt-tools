@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	pchttp "monitoring-service/http"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/go-kit/kit/log"
@@ -108,10 +109,16 @@ func (p pocketProvider) Node(address string) (pocket.Node, error) {
 		chains[i] = ch
 	}
 
+	stakedBal, err := strconv.ParseUint(nodeResponse.StakedBalance, 10, 64)
+	if err != nil {
+		return pocket.Node{}, fmt.Errorf("pocketProvider.Node: %s", err)
+	}
+
 	return pocket.Node{
 		Address:       nodeResponse.Address,
 		Pubkey:        nodeResponse.Pubkey,
-		StakedBalance: nodeResponse.StakedBalance,
+		ServiceURL:    nodeResponse.ServiceURL,
+		StakedBalance: uint(stakedBal),
 		IsJailed:      nodeResponse.IsJailed,
 		Chains:        chains,
 		IsSynced:      false,

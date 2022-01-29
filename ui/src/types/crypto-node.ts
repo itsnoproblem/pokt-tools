@@ -3,6 +3,7 @@ import {Chain} from './chain'
 export type CryptoNode = {
     exists: boolean,
     address: string,
+    service_url: string,
     balance: number,
     chains: Array<Chain>,
     isJailed: boolean,

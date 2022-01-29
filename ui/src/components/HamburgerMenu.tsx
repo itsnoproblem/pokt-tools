@@ -18,6 +18,7 @@ import * as React from "react";
 import {useContext} from "react";
 import {NodeContext} from "../context";
 import {FaGithub} from "react-icons/all";
+import {NodeSummary} from "./NodeSummary";
 
 export const HamburgerMenu = () => {
     const {isOpen, onOpen, onClose} = useDisclosure();
@@ -89,9 +90,7 @@ export const HamburgerMenu = () => {
                         </HStack>
                     </DrawerHeader>
                     <DrawerBody>
-                        <Code>
-                            {JSON.stringify(node, null, 4)}
-                        </Code>
+                        <NodeSummary/>
                     </DrawerBody>
                 </DrawerContent>
             </Drawer>
