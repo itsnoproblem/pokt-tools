@@ -25,7 +25,7 @@ export const NodeSummary = () => {
                 <EditableInput />
             </Editable>
             <Box mt={3}>
-                <Link href={node.service_url}>{node.service_url}</Link>
+                <Link href={`${node.service_url}/v1`} target={"_blank"}>{node.service_url}</Link>
             </Box>
             <Box mt={3}>
                 <Kbd>{node.address}</Kbd>
