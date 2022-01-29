@@ -102,12 +102,15 @@ export const AppHeader = (props: AppHeaderProps) => {
 
 
     return (
-        <HStack justifyContent={"space-between"}>
+        <HStack justifyContent={"space-between"} mt={[1,2]}>
             <HamburgerMenu/>
-            {(!isMobile) && (
+            {(!isMobile && node.address !== '') && (
                 <HStack pl={2}>
                     {/*<ConnectedChainsBadge/>*/}
-                    <Box><Text d="inline" fontSize="xs" fontWeight={600} textTransform={"uppercase"}>height:</Text> <Kbd>{currentHeight}</Kbd></Box>
+                    <Box>
+                        <Text d="inline" fontSize="xs" fontWeight={600} textTransform={"uppercase"}>height:</Text>
+                        <Kbd>{currentHeight}</Kbd>
+                    </Box>
                     <IconButton
                         ml={4} mr={4}
                         aria-label={"Refresh"}

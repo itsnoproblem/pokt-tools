@@ -40,9 +40,9 @@ export const HamburgerMenu = () => {
         <>
             <IconButton onClick={onOpen} variant={"ghost"} aria-label={"Menu"} icon={(<HamburgerIcon/>)}/>
             <Drawer onClose={onClose} isOpen={isOpen} size={"lg"} placement={"left"}>
-                <DrawerOverlay />
+                <DrawerOverlay/>
                 <DrawerContent>
-                    <DrawerCloseButton/>
+                    <DrawerCloseButton p={3} mt={3} mr={1}/>
                     <DrawerHeader>
                         <HStack>
                             <Button
