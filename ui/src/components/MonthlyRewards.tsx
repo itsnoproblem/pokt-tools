@@ -98,7 +98,7 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
 
     return props.isRefreshing ? (
         <Stack w={["100vw", "1280px"]} ml={"auto"} mr={"auto"} mt={2}>
-            
+
             {Object.keys(monthNames).map((k, i) => {
                 i++;
                 return (<Skeleton key={i} height={'48px'}/>)
