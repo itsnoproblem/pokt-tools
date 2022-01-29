@@ -38,11 +38,13 @@ export const App = () => {
                                 path={"/node/:address/rewards"}
                                 element={(
                                     <>
-                                        {/* Home link, node status colormode switcher */}
                                         <AppHeader
-                                            address={address}
-                                            node={node}
+                                            address={address ?? ''}
+                                            isRefreshing={isRefreshing}
+                                            setIsRefreshing={setIsRefreshing}
                                             onNodeLoaded={setNode}
+                                            rewards={rewards}
+                                            onRewardsLoaded={setRewards}
                                         />
                                         {/* Rewards Page */}
                                         <Rewards
@@ -59,13 +61,14 @@ export const App = () => {
                                 path={"/node/:address/errors"}
                                 element={(
                                     <>
-                                        {/* Home link, node status colormode switcher */}
                                         <AppHeader
-                                            address={address}
-                                            node={node}
+                                            address={address ?? ''}
+                                            isRefreshing={isRefreshing}
+                                            setIsRefreshing={setIsRefreshing}
                                             onNodeLoaded={setNode}
+                                            rewards={rewards}
+                                            onRewardsLoaded={setRewards}
                                         />
-                                        {/* Error reports */}
                                         <Errors/>
                                     </>
                                 )}
@@ -73,9 +76,12 @@ export const App = () => {
                             <Route path={"/"} element={(
                                 <>
                                     <AppHeader
-                                        address={address}
-                                        node={node}
+                                        address={address ?? ''}
+                                        isRefreshing={isRefreshing}
+                                        setIsRefreshing={setIsRefreshing}
                                         onNodeLoaded={setNode}
+                                        rewards={rewards}
+                                        onRewardsLoaded={setRewards}
                                     />
                                     <Home/>
                                 </>

@@ -1,26 +1,8 @@
-import {
-    Box, Center,
-    Flex,
-    HStack,
-    IconButton, Kbd,
-    Spinner,
-    Stat,
-    StatHelpText,
-    StatLabel,
-    StatNumber, Text,
-    useBreakpointValue,
-    useInterval,
-} from "@chakra-ui/react";
-import {MdRefresh} from "react-icons/all";
-import React, {useCallback, useContext, useEffect, useState} from "react";
+import {Box, HStack, Stat, StatHelpText, StatLabel, StatNumber, useBreakpointValue,} from "@chakra-ui/react";
+import React from "react";
 
 import {CryptoNode} from "../types/crypto-node";
 import {MonthlyReward} from "../types/monthly-reward";
-import {NodeContext} from "../context";
-
-import {ConnectedChainsBadge} from "./badges/ConnectedChainsBadge";
-import {getClaims, getNode, getHeight} from "../MonitoringService";
-import {PendingRelaysBadge} from "./badges/PendingRelaysBadge";
 
 interface AppStatusProps {
     rewards: MonthlyReward[],
@@ -32,31 +14,9 @@ interface AppStatusProps {
 
 export const AppStatus = (props: AppStatusProps) => {
     const POKTPerRelay = 0.0089;
-    const [currentHeight, setCurrentHeight] = useState(0);
-    const [pendingRelays, setPendingRelays] = useState(0);
+
     const isMobile = useBreakpointValue([true, false])
-    const node = useContext(NodeContext);
 
-    const updateNodeData = useCallback(async () => {
-        if(!node.address) {
-            return;
-        }
-
-        props.setIsRefreshing(true);
-        try {
-            const n = await getNode(node.address);
-            props.onNodeLoaded(n);
-            const c = await getClaims(node.address);
-            props.onRewardsLoaded(c);
-        }
-        catch (err) {
-            console.error("updateNodeData", err);
-        }
-        props.setIsRefreshing(false);
-
-    }, [node, props]);
-
-    const thing = useInterval(updateNodeData, 900000);
 
     const avgPoktForLastDays = (numDays: number): number => {
         const today = new Date();
@@ -86,21 +46,6 @@ export const AppStatus = (props: AppStatusProps) => {
 
         return Math.round(relays * POKTPerRelay);
     }
-
-    useEffect(() => {
-        getHeight().then((h) => setCurrentHeight(h));
-
-        if(props.rewards[0]) {
-            let pending = 0;
-            props.rewards[0].transactions.map((t) => {
-                if(!t.is_confirmed && t.expire_height > currentHeight) {
-                    pending += t.num_proofs;
-                }
-            })
-            setPendingRelays(pending);
-        }
-    }, [pendingRelays, props])
-
 
     const sortedRewards = props.rewards;
     const sortedByChain = (sortedRewards[0] !== undefined) ?
@@ -151,24 +96,7 @@ export const AppStatus = (props: AppStatusProps) => {
                     </>
                 )}
             </HStack>
-            {(!isMobile && node !== undefined) && (
-                <Box mb={4} mt={12}>
-                    <Center ml="auto" mr="auto">
-                        <Text>Height: <Kbd>{currentHeight}</Kbd></Text>
-                        <Box  color={"gray.400"} ml={8}><em>Updated: {node.lastChecked?.toLocaleString()}</em></Box>
-                        <IconButton
-                            ml={4} mr={4}
-                            aria-label={"Refresh"}
-                            variant={"ghost"}
-                            _focus={{boxShadow: 0}}
-                            icon={props.isRefreshing ? (<Spinner size={"xs"}/>) : (<MdRefresh/>)}
-                            onClick={updateNodeData}
-                        />
-                        <ConnectedChainsBadge/>
-                        <PendingRelaysBadge num={pendingRelays}/>
-                    </Center>
-                </Box>
-            )}
+
         </>
 
 )}

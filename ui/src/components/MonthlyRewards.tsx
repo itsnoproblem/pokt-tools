@@ -8,7 +8,8 @@ import {
     Grid,
     GridItem,
     HStack,
-    SimpleGrid, Skeleton,
+    SimpleGrid,
+    Skeleton,
     Spacer,
     Stack,
     Tab,
@@ -20,17 +21,12 @@ import {
     useBreakpointValue,
     useColorModeValue
 } from "@chakra-ui/react";
-
-import {useCallback, useContext, useEffect, useState} from "react";
-import axios from "axios";
-import {AppContext, NodeContext} from "../context";
+import React, {useCallback, useContext, useEffect, useState} from "react";
+import {NodeContext} from "../context";
 import {MonthlyReward} from "../types/monthly-reward";
 import {RewardTransaction} from "./RewardTransaction";
 import {PieChart} from "./PieChart";
 import {getClaims} from "../MonitoringService";
-import React from "react";
-
-declare const window: any;
 
 type MonthlyRewardsProps = {
     rewards: MonthlyReward[],
@@ -76,7 +72,7 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
         if(!hasLoaded) {
             getRewards();
         }
-    },  [hasLoaded]);
+    },  [hasLoaded, getRewards]);
 
     const bgOdd = useColorModeValue("gray.200", "gray.800");
     const bgEven = useColorModeValue("gray.50", "gray.700");

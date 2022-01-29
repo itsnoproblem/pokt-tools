@@ -1,6 +1,5 @@
-import {Badge, GridItem, Popover, PopoverBody, PopoverContent, PopoverTrigger, SimpleGrid} from "@chakra-ui/react";
-import React, {useContext} from "react";
-import {NodeContext} from "../../context";
+import {Badge} from "@chakra-ui/react";
+import React from "react";
 
 type PendingRelaysProps = {
     num: number
