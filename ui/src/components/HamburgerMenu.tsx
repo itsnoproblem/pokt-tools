@@ -17,7 +17,7 @@ import {HamburgerIcon} from "@chakra-ui/icons";
 import * as React from "react";
 import {useContext} from "react";
 import {NodeContext} from "../context";
-import {FaGithub} from "react-icons/all";
+import {BiCoin, BsHouseDoor, CgFileDocument, FaGithub, FaScroll} from "react-icons/all";
 import {NodeSummary} from "./NodeSummary";
 
 export const HamburgerMenu = () => {
@@ -47,8 +47,9 @@ export const HamburgerMenu = () => {
                     <DrawerHeader>
                         <HStack>
                             <Button
+                                leftIcon={(<BsHouseDoor/>)}
                                 variant={activePath === '/' ? "outline" : "ghost"}
-                                title={"Logs"}
+                                title={"Home"}
                                 onClick={() => window.location.href='/'}
                             >
                                 Home
@@ -56,6 +57,7 @@ export const HamburgerMenu = () => {
                             {(node.address !== '') && (
                                 <>
                                     <Button
+                                        leftIcon={(<BiCoin/>)}
                                         variant={activePath === pathIdRewards ? "outline" : "ghost"}
                                         title={"Rewards"}
                                         onClick={() => window.location.href=`/node/${node.address}/rewards`}
@@ -63,6 +65,7 @@ export const HamburgerMenu = () => {
                                         Rewards
                                     </Button>
                                     <Button
+                                        leftIcon={(<CgFileDocument/>)}
                                         variant={activePath === pathIdErrors ? "outline" : "ghost"}
                                         title={"Logs"}
                                         onClick={() => window.location.href=`/node/${node.address}/errors`}
@@ -91,6 +94,7 @@ export const HamburgerMenu = () => {
                     </DrawerHeader>
                     <DrawerBody>
                         <NodeSummary/>
+
                     </DrawerBody>
                 </DrawerContent>
             </Drawer>
