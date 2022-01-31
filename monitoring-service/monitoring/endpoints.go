@@ -295,11 +295,6 @@ func SimulateRelayEndpoint(svc Service) endpoint.Endpoint {
 			return fail(err)
 		}
 
-		//var decodedResponse map[string]interface{}
-		//err = json.Unmarshal(res, &decodedResponse)
-		//if err != nil {
-		//	return nil, fmt.Errorf("SimulateRelayEndpoint: failed to decode response from service: %s", err)
-		//}
 		return res, nil
 	}
 }
