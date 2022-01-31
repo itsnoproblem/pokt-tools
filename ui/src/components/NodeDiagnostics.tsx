@@ -5,18 +5,18 @@ import {RelaySimulator} from "./RelaySimulator";
 export const NodeDiagnostics = () => {
     return (
         <Box mt={8}>
-            <Heading size={"md"} borderBottomWidth={1}>Diagnostics</Heading>
+            <Heading colorScheme={"messenger"} size={"md"} borderBottomWidth={1}>Diagnostics</Heading>
             <Tabs mt={4} variant={"line"} colorScheme='cyan'>
                 <TabList>
-                    <Tab>Ping</Tab>
                     <Tab>Simulate Relays</Tab>
+                    <Tab>Ping</Tab>
                 </TabList>
                 <TabPanels>
                     <TabPanel>
-                        <PingTester/>
+                        <RelaySimulator/>
                     </TabPanel>
                     <TabPanel>
-                        <RelaySimulator/>
+                        <PingTester/>
                     </TabPanel>
                 </TabPanels>
             </Tabs>

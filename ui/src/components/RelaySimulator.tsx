@@ -12,7 +12,7 @@ import {
     Textarea, useDisclosure, useToast
 } from "@chakra-ui/react";
 import {BiError, BiLinkExternal} from "react-icons/all";
-import {useContext, useState} from "react";
+import {useContext, useEffect, useState} from "react";
 import {NodeContext} from "../context";
 import React from "react";
 import axios, {AxiosResponse} from "axios";
@@ -23,11 +23,29 @@ export const RelaySimulator = () => {
     const toast = useToast();
     const node = useContext(NodeContext);
     const {isOpen: testIsRunning, onOpen: startTest, onClose: stopTest} = useDisclosure();
-    const defaultPayload = { jsonrpc: "2.0", method: "eth_chainId", params: [], id: 1 };
-    const [testPayload, setTestPayload] = useState(defaultPayload)
     const [testChain, setTestChain] = useState('');
     const [testResponse, setTestResponse] = useState<AxiosResponse<any, any>>();
+    const defaultPayload = { "jsonrpc": "2.0", "method": "eth_chainId", "params": [], "id": 1 };
+    const [testPayload, setTestPayload] = useState<any>('');
 
+    const switchChain = (ch: string) => {
+        switch(ch) {
+            case "0001":
+                setTestPayload({});
+                break;
+            case "0040":
+                setTestPayload({ "jsonrpc": "2.0", "method": "hmyv2_getEpoch", "params": [], "id": 1 });
+                break;
+            case "0003":
+                setTestPayload({ "jsonrpc": "2.0", "id": 1, "method": "info.getNetworkID" });
+                break;
+            case "":
+                setTestPayload('');
+                break;
+            default:
+                setTestPayload(defaultPayload);
+        }
+    }
 
     const runTest = async () => {
         startTest();
@@ -53,8 +71,6 @@ export const RelaySimulator = () => {
         stopTest();
     }
 
-
-
     return (
         <Box>
             <Box lineHeight={"1.6em"}>
@@ -72,9 +88,10 @@ export const RelaySimulator = () => {
             <FormControl mt={4}>
                 <FormLabel>Payload to send</FormLabel>
                 <Textarea
+                    disabled={true}
                     fontFamily={"monospace"}
                     rows={6}
-                    defaultValue={JSON.stringify(testPayload, null, 2)}
+                    value={(typeof testPayload === 'object') ? JSON.stringify(testPayload, null, 2) : testPayload}
                 />
             </FormControl>
             <HStack mt={4}>
@@ -82,7 +99,9 @@ export const RelaySimulator = () => {
                     <FormLabel>Chain</FormLabel>
                     <Select placeholder={"Select Chain"}
                             onChange={(e) => {
-                                setTestChain((e.target[e.target.selectedIndex] as HTMLOptionElement).value);
+                                const chain = (e.target[e.target.selectedIndex] as HTMLOptionElement).value;
+                                setTestChain(chain);
+                                switchChain(chain);
                             }}
                     >
                         {node.chains.map((ch, i) => (
@@ -95,7 +114,7 @@ export const RelaySimulator = () => {
                     {testIsRunning ? (
                         <Spinner/>
                     ) : (
-                        <Button colorScheme={"messenger"} onClick={runTest}>Run</Button>
+                        <Button disabled={(testChain === '')} colorScheme={"messenger"} onClick={runTest}>Run</Button>
                     )}
                 </FormControl>
             </HStack>

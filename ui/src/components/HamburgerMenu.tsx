@@ -1,4 +1,5 @@
 import {
+    Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel,
     Box,
     Button,
     Code,

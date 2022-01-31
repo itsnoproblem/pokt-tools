@@ -39,7 +39,7 @@ type Provider interface {
 	BlockTime(height uint) (time.Time, error)
 	Transaction(hash string) (pocket.Transaction, error)
 	AccountTransactions(address string, page uint, perPage uint, sort string) ([]pocket.Transaction, error)
-	SimulateRelay(servicer_url, chainID string, payload json.RawMessage) (json.RawMessage, error)
+	SimulateRelay(servicerUrl, chainID string, payload json.RawMessage) (json.RawMessage, error)
 	WithLogger(l log.Logger) Provider
 }
 
@@ -246,15 +246,24 @@ func (p pocketProvider) AccountTransactions(address string, page uint, perPage u
 	return transactions, nil
 }
 
-func (p pocketProvider) SimulateRelay(servicer_url, chainID string, payload json.RawMessage) (json.RawMessage, error) {
-	url := fmt.Sprintf("%s/%s", servicer_url, urlPathSimulateRelay)
+func (p pocketProvider) SimulateRelay(servicerUrl, chainID string, payload json.RawMessage) (json.RawMessage, error) {
+	url := fmt.Sprintf("%s/%s", servicerUrl, urlPathSimulateRelay)
+	path := ""
+
+	switch chainID {
+	case "0003":
+		path = "/ext/info"
+	case "0001":
+		path = "/v1/query/height"
+	}
+
 	simRequest := relayRequest{
 		RelayNetworkID: chainID,
 		Payload: relayRequestPayload{
 			Data:    string(payload),
 			Method:  "POST",
-			Path:    "",
-			Headers: nil,
+			Path:    path,
+			Headers: make(map[string]string, 0),
 		},
 	}
 
@@ -290,7 +299,7 @@ func (p pocketProvider) doRequest(url string, reqObj interface{}) ([]byte, error
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, errors.New(fmt.Sprintf("pocketProvider.doRequest: got unexpected response status %s", resp.Status))
+		return nil, errors.New(fmt.Sprintf("pocketProvider.doRequest: got unexpected response status %s - %s", resp.Status, string(reqBody)))
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)

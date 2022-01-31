@@ -6,8 +6,8 @@ type relayRequest struct {
 }
 
 type relayRequestPayload struct {
-	Data    string              `json:"data"`
-	Method  string              `json:"method"`
-	Path    string              `json:"path"`
-	Headers []map[string]string `json:"headers"`
+	Data    string            `json:"data"`
+	Method  string            `json:"method"`
+	Path    string            `json:"path"`
+	Headers map[string]string `json:"headers"`
 }

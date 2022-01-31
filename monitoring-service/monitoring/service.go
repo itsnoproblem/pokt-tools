@@ -10,7 +10,7 @@ import (
 )
 
 type PocketProvider interface {
-	SimulateRelay(servicer_url, chainID string, payload json.RawMessage) (json.RawMessage, error)
+	SimulateRelay(servicerUrl, chainID string, payload json.RawMessage) (json.RawMessage, error)
 	AccountTransactions(address string, page uint, perPage uint, sort string) ([]pocket.Transaction, error)
 	Transaction(hash string) (pocket.Transaction, error)
 	BlockTime(height uint) (time.Time, error)
@@ -137,13 +137,13 @@ func (s *Service) Node(address string) (pocket.Node, error) {
 	return node, nil
 }
 
-func (s *Service) SimulateRelay(servicer_url, chainID string, payload map[string]interface{}) (json.RawMessage, error) {
+func (s *Service) SimulateRelay(servicerUrl, chainID string, payload map[string]interface{}) (json.RawMessage, error) {
 	encodedPayload, err := json.Marshal(payload)
 	if err != nil {
 		return nil, fmt.Errorf("SimulateRelay: %s", err)
 	}
 
-	resp, err := s.provider.SimulateRelay(servicer_url, chainID, encodedPayload)
+	resp, err := s.provider.SimulateRelay(servicerUrl, chainID, encodedPayload)
 	if err != nil {
 		return nil, fmt.Errorf("SimulateRelay: %s", err)
 	}

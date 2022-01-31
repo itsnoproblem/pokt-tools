@@ -109,12 +109,12 @@ func (p loggingProvider) AccountTransactions(address string, page uint, perPage 
 func (p loggingProvider) SimulateRelay(servicer_url, chainID string, payload json.RawMessage) (json.RawMessage, error) {
 	t := timer.Start()
 	res, err := p.provider.SimulateRelay(servicer_url, chainID, payload)
+	p.info("SimulateRelay for %s: %s - %s (took %s)", chainID, servicer_url, string(payload), t.Elapsed())
 	if err != nil {
 		p.error(err.Error())
 		return nil, err
 	}
 
-	p.info("SimulateRelay for %s: %s (took %s)", chainID, servicer_url, t.Elapsed())
 	return res, nil
 }
 
