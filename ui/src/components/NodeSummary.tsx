@@ -23,16 +23,17 @@ export const NodeSummary = () => {
             <HStack>
                 <Avatar size={"lg"} mr={2}/>
                 <Box pl={4} borderLeftWidth={1}>
-                    <Box>
-                        <Kbd>{node.address}</Kbd>
-                        <IconButton _focus={{boxShadow: 0}} size={"xs"} aria-label={"copy node id"} icon={hasCopied ? (<CheckIcon/>) : (<CopyIcon/>)} onClick={onCopy}/>
-                    </Box>
-                    <Box mt={1}>
-                        <Editable defaultValue='Nickname (coming soon)'>
-                            <EditablePreview />
-                            <EditableInput />
-                        </Editable>
-                    </Box>
+                    <HStack>
+                        <Box fontFamily={"monospace"}>{node.address}</Box>
+                        <IconButton
+                            aria-label={"copy node id"}
+                            size={"xs"}
+                            ml={1}
+                            _focus={{boxShadow: 0}}
+                            onClick={onCopy}
+                            icon={hasCopied ? (<CheckIcon/>) : (<CopyIcon/>)}
+                        />
+                    </HStack>
                     <Box mt={1}><Link href={`${node.service_url}/v1`} target={"_blank"}>{node.service_url}</Link></Box>
                     <Box mt={2}><ConnectedChainsBadge/></Box>
                 </Box>

@@ -19,6 +19,7 @@ import {useContext} from "react";
 import {NodeContext} from "../context";
 import {BiCoin, BsHouseDoor, CgFileDocument, FaGithub, FaScroll} from "react-icons/all";
 import {NodeSummary} from "./NodeSummary";
+import {NodeDiagnostics} from "./NodeDiagnostics";
 
 export const HamburgerMenu = () => {
     const {isOpen, onOpen, onClose} = useDisclosure();
@@ -94,7 +95,7 @@ export const HamburgerMenu = () => {
                     </DrawerHeader>
                     <DrawerBody>
                         <NodeSummary/>
-
+                        <NodeDiagnostics/>
                     </DrawerBody>
                 </DrawerContent>
             </Drawer>
