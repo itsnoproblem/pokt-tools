@@ -1,6 +1,7 @@
 package pocket
 
 import (
+	"encoding/json"
 	"fmt"
 	"monitoring-service/pocket"
 	"monitoring-service/timer"
@@ -103,6 +104,18 @@ func (p loggingProvider) AccountTransactions(address string, page uint, perPage 
 	p.info("AccountTransactions for address %s page %d: %d results (took %s)",
 		address, page, len(txs), t.Elapsed().String())
 	return txs, nil
+}
+
+func (p loggingProvider) SimulateRelay(servicer_url, chainID string, payload json.RawMessage) (json.RawMessage, error) {
+	t := timer.Start()
+	res, err := p.provider.SimulateRelay(servicer_url, chainID, payload)
+	if err != nil {
+		p.error(err.Error())
+		return nil, err
+	}
+
+	p.info("SimulateRelay for %s: %s (took %s)", chainID, servicer_url, t.Elapsed())
+	return res, nil
 }
 
 func (p loggingProvider) error(format string, args ...interface{}) {

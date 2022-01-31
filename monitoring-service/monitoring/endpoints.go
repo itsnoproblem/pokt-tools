@@ -7,6 +7,8 @@ import (
 	"sort"
 	"time"
 
+	"gopkg.in/errgo.v2/fmt/errors"
+
 	"github.com/go-kit/kit/endpoint"
 )
 
@@ -247,6 +249,58 @@ func AccountTransactionsEndpoint(svc Service) endpoint.Endpoint {
 		}
 
 		return txsResponse, nil
+	}
+}
+
+type relayRequest struct {
+	ServicerURL string                 `json:"servicer_url"`
+	ChainID     string                 `json:"chain_id"`
+	Payload     map[string]interface{} `json:"payload"`
+}
+
+func (req relayRequest) validate() error {
+	if req.ServicerURL == "" {
+		return errors.Newf("relayRequest.validate: Missing required param 'servicer_url")
+	}
+
+	if req.ChainID == "" {
+		return errors.Newf("relayRequest.validate: Missing required param 'chain_id")
+	}
+
+	if req.Payload == nil {
+		return errors.Newf("relayRequest.validate: Missing required param 'payload")
+	}
+
+	return nil
+}
+
+func SimulateRelayEndpoint(svc Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		fail := func(err error) (interface{}, error) {
+			return nil, fmt.Errorf("SimulateRelayEndpoint: %s", err)
+		}
+
+		req, ok := request.(relayRequest)
+		if !ok {
+			err := fmt.Errorf("SimulateRelayEndpoint failed to parse request: %v", request)
+			return fail(err)
+		}
+
+		if err = req.validate(); err != nil {
+			return fail(err)
+		}
+
+		res, err := svc.SimulateRelay(req.ServicerURL, req.ChainID, req.Payload)
+		if err != nil {
+			return fail(err)
+		}
+
+		//var decodedResponse map[string]interface{}
+		//err = json.Unmarshal(res, &decodedResponse)
+		//if err != nil {
+		//	return nil, fmt.Errorf("SimulateRelayEndpoint: failed to decode response from service: %s", err)
+		//}
+		return res, nil
 	}
 }
 
