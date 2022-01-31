@@ -9,7 +9,7 @@ export const NodeDiagnostics = () => {
             <Tabs mt={4} variant={"line"} colorScheme='cyan'>
                 <TabList>
                     <Tab>Simulate Relays</Tab>
-                    <Tab>Ping</Tab>
+                    <Tab isDisabled={true} title={"(coming soon)"}>Ping</Tab>
                 </TabList>
                 <TabPanels>
                     <TabPanel>
