@@ -1,5 +1,5 @@
 import {RPC_URL} from "../configuration";
-import axios from "axios";
+import axios, {AxiosResponse} from "axios";
 import {CryptoNode} from "../types/crypto-node";
 import {MonthlyReward} from "../types/monthly-reward";
 
@@ -43,6 +43,25 @@ export  const getClaims = async (address: string): Promise<MonthlyReward[]> => {
     });
 }
 
+export interface simulateRelayRequest {
+    servicer_url: string
+    chain_id: string
+    payload: object
+}
+
+export const simulateRelay = async (req: simulateRelayRequest): Promise<AxiosResponse<any, any>> => {
+    const url = `${RPC_URL}/tests/simulate-relay`;
+
+    return axios.post(url, req, {
+        headers: {
+            'Content-Type': 'text/plain;charset=utf-8',
+        },
+        validateStatus: function () {
+            return true;
+        }
+    });
+}
+
 export const getHeight = async (): Promise<number> => {
     const url = `${RPC_URL}/height`;
     return axios.get(url).then((result) => {
@@ -53,3 +72,4 @@ export const getHeight = async (): Promise<number> => {
        return result.data.data.height;
     });
 }
+

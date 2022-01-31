@@ -20,6 +20,7 @@ const (
 	accountTransactionsEndpointPath = "/accounts/{address}/transactions"
 	blockTimesEndpointPath          = "/block-times"
 	monthlyRewardsEndpointPath      = "/node/{address}/rewards"
+	simulateRelaysEndpointPath      = "/tests/simulate-relay"
 )
 
 type transport struct {
@@ -71,6 +72,13 @@ func NewTransport(svc Service) transport {
 				Path:     monthlyRewardsEndpointPath,
 				Endpoint: MonthlyRewardsEndpoint(svc),
 				Decoder:  decodeMonthlyRewardsRequest,
+				Encoder:  api.EncodeResponse,
+			},
+			{
+				Method:   http.MethodPost,
+				Path:     simulateRelaysEndpointPath,
+				Endpoint: SimulateRelayEndpoint(svc),
+				Decoder:  decodeSimulateRelaysRequest,
 				Encoder:  api.EncodeResponse,
 			},
 		},
@@ -152,4 +160,13 @@ func decodeMonthlyRewardsRequest(_ context.Context, req *http.Request) (request 
 	}
 
 	return monthlyRewardsRequest{Address: address}, nil
+}
+
+func decodeSimulateRelaysRequest(_ context.Context, req *http.Request) (request interface{}, err error) {
+	var simRequest relayRequest
+	if err := json.NewDecoder(req.Body).Decode(&simRequest); err != nil {
+		return nil, fmt.Errorf("decodeSimulateRelayRequest: %s", err)
+	}
+
+	return simRequest, nil
 }

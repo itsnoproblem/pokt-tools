@@ -3,6 +3,7 @@ package pocket
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	pchttp "monitoring-service/http"
@@ -23,6 +24,7 @@ const (
 	urlPathGetNode                = "query/node"
 	urlPathGetBalance             = "query/balance"
 	urlPathGetHeight              = "query/height"
+	urlPathSimulateRelay          = "v1/client/sim"
 )
 
 type blockTimesRepo interface {
@@ -37,6 +39,7 @@ type Provider interface {
 	BlockTime(height uint) (time.Time, error)
 	Transaction(hash string) (pocket.Transaction, error)
 	AccountTransactions(address string, page uint, perPage uint, sort string) ([]pocket.Transaction, error)
+	SimulateRelay(servicerUrl, chainID string, payload json.RawMessage) (json.RawMessage, error)
 	WithLogger(l log.Logger) Provider
 }
 
@@ -243,6 +246,35 @@ func (p pocketProvider) AccountTransactions(address string, page uint, perPage u
 	return transactions, nil
 }
 
+func (p pocketProvider) SimulateRelay(servicerUrl, chainID string, payload json.RawMessage) (json.RawMessage, error) {
+	url := fmt.Sprintf("%s/%s", servicerUrl, urlPathSimulateRelay)
+	path := ""
+
+	switch chainID {
+	case "0003":
+		path = "/ext/info"
+	case "0001":
+		path = "/v1/query/height"
+	}
+
+	simRequest := relayRequest{
+		RelayNetworkID: chainID,
+		Payload: relayRequestPayload{
+			Data:    string(payload),
+			Method:  "POST",
+			Path:    path,
+			Headers: make(map[string]string, 0),
+		},
+	}
+
+	resp, err := p.doRequest(url, simRequest)
+	if err != nil {
+		return nil, fmt.Errorf("pocketProvider.SimulateRelay: %s", err)
+	}
+
+	return resp, nil
+}
+
 func (p pocketProvider) doRequest(url string, reqObj interface{}) ([]byte, error) {
 	var reqBody []byte
 	var err error
@@ -264,6 +296,10 @@ func (p pocketProvider) doRequest(url string, reqObj interface{}) ([]byte, error
 	defer resp.Body.Close()
 	if err != nil {
 		return nil, fmt.Errorf("doRequest: %s", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, errors.New(fmt.Sprintf("pocketProvider.doRequest: got unexpected response status %s - %s", resp.Status, string(reqBody)))
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
