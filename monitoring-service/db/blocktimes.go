@@ -20,12 +20,12 @@ func (r BlockTimesRepo) Get(height uint) (t time.Time, exists bool, err error) {
 	heightB, _ := json.Marshal(height)
 	blkTimeB, err := r.db.Get(heightB)
 	if err != nil {
-		return time.Time{}, false, fmt.Errorf("BlockTimesRepo.Get [%d]: %s", err, height)
+		return time.Time{}, false, fmt.Errorf("BlockTimesRepo.Get [%d]: %s", height, err)
 	}
 
 	var blockTime time.Time
 	if err = json.Unmarshal(blkTimeB, &blockTime); err != nil {
-		return time.Time{}, false, fmt.Errorf("BlockTimesRepo,Get: failed to parse json for %d: %s", err, height)
+		return time.Time{}, false, fmt.Errorf("BlockTimesRepo,Get: failed to parse json for %d: %s", height, err)
 	}
 
 	return blockTime, true, nil

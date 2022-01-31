@@ -123,7 +123,7 @@ func (p loggingProvider) error(format string, args ...interface{}) {
 }
 
 func (p loggingProvider) warn(format string, args ...interface{}) {
-	p.log(logTypeWarn, format, args)
+	p.log(logTypeWarn, format, args...)
 }
 
 func (p loggingProvider) info(format string, args ...interface{}) {
