@@ -1,7 +1,7 @@
 import {NodeContext} from "../context";
 import {useContext, useEffect, useState} from "react";
 import axios from "axios";
-import {PocketError} from "../types/error";
+import {logsAreEqual, PocketError} from "../types/error";
 import {
     Box,
     Flex,
@@ -17,7 +17,8 @@ import {
     Thead,
     Tr
 } from "@chakra-ui/react";
-import {ArrowLeftIcon, ArrowRightIcon} from "@chakra-ui/icons";
+import {ArrowLeftIcon, ArrowRightIcon, ChevronRightIcon} from "@chakra-ui/icons";
+import {log} from "util";
 
 export const Errors = () => {
     const node = useContext(NodeContext)
@@ -26,7 +27,7 @@ export const Errors = () => {
     const [page, setPage] = useState(1);
     const [chain, setChain] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const resultsPerPage = 25;
+    const resultsPerPage = 100;
 
     useEffect(() => {
         if(chain === '') {
@@ -35,7 +36,10 @@ export const Errors = () => {
 
         setIsLoading(true);
         const offset = (page * resultsPerPage) - resultsPerPage;
-        const rpcUrl = `https://metrics-api.portal.pokt.network:3000/error?and=(nodepublickey.eq.${node.pubkey},blockchain.eq.${chain})&limit=${resultsPerPage}&offset=${offset}`;
+        const rpcUrl = `https://metrics-api.portal.pokt.network:3000/error` +
+            `?and=(nodepublickey.eq.${node.pubkey},blockchain.eq.${chain})` +
+            `&limit=${resultsPerPage}` +
+            `&offset=${offset}`;
 
         axios.get(rpcUrl)
             .then(async (response) => {
@@ -66,6 +70,9 @@ export const Errors = () => {
             </Stack>
         )
     }
+
+    let logRepeats = 0;
+    let doneRepeating = true;
 
     return (
         <Box>
@@ -107,7 +114,28 @@ export const Errors = () => {
                     </Thead>
                     <Tbody>
                     {errors.map((err, index) => {
-                        return (
+                        let prevLog: PocketError;
+                        if (index > 0) {
+                            if(logRepeats > 0 && doneRepeating) {
+                                logRepeats = 0;
+                            }
+                            prevLog = errors[index-1];
+                            if(logsAreEqual(err, prevLog)) {
+                                logRepeats++;
+                                doneRepeating = false;
+                            } else {
+                                if(logRepeats > 0) {
+                                    doneRepeating = true;
+                                }
+                            }
+
+                            if(index === errors.length - 1) {
+                                doneRepeating = true;
+                            }
+                        }
+                        return (logRepeats > 0) ?
+                            !doneRepeating ? ( <></>) : ( <Tr><Td colSpan={5} fontSize={"sm"}><ChevronRightIcon/> Repeats {logRepeats} times...</Td></Tr>)
+                        : (
                             <Tr>
                                 <Td w={"250px"}>{(new Date(err.timestamp)).toLocaleString()}</Td>
                                 <Td w={"100px"}>{err.blockchain}</Td>
