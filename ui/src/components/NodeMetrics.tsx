@@ -12,11 +12,15 @@ interface AppStatusProps {
     setIsRefreshing: (is: boolean) => void,
 }
 
-export const AppStatus = (props: AppStatusProps) => {
+interface timeAgo {
+    units: string
+    value: number
+}
+
+export const NodeMetrics = (props: AppStatusProps) => {
     const POKTPerRelay = 0.0089;
 
     const isMobile = useBreakpointValue([true, false])
-
 
     const avgPoktForLastDays = (numDays: number): number => {
         const today = new Date();
@@ -47,11 +51,69 @@ export const AppStatus = (props: AppStatusProps) => {
         return Math.round(relays * POKTPerRelay);
     }
 
+    const timeSince = (test: Date): timeAgo => {
+        const now = Date.now();
+        const testSec = test.getTime();
+        const seconds = (now - testSec) / 1000;
+        let interval = seconds / 86400;
+        if (interval > 1) {
+            return {
+                units: " days",
+                value: Math.floor(interval)
+            };
+        }
+        interval = seconds / 3600;
+        if (interval > 1) {
+            return {
+                units: " hours",
+                value: Math.floor(interval)
+            };
+        }
+        interval = seconds / 60;
+        if (interval > 1) {
+            return {
+                units: "minutes",
+                value: Math.floor(interval)
+            };
+        }
+
+        return {
+            units: "seconds",
+            value: Math.floor(seconds)
+        };
+    }
+
     const sortedRewards = props.rewards;
     const sortedByChain = (sortedRewards[0] !== undefined) ?
         sortedRewards[0].relays_by_chain.sort((a, b) => {
             return (a.num_relays > b.num_relays) ? -1 : 1;
         }) : [];
+
+    const latestTxTime = () => {
+        for(let j = 0; j < props.rewards.length; j++) {
+            const txs = props.rewards[j].transactions;
+            console.log("txs", txs);
+            for(let i=txs.length-1; i >= 0; i--) {
+                if(txs[i].is_confirmed) {
+                    console.log("latestTxTime", txs[i].time)
+                    return new Date(txs[i].time);
+                };
+            }
+        }
+    }
+
+    const lastRewardDate = latestTxTime();
+    console.log(`latest: ${lastRewardDate}`)
+
+    let timeSinceReward;
+    if(lastRewardDate) {
+        timeSinceReward = timeSince(lastRewardDate);
+    } else {
+        timeSinceReward = {
+            units: "-----",
+            value: "?",
+        }
+    }
 
     return(
         <>
@@ -91,6 +153,13 @@ export const AppStatus = (props: AppStatusProps) => {
                                 <StatLabel>Last 24 hrs</StatLabel>
                                 <StatNumber>{avgPoktForLastDays(1) ?? 0}</StatNumber>
                                 <StatHelpText>POKT earned</StatHelpText>
+                            </Stat>
+                        </Box>
+                        <Box  p={5} minWidth={"185px"} borderWidth={1} borderRadius={20} borderColor={"gray.50"}>
+                            <Stat align={"center"}>
+                                <StatLabel>Last reward</StatLabel>
+                                <StatNumber>{timeSinceReward.value}</StatNumber>
+                                <StatHelpText>{timeSinceReward.units} ago</StatHelpText>
                             </Stat>
                         </Box>
                     </>
