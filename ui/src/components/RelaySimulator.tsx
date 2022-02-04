@@ -85,15 +85,7 @@ export const RelaySimulator = () => {
                     </Link>
                 </HStack>
             </Box>
-            <FormControl mt={4}>
-                <FormLabel>Payload to send</FormLabel>
-                <Textarea
-                    disabled={true}
-                    fontFamily={"monospace"}
-                    rows={6}
-                    value={(typeof testPayload === 'object') ? JSON.stringify(testPayload, null, 2) : testPayload}
-                />
-            </FormControl>
+
             <HStack mt={4}>
                 <FormControl w={"100%"}>
                     <FormLabel>Chain</FormLabel>
@@ -118,6 +110,17 @@ export const RelaySimulator = () => {
                     )}
                 </FormControl>
             </HStack>
+
+            <FormControl mt={4}>
+                <FormLabel>Payload to send</FormLabel>
+                <Textarea
+                    disabled={true}
+                    fontFamily={"monospace"}
+                    rows={6}
+                    value={(typeof testPayload === 'object') ? JSON.stringify(testPayload, null, 2) : testPayload}
+                />
+            </FormControl>
+
             {testResponse && (
                 <FormControl mt={4}>
                     <FormLabel>
