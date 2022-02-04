@@ -1,14 +1,4 @@
-import {
-    Avatar,
-    AvatarGroup,
-    Box,
-    Center,
-    Editable,
-    EditableInput,
-    EditablePreview, GridItem, Heading, HStack, IconButton,
-    Kbd, Link, LinkBox, SimpleGrid,
-    useClipboard
-} from "@chakra-ui/react";
+import {Avatar, Box, HStack, IconButton, Link, useClipboard} from "@chakra-ui/react";
 import React, {useContext} from "react";
 import {NodeContext} from "../context";
 import {CheckIcon, CopyIcon} from "@chakra-ui/icons";
