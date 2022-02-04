@@ -17,8 +17,9 @@ interface timeAgo {
     value: number
 }
 
+export const POKTPerRelay = 0.0089;
+
 export const NodeMetrics = (props: AppStatusProps) => {
-    const POKTPerRelay = 0.0089;
 
     const isMobile = useBreakpointValue([true, false])
 

@@ -1,14 +1,31 @@
-import {Badge, ChakraProps} from "@chakra-ui/react";
+import {Badge, ChakraProps, useColorModeValue, useDisclosure} from "@chakra-ui/react";
 import React from "react";
+import {POKTPerRelay} from "../NodeMetrics";
 
 type PendingRelaysProps = {
     num: number
 } & ChakraProps;
 
 export const PendingRelaysBadge = (props: PendingRelaysProps) => {
+    const {isOpen, onToggle} = useDisclosure();
+    const colorScheme = useColorModeValue('yellow', 'yellow');
+    const variant = useColorModeValue('solid', 'outline');
     return (props.num > 0) ? (
-        <Badge p={1} pl={2} ml={4} pr={2} borderRadius={15} variant='solid' colorScheme={'yellow'}>
-            {props.num.toLocaleString()} pending relays
+        <Badge
+            p={1} pl={2} ml={4} pr={2}
+            borderRadius={55}
+            variant={variant}
+            colorScheme={colorScheme}
+            onClick={onToggle}
+            _hover={{ cursor: "pointer" }}
+            aria-label={"switch between relays and pokt amount pending"}
+            // fontSize={"x-small"}
+        >
+            {isOpen ? (
+                <>{(props.num * POKTPerRelay ).toLocaleString()} pending POKT</>
+            ) : (
+                <>{props.num.toLocaleString()} pending relays</>
+            )}
         </Badge>
     ) : (<></>)
 }
