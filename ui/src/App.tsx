@@ -95,3 +95,20 @@ export const App = () => {
         </ChakraProvider>
     )
 }
+
+export const pathIdRewards = 'rewards';
+export const pathIdErrors = 'errors';
+export const getActivePath = () => {
+    let activePath = '';
+
+    const pathElements = window.location.pathname.split('/');
+    switch(pathElements[pathElements.length-1]) {
+        case pathIdRewards:
+            activePath = pathIdRewards;
+            break;
+        case pathIdErrors:
+            activePath = pathIdErrors;
+            break;
+    }
+    return activePath;
+}

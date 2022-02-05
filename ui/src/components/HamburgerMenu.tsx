@@ -1,8 +1,6 @@
 import {
-    Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel,
     Box,
     Button,
-    Code,
     Drawer,
     DrawerBody,
     DrawerCloseButton,
@@ -18,26 +16,15 @@ import {HamburgerIcon} from "@chakra-ui/icons";
 import * as React from "react";
 import {useContext} from "react";
 import {NodeContext} from "../context";
-import {BiCoin, BsHouseDoor, CgFileDocument, FaGithub, FaScroll} from "react-icons/all";
+import {BiCoin, BsHouseDoor, CgFileDocument, FaGithub} from "react-icons/all";
 import {NodeSummary} from "./NodeSummary";
 import {NodeDiagnostics} from "./NodeDiagnostics";
+import {getActivePath, pathIdErrors, pathIdRewards} from "../App";
 
 export const HamburgerMenu = () => {
     const {isOpen, onOpen, onClose} = useDisclosure();
     const node = useContext(NodeContext)
-    const pathIdRewards = 'rewards';
-    const pathIdErrors = 'errors';
-    let activePath = '';
-
-    const pathElements = window.location.pathname.split('/');
-    switch(pathElements[pathElements.length-1]) {
-        case pathIdRewards:
-            activePath = pathIdRewards;
-            break;
-        case pathIdErrors:
-            activePath = pathIdErrors;
-            break;
-    }
+    const activePath = getActivePath();
 
     return (
         <>
