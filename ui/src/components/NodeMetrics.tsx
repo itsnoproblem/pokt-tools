@@ -156,8 +156,8 @@ export const NodeMetrics = (props: AppStatusProps) => {
 
     return(
         <>
-            <Box mt={8} mb={8} ml={'auto'} mr={'auto'} p={0} pl={4} pr={4} w={"100%"} h={"100%"}
-                    overflow={'scroll'} ref={scrollRef}
+            <Box mt={8} mb={8} ml={'auto'} mr={'auto'} p={0} pl={4} pr={4} w={["100%", 'unset']} h={"100%"}
+                    overflow={['scroll', 'unset']} ref={scrollRef}
             >
 
                 {/*{!isMobile && (*/}
