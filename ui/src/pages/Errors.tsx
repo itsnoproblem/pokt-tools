@@ -134,7 +134,7 @@ export const Errors = () => {
                             }
                         }
                         return (logRepeats > 0) ?
-                            !doneRepeating ? ( <></>) : ( <Tr><Td colSpan={5} fontSize={"sm"}><ChevronRightIcon/> Repeats {logRepeats} times...</Td></Tr>)
+                            !doneRepeating ? ( <></>) : ( <Tr><Td colSpan={5} fontSize={"sm"}><ChevronRightIcon/> Repeats {logRepeats} times: {err.message}</Td></Tr>)
                         : (
                             <Tr>
                                 <Td w={"250px"}>{(new Date(err.timestamp)).toLocaleString()}</Td>
