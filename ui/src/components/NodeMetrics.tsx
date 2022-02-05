@@ -1,18 +1,18 @@
 import {
-    Box, color,
+    Box,
     HStack,
     Stat,
     StatHelpText,
     StatLabel,
     StatNumber,
-    useBreakpointValue, useColorModeValue,
+    useBreakpointValue,
+    useColorModeValue,
     useDisclosure,
 } from "@chakra-ui/react";
 import React, {useEffect, useState} from "react";
 
 import {CryptoNode} from "../types/crypto-node";
 import {MonthlyReward, monthNames} from "../types/monthly-reward";
-import {MonthlyRewards} from "./MonthlyRewards";
 
 interface AppStatusProps {
     rewards: MonthlyReward[],
@@ -190,7 +190,7 @@ export const NodeMetrics = (props: AppStatusProps) => {
                         <Box  p={5} minWidth={"185px"}>
                             <Stat align={"center"}>
                                 <StatLabel>Last reward</StatLabel>
-                                <StatNumber>{timeSinceReward.value}</StatNumber>
+                                <StatNumber>{timeSinceReward.value > 0 ? timeSinceReward.value : '--'}</StatNumber>
                                 <StatHelpText>{timeSinceReward.units} ago</StatHelpText>
                             </Stat>
                         </Box>
