@@ -212,12 +212,15 @@ export const NodeMetrics = (props: AppStatusProps) => {
                                     {showAllTime ?
                                         (
                                             <>
-                                                {timeBetweenRewardsAllTime.value}
-                                                {timeBetweenRewardsAllTime.units}
+                                                {timeBetweenRewardsAllTime.value && timeBetweenRewardsAllTime.value >= 0 ?
+                                                    `${timeBetweenRewardsAllTime.value.toString()} ${timeBetweenRewardsAllTime.units}` : '---'
+                                                }
                                             </>
                                         ) : (
                                             <>
-                                                {timeBetweenRewardsLatest.value}
+                                                {timeBetweenRewardsLatest.value && timeBetweenRewardsAllTime.value >= 0 ?
+                                                    timeBetweenRewardsLatest.value.toString() : '--'
+                                                }
                                                 {timeBetweenRewardsLatest.units}
                                             </>
                                         )
