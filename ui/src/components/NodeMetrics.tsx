@@ -1,8 +1,18 @@
-import {Box, HStack, Stat, StatHelpText, StatLabel, StatNumber, useBreakpointValue,} from "@chakra-ui/react";
-import React from "react";
+import {
+    Box, color,
+    HStack,
+    Stat,
+    StatHelpText,
+    StatLabel,
+    StatNumber,
+    useBreakpointValue, useColorModeValue,
+    useDisclosure,
+} from "@chakra-ui/react";
+import React, {useEffect, useState} from "react";
 
 import {CryptoNode} from "../types/crypto-node";
-import {MonthlyReward} from "../types/monthly-reward";
+import {MonthlyReward, monthNames} from "../types/monthly-reward";
+import {MonthlyRewards} from "./MonthlyRewards";
 
 interface AppStatusProps {
     rewards: MonthlyReward[],
@@ -12,7 +22,7 @@ interface AppStatusProps {
     setIsRefreshing: (is: boolean) => void,
 }
 
-interface timeAgo {
+interface TimeUnits {
     units: string
     value: number
 }
@@ -21,7 +31,16 @@ export const POKTPerRelay = 0.0089;
 
 export const NodeMetrics = (props: AppStatusProps) => {
 
-    const isMobile = useBreakpointValue([true, false])
+    const isMobile = useBreakpointValue([true, false]);
+    const statHoverColor = useColorModeValue('cyan.800', 'blue.100');
+    const statBorderColor = useColorModeValue('gray.50', 'gray.50');
+    const { isOpen: showAllTime, onToggle: toggleShowAllTime } = useDisclosure({ defaultIsOpen: true });
+
+    const emptyTimeUnits: TimeUnits = { units: '---', value: -1 }
+    const [timeBetweenRewardsLatest, setTimeBetweenRewardsLatest] = useState(emptyTimeUnits);
+    const [timeBetweenRewardsAllTime, setTimeBetweenRewardsAllTime] = useState(emptyTimeUnits);
+    const [timeSinceReward, setTimeSinceReward] = useState(emptyTimeUnits);
+    const [latestMonthName, setLatestMonthName] = useState('');
 
     const avgPoktForLastDays = (numDays: number): number => {
         const today = new Date();
@@ -52,10 +71,7 @@ export const NodeMetrics = (props: AppStatusProps) => {
         return Math.round(relays * POKTPerRelay);
     }
 
-    const timeSince = (test: Date): timeAgo => {
-        const now = Date.now();
-        const testSec = test.getTime();
-        const seconds = (now - testSec) / 1000;
+    const timeUnits = (seconds: number): TimeUnits => {
         let interval = seconds / 86400;
         if (interval > 1) {
             return {
@@ -84,6 +100,13 @@ export const NodeMetrics = (props: AppStatusProps) => {
         };
     }
 
+    const timeSince = (test: Date): TimeUnits => {
+        const now = Date.now();
+        const testSec = test.getTime();
+        const seconds = (now - testSec) / 1000;
+        return timeUnits(seconds);
+    }
+
     const sortedRewards = props.rewards;
     const sortedByChain = (sortedRewards[0] !== undefined) ?
         sortedRewards[0].relays_by_chain.sort((a, b) => {
@@ -103,18 +126,26 @@ export const NodeMetrics = (props: AppStatusProps) => {
         }
     }
 
-    const lastRewardDate = latestTxTime();
-    console.log(`latest: ${lastRewardDate}`)
+    useEffect(() => {
+        const latestMonth = sortedRewards[0]?.month;
+        const lastRewardDate = latestTxTime();
+        setTimeBetweenRewardsLatest(timeUnits(sortedRewards[0]?.avg_sec_between_rewards ?? -1));
+        setLatestMonthName(latestMonth ? monthNames[latestMonth] : '---');
 
-    let timeSinceReward;
-    if(lastRewardDate) {
-        timeSinceReward = timeSince(lastRewardDate);
-    } else {
-        timeSinceReward = {
-            units: "-----",
-            value: "?",
+        if(lastRewardDate) {
+            setTimeSinceReward(timeSince(lastRewardDate));
         }
-    }
+
+        let secBetweenRewardsAllTime = 0;
+        let numRewardsAllTime = 0;
+        sortedRewards.map((r, i) => {
+            secBetweenRewardsAllTime += r.total_sec_between_rewards;
+            numRewardsAllTime += r.transactions.length;
+        });
+        setTimeBetweenRewardsAllTime(timeUnits(secBetweenRewardsAllTime / numRewardsAllTime));
+
+    }, [props]);
+
 
     return(
         <>
@@ -156,11 +187,44 @@ export const NodeMetrics = (props: AppStatusProps) => {
                                 <StatHelpText>POKT earned</StatHelpText>
                             </Stat>
                         </Box>
-                        <Box  p={5} minWidth={"185px"} borderWidth={1} borderRadius={20} borderColor={"gray.50"}>
+                        <Box  p={5} minWidth={"185px"}>
                             <Stat align={"center"}>
                                 <StatLabel>Last reward</StatLabel>
                                 <StatNumber>{timeSinceReward.value}</StatNumber>
                                 <StatHelpText>{timeSinceReward.units} ago</StatHelpText>
+                            </Stat>
+                        </Box>
+                        <Box p={5} minWidth={"185px"} borderWidth={1} borderRadius={20}
+                             borderColor={statBorderColor}
+                             _hover={ {borderColor: statHoverColor} }
+                             cursor={'pointer'}
+                             onClick={toggleShowAllTime}
+                        >
+                            <Stat _hover={ {color: statHoverColor} } align={"center"}>
+                                <StatLabel>
+                                    {showAllTime ?
+                                        (<>Lifetime Avg</>) :
+                                        (<>{timeBetweenRewardsLatest.value < 0 ? '---' : latestMonthName} Avg</>)
+
+                                    }
+                                </StatLabel>
+                                <StatNumber>
+                                    {showAllTime ?
+                                        (
+                                            <>
+                                                {timeBetweenRewardsAllTime.value}
+                                                {timeBetweenRewardsAllTime.units}
+                                            </>
+                                        ) : (
+                                            <>
+                                                {timeBetweenRewardsLatest.value}
+                                                {timeBetweenRewardsLatest.units}
+                                            </>
+                                        )
+                                    }
+
+                                </StatNumber>
+                                <StatHelpText>between rewards</StatHelpText>
                             </Stat>
                         </Box>
                     </>

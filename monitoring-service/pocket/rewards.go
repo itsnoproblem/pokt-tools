@@ -1,10 +1,12 @@
 package pocket
 
 type MonthlyReward struct {
-	Year         uint
-	Month        uint
-	TotalProofs  uint
-	Transactions []Transaction
+	Year                    uint
+	Month                   uint
+	TotalProofs             uint
+	AvgSecsBetweenRewards   float64
+	TotalSecsBetweenRewards float64
+	Transactions            []Transaction
 }
 
 func (r *MonthlyReward) PoktAmount() float64 {
