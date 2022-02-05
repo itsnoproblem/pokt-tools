@@ -83,10 +83,6 @@ func (s *Service) AccountTransactions(address string, page uint, perPage uint, s
 	return transactions, nil
 }
 
-func sessionKey(tx pocket.Transaction) string {
-	return fmt.Sprintf("%d%s%s", tx.SessionHeight, tx.AppPubkey, tx.ChainID)
-}
-
 func (s *Service) AccountClaimsAndProofs(address string) (claims, proofs map[string]pocket.Transaction, err error) {
 	page := 1
 	numPerPage := 100
@@ -186,7 +182,25 @@ func (s *Service) RewardsByMonth(address string) (map[string]pocket.MonthlyRewar
 		sort.Slice(months[monthKey].Transactions, func(i, j int) bool {
 			return mo.Transactions[i].Time.Before(mo.Transactions[j].Time)
 		})
+
+		var numTxs = float64(0)
+		var totalSecs = float64(0)
+		var prevTx, emptyYx = pocket.Transaction{}, pocket.Transaction{}
+		for _, tx := range months[monthKey].Transactions {
+			if prevTx != emptyYx {
+				totalSecs += tx.Time.Sub(prevTx.Time).Seconds()
+				numTxs++
+			}
+			prevTx = tx
+		}
+		mo.AvgSecsBetweenRewards = totalSecs / numTxs
+		mo.TotalSecsBetweenRewards = totalSecs
+		months[monthKey] = mo
 	}
 
 	return months, nil
+}
+
+func sessionKey(tx pocket.Transaction) string {
+	return fmt.Sprintf("%d%s%s", tx.SessionHeight, tx.AppPubkey, tx.ChainID)
 }

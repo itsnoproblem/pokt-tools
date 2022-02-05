@@ -1,7 +1,7 @@
 import {Box, HStack, IconButton, Kbd, Spacer, Spinner, Text, useBreakpointValue, useInterval} from "@chakra-ui/react";
 import {NodeContext} from "../context";
 import {ColorModeSwitcher} from "./ColorModeSwitcher";
-import {MdBrightness1, MdRefresh} from "react-icons/all";
+import {BiCoin, CgFileDocument, MdBrightness1, MdRefresh} from "react-icons/all";
 import * as React from "react";
 import {useCallback, useContext, useEffect, useState} from "react";
 import {CryptoNode} from '../types/crypto-node';
@@ -13,6 +13,7 @@ import {getClaims, getHeight, getNode} from "../MonitoringService";
 import {HamburgerMenu} from "./HamburgerMenu";
 import {PendingRelaysBadge} from "./badges/PendingRelaysBadge";
 import {MonthlyReward} from "../types/monthly-reward";
+import {getActivePath, pathIdErrors, pathIdRewards} from "../App";
 
 type AppHeaderProps = {
     address: string,
@@ -31,6 +32,7 @@ export const AppHeader = (props: AppHeaderProps) => {
     const [currentHeight, setCurrentHeight] = useState(0);
     const [pendingRelays, setPendingRelays] = useState(0);
     const node = useContext(NodeContext);
+    const activePath = getActivePath();
 
     let {address} = useParams();
     if(address === '' || address === undefined) {
@@ -64,7 +66,7 @@ export const AppHeader = (props: AppHeaderProps) => {
         props.setIsRefreshing(false);
 
     }, [node, props]);
-    const thing = useInterval(updateNodeData, 900000);
+    useInterval(updateNodeData, 900000);
 
     const updateBalance = useCallback(() => {
         if(!address) {
@@ -105,9 +107,29 @@ export const AppHeader = (props: AppHeaderProps) => {
         <HStack justifyContent={"space-between"} mt={[1,2]}>
             <HamburgerMenu/>
             {(!isMobile && node.address !== '') && (
-                <HStack pl={2}>
+                <HStack>
+
+                    <IconButton
+                        icon={(<BiCoin/>)}
+                        variant={activePath === pathIdRewards ? 'outline' : 'ghost'}
+                        aria-label={'rewards'}
+                        title={"Rewards"}
+                        onClick={() => window.location.href=`/node/${node.address}/rewards`}
+                    >
+                        Rewards
+                    </IconButton>
+                    <IconButton
+                        aria-label={'logs'}
+                        icon={(<CgFileDocument/>)}
+                        variant={activePath === pathIdErrors ? 'outline' : 'ghost'}
+                        title={"Logs"}
+                        onClick={() => window.location.href=`/node/${node.address}/errors`}
+                    >
+                        Logs
+                    </IconButton>
+
                     {/*<ConnectedChainsBadge/>*/}
-                    <Box>
+                    <Box pl={2}>
                         <Text d="inline" fontSize="xs" fontWeight={600} textTransform={"uppercase"}>height:</Text>
                         <Kbd>{currentHeight}</Kbd>
                     </Box>

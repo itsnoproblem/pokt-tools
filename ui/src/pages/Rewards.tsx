@@ -3,7 +3,7 @@ import * as React from "react";
 import {useContext} from "react";
 import {NodeContext} from "../context";
 import {CryptoNode} from "../types/crypto-node";
-import {AppStatus} from "../components/AppStatus";
+import {NodeMetrics} from "../components/NodeMetrics";
 import {MonthlyRewards} from "../components/MonthlyRewards";
 import {useParams} from "react-router-dom";
 import {MonthlyReward} from "../types/monthly-reward";
@@ -28,7 +28,7 @@ export const Rewards = (props: RewardsProps) => {
         <Flex direction="column" className="outer-grid" minH="100vh" w={["100vw", "100%"]} p={[1, 3]}>
             {node.address && (
             <>
-                <AppStatus
+                <NodeMetrics
                     rewards={props.rewards}
                     onNodeLoaded={props.onNodeLoaded}
                     onRewardsLoaded={props.onRewardsLoaded}

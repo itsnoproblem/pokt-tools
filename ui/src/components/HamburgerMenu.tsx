@@ -1,8 +1,6 @@
 import {
-    Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel,
     Box,
     Button,
-    Code,
     Drawer,
     DrawerBody,
     DrawerCloseButton,
@@ -11,33 +9,24 @@ import {
     DrawerOverlay,
     HStack,
     IconButton,
-    Spacer,
+    Spacer, useBreakpointValue,
     useDisclosure
 } from "@chakra-ui/react";
 import {HamburgerIcon} from "@chakra-ui/icons";
 import * as React from "react";
 import {useContext} from "react";
 import {NodeContext} from "../context";
-import {BiCoin, BsHouseDoor, CgFileDocument, FaGithub, FaScroll} from "react-icons/all";
+import {BiCoin, BsHouseDoor, CgFileDocument, FaGithub} from "react-icons/all";
 import {NodeSummary} from "./NodeSummary";
 import {NodeDiagnostics} from "./NodeDiagnostics";
+import {getActivePath, pathIdErrors, pathIdRewards} from "../App";
+import {ColorModeSwitcher} from "./ColorModeSwitcher";
 
 export const HamburgerMenu = () => {
     const {isOpen, onOpen, onClose} = useDisclosure();
     const node = useContext(NodeContext)
-    const pathIdRewards = 'rewards';
-    const pathIdErrors = 'errors';
-    let activePath = '';
-
-    const pathElements = window.location.pathname.split('/');
-    switch(pathElements[pathElements.length-1]) {
-        case pathIdRewards:
-            activePath = pathIdRewards;
-            break;
-        case pathIdErrors:
-            activePath = pathIdErrors;
-            break;
-    }
+    const activePath = getActivePath();
+    const isMobile = useBreakpointValue([true, false]);
 
     return (
         <>
@@ -48,15 +37,44 @@ export const HamburgerMenu = () => {
                     <DrawerCloseButton p={3} mt={3} mr={1}/>
                     <DrawerHeader>
                         <HStack>
-                            <Button
-                                leftIcon={(<BsHouseDoor/>)}
-                                variant={activePath === '/' ? "outline" : "ghost"}
-                                title={"Home"}
-                                onClick={() => window.location.href='/'}
-                            >
-                                Home
-                            </Button>
-                            {(node.address !== '') && (
+                            {isMobile && (
+                                <IconButton
+                                    aria-label={'Home'}
+                                    icon={(<BsHouseDoor/>)}
+                                    variant={activePath === '/' ? "outline" : "ghost"}
+                                    title={"Home"}
+                                    onClick={() => window.location.href='/'}
+                                />
+                            )}
+                            {!isMobile && (
+                                <Button
+                                    leftIcon={(<BsHouseDoor/>)}
+                                    variant={activePath === '/' ? "outline" : "ghost"}
+                                    title={"Home"}
+                                    onClick={() => window.location.href='/'}
+                                >
+                                    Home
+                                </Button>
+                            )}
+                            {(node.address !== '' && isMobile) && (
+                                <>
+                                    <IconButton
+                                        aria-label={'Rewards'}
+                                        icon={(<BiCoin/>)}
+                                        variant={activePath === pathIdRewards ? "outline" : "ghost"}
+                                        title={"Rewards"}
+                                        onClick={() => window.location.href=`/node/${node.address}/rewards`}
+                                    />
+                                    <IconButton
+                                        aria-label={'Logs'}
+                                        icon={(<CgFileDocument/>)}
+                                        variant={activePath === pathIdErrors ? "outline" : "ghost"}
+                                        title={"Logs"}
+                                        onClick={() => window.location.href=`/node/${node.address}/errors`}
+                                    />
+                                </>
+                            )}
+                            {(node.address !== '' && !isMobile) && (
                                 <>
                                     <Button
                                         leftIcon={(<BiCoin/>)}
@@ -77,6 +95,7 @@ export const HamburgerMenu = () => {
                                 </>
                             )}
                             <Spacer></Spacer>
+                            <ColorModeSwitcher/>
                             {/* Source code link */}
                             <IconButton
                                 aria-label={"View on GitHub"}

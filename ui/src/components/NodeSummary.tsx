@@ -1,14 +1,4 @@
-import {
-    Avatar,
-    AvatarGroup,
-    Box,
-    Center,
-    Editable,
-    EditableInput,
-    EditablePreview, GridItem, Heading, HStack, IconButton,
-    Kbd, Link, LinkBox, SimpleGrid,
-    useClipboard
-} from "@chakra-ui/react";
+import {Avatar, Box, HStack, IconButton, Link, useClipboard} from "@chakra-ui/react";
 import React, {useContext} from "react";
 import {NodeContext} from "../context";
 import {CheckIcon, CopyIcon} from "@chakra-ui/icons";
@@ -19,9 +9,9 @@ export const NodeSummary = () => {
     const {onCopy, hasCopied} = useClipboard(node.address)
 
     return node.address === '' ? (<></>) : (
-        <Box margin={"auto"} p={8}>
+        <Box margin={"auto"} p={[2, 8]}>
             <HStack>
-                <Avatar size={"lg"} mr={2}/>
+                <Avatar size={"lg"} mr={[1, 2]}/>
                 <Box pl={4} borderLeftWidth={1}>
                     <HStack>
                         <Box fontFamily={"monospace"}>{node.address}</Box>

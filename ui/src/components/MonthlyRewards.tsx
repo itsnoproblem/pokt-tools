@@ -23,7 +23,7 @@ import {
 } from "@chakra-ui/react";
 import React, {useCallback, useContext, useEffect, useState} from "react";
 import {NodeContext} from "../context";
-import {MonthlyReward} from "../types/monthly-reward";
+import {MonthlyReward, monthNames} from "../types/monthly-reward";
 import {RewardTransaction} from "./RewardTransaction";
 import {PieChart} from "./PieChart";
 import {getClaims} from "../MonitoringService";
@@ -52,21 +52,6 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
             props.setIsRefreshing(false);
         });
     },[node, props]);
-
-    const monthNames: Record<number, string> = {
-        1: "January",
-        2: "February",
-        3: "March",
-        4: "April",
-        5: "May",
-        6: "June",
-        7: "July",
-        8: "August",
-        9: "September",
-        10: "October",
-        11: "November",
-        12: "December"
-    }
 
     useEffect(() => {
         if(!hasLoaded) {

@@ -1,23 +1,23 @@
 import {
     Box,
     Button,
-    Code,
-    FormControl, FormErrorIcon,
+    FormControl,
     FormLabel,
     HStack,
     Kbd,
     Link,
     Select,
-    SimpleGrid, Spinner,
-    Textarea, useDisclosure, useToast
+    Spinner,
+    Textarea,
+    useDisclosure,
+    useToast
 } from "@chakra-ui/react";
 import {BiError, BiLinkExternal} from "react-icons/all";
-import {useContext, useEffect, useState} from "react";
+import React, {useContext, useState} from "react";
 import {NodeContext} from "../context";
-import React from "react";
-import axios, {AxiosResponse} from "axios";
+import {AxiosResponse} from "axios";
 import {CheckCircleIcon} from "@chakra-ui/icons";
-import {simulateRelayRequest, simulateRelay} from "../MonitoringService";
+import {simulateRelay, simulateRelayRequest} from "../MonitoringService";
 
 export const RelaySimulator = () => {
     const toast = useToast();
@@ -85,15 +85,7 @@ export const RelaySimulator = () => {
                     </Link>
                 </HStack>
             </Box>
-            <FormControl mt={4}>
-                <FormLabel>Payload to send</FormLabel>
-                <Textarea
-                    disabled={true}
-                    fontFamily={"monospace"}
-                    rows={6}
-                    value={(typeof testPayload === 'object') ? JSON.stringify(testPayload, null, 2) : testPayload}
-                />
-            </FormControl>
+
             <HStack mt={4}>
                 <FormControl w={"100%"}>
                     <FormLabel>Chain</FormLabel>
@@ -118,6 +110,17 @@ export const RelaySimulator = () => {
                     )}
                 </FormControl>
             </HStack>
+
+            <FormControl mt={4}>
+                <FormLabel>Payload to send</FormLabel>
+                <Textarea
+                    disabled={true}
+                    fontFamily={"monospace"}
+                    rows={6}
+                    value={(typeof testPayload === 'object') ? JSON.stringify(testPayload, null, 2) : testPayload}
+                />
+            </FormControl>
+
             {testResponse && (
                 <FormControl mt={4}>
                     <FormLabel>

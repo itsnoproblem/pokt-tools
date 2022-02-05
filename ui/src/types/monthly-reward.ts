@@ -5,7 +5,9 @@ export type MonthlyReward = {
     month: number,
     num_relays: number,
     pokt_amount: number,
-    relays_by_chain: RelaysByChain[]
+    relays_by_chain: RelaysByChain[],
+    avg_sec_between_rewards: number,
+    total_sec_between_rewards: number,
     transactions: Array<Transaction>
 }
 
@@ -13,4 +15,19 @@ export type RelaysByChain = {
     chain: string,
     name: string,
     num_relays: number,
+}
+
+export const monthNames: Record<number, string> = {
+    1: "January",
+    2: "February",
+    3: "March",
+    4: "April",
+    5: "May",
+    6: "June",
+    7: "July",
+    8: "August",
+    9: "September",
+    10: "October",
+    11: "November",
+    12: "December"
 }

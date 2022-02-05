@@ -42,12 +42,14 @@ type monthlyRewardsRequest struct {
 }
 
 type monthlyRewardsResponse struct {
-	Year          uint                  `json:"year"`
-	Month         uint                  `json:"month"`
-	NumRelays     uint                  `json:"num_relays"`
-	PoktAmount    float64               `json:"pokt_amount"`
-	RelaysByChain []relaysByChain       `json:"relays_by_chain"`
-	Transactions  []transactionResponse `json:"transactions"`
+	Year                   uint                  `json:"year"`
+	Month                  uint                  `json:"month"`
+	NumRelays              uint                  `json:"num_relays"`
+	PoktAmount             float64               `json:"pokt_amount"`
+	RelaysByChain          []relaysByChain       `json:"relays_by_chain"`
+	AvgSecBetweenRewards   float64               `json:"avg_sec_between_rewards"`
+	TotalSecBetweenRewards float64               `json:"total_sec_between_rewards"`
+	Transactions           []transactionResponse `json:"transactions"`
 }
 
 type relaysByChain struct {
@@ -77,12 +79,14 @@ func MonthlyRewardsEndpoint(svc Service) endpoint.Endpoint {
 		i := 0
 		for _, month := range months {
 			resp[i] = monthlyRewardsResponse{
-				Year:          month.Year,
-				Month:         month.Month,
-				NumRelays:     month.TotalProofs,
-				PoktAmount:    month.PoktAmount(),
-				RelaysByChain: make([]relaysByChain, 0),
-				Transactions:  make([]transactionResponse, len(month.Transactions)),
+				Year:                   month.Year,
+				Month:                  month.Month,
+				NumRelays:              month.TotalProofs,
+				PoktAmount:             month.PoktAmount(),
+				RelaysByChain:          make([]relaysByChain, 0),
+				AvgSecBetweenRewards:   month.AvgSecsBetweenRewards,
+				TotalSecBetweenRewards: month.TotalSecsBetweenRewards,
+				Transactions:           make([]transactionResponse, len(month.Transactions)),
 			}
 
 			byChain := make(map[string]uint, 0)
