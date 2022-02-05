@@ -5,15 +5,12 @@ import {
     StatHelpText,
     StatLabel,
     StatNumber,
-    useBreakpointValue,
     useColorModeValue,
     useDisclosure,
 } from "@chakra-ui/react";
 import React, {useEffect, useRef, useState} from "react";
-
 import {CryptoNode} from "../types/crypto-node";
 import {MonthlyReward, monthNames} from "../types/monthly-reward";
-import HorizontalScroll from "react-scroll-horizontal";
 
 interface AppStatusProps {
     rewards: MonthlyReward[],
@@ -32,7 +29,6 @@ export const POKTPerRelay = 0.0089;
 
 export const NodeMetrics = (props: AppStatusProps) => {
 
-    const isMobile = useBreakpointValue([true, false]);
     const statHoverColor = useColorModeValue('cyan.800', 'blue.100');
     const statBorderColor = useColorModeValue('gray.50', 'gray.50');
     const { isOpen: showAllTime, onToggle: toggleShowAllTime } = useDisclosure({ defaultIsOpen: true });

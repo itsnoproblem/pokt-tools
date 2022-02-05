@@ -66,7 +66,7 @@ export const AppHeader = (props: AppHeaderProps) => {
         props.setIsRefreshing(false);
 
     }, [node, props]);
-    const thing = useInterval(updateNodeData, 900000);
+    useInterval(updateNodeData, 900000);
 
     const updateBalance = useCallback(() => {
         if(!address) {
