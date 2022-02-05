@@ -9,10 +9,11 @@ import {
     useColorModeValue,
     useDisclosure,
 } from "@chakra-ui/react";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 
 import {CryptoNode} from "../types/crypto-node";
 import {MonthlyReward, monthNames} from "../types/monthly-reward";
+import HorizontalScroll from "react-scroll-horizontal";
 
 interface AppStatusProps {
     rewards: MonthlyReward[],
@@ -41,6 +42,9 @@ export const NodeMetrics = (props: AppStatusProps) => {
     const [timeBetweenRewardsAllTime, setTimeBetweenRewardsAllTime] = useState(emptyTimeUnits);
     const [timeSinceReward, setTimeSinceReward] = useState(emptyTimeUnits);
     const [latestMonthName, setLatestMonthName] = useState('');
+
+    const scrollRef = useRef(null);
+
 
     const avgPoktForLastDays = (numDays: number): number => {
         const today = new Date();
@@ -153,11 +157,16 @@ export const NodeMetrics = (props: AppStatusProps) => {
     }, [props, sortedRewards]);
 
 
+
     return(
         <>
-            <HStack mt={8} ml={'auto'} mr={'auto'} p={0}>
-                {!isMobile && (
-                    <>
+            <Box mt={8} mb={8} ml={'auto'} mr={'auto'} p={0} pl={4} pr={4} w={"100%"} h={"100%"}
+                    overflow={'scroll'} ref={scrollRef}
+            >
+
+                {/*{!isMobile && (*/}
+                {/*    <HorizontalScroll reverseScroll={true} animValues={15} pageLock={true}>*/}
+                <HStack>
                         <Box  p={5} minWidth={"185px"} borderWidth={1} borderRadius={20} borderColor={"gray.50"}>
                             <Stat align={"center"}>
                                 <StatLabel>Top Chain This Month</StatLabel>
@@ -236,9 +245,10 @@ export const NodeMetrics = (props: AppStatusProps) => {
                                 <StatHelpText>between rewards</StatHelpText>
                             </Stat>
                         </Box>
-                    </>
-                )}
-            </HStack>
+                    {/*</HorizontalScroll>*/}
+                </HStack>
+                {/*)}*/}
+            </Box>
 
         </>
 
