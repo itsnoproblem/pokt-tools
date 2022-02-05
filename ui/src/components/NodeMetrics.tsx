@@ -100,12 +100,7 @@ export const NodeMetrics = (props: AppStatusProps) => {
         };
     }
 
-    const timeSince = (test: Date): TimeUnits => {
-        const now = Date.now();
-        const testSec = test.getTime();
-        const seconds = (now - testSec) / 1000;
-        return timeUnits(seconds);
-    }
+
 
     const sortedRewards = props.rewards;
     const sortedByChain = (sortedRewards[0] !== undefined) ?
@@ -113,20 +108,30 @@ export const NodeMetrics = (props: AppStatusProps) => {
             return (a.num_relays > b.num_relays) ? -1 : 1;
         }) : [];
 
-    const latestTxTime = () => {
-        for(let j = 0; j < props.rewards.length; j++) {
-            const txs = props.rewards[j].transactions;
-            console.log("txs", txs);
-            for(let i=txs.length-1; i >= 0; i--) {
-                if(txs[i].is_confirmed) {
-                    console.log("latestTxTime", txs[i].time)
-                    return new Date(txs[i].time);
-                };
-            }
-        }
-    }
+
 
     useEffect(() => {
+
+        const timeSince = (test: Date): TimeUnits => {
+            const now = Date.now();
+            const testSec = test.getTime();
+            const seconds = (now - testSec) / 1000;
+            return timeUnits(seconds);
+        }
+
+        const latestTxTime = () => {
+            for(let j = 0; j < props.rewards.length; j++) {
+                const txs = props.rewards[j].transactions;
+                console.log("txs", txs);
+                for(let i=txs.length-1; i >= 0; i--) {
+                    if(txs[i].is_confirmed) {
+                        console.log("latestTxTime", txs[i].time)
+                        return new Date(txs[i].time);
+                    };
+                }
+            }
+        }
+
         const latestMonth = sortedRewards[0]?.month;
         const lastRewardDate = latestTxTime();
         setTimeBetweenRewardsLatest(timeUnits(sortedRewards[0]?.avg_sec_between_rewards ?? -1));
@@ -141,10 +146,11 @@ export const NodeMetrics = (props: AppStatusProps) => {
         sortedRewards.map((r, i) => {
             secBetweenRewardsAllTime += r.total_sec_between_rewards;
             numRewardsAllTime += r.transactions.length;
+            return numRewardsAllTime;
         });
         setTimeBetweenRewardsAllTime(timeUnits(secBetweenRewardsAllTime / numRewardsAllTime));
 
-    }, [props]);
+    }, [props, sortedRewards]);
 
 
     return(
