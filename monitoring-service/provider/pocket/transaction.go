@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	ClaimExpirationBlocks = 12
+	ClaimExpirationBlocks = 120
 )
 
 type accountTransactionsRequest struct {

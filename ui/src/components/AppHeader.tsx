@@ -59,6 +59,9 @@ export const AppHeader = (props: AppHeaderProps) => {
             props.onNodeLoaded(n);
             const c = await getClaims(node.address);
             props.onRewardsLoaded(c);
+            getHeight().then((h) => setCurrentHeight(h));
+            updateBalance();
+
         }
         catch (err) {
             console.error("updateNodeData", err);
@@ -86,9 +89,8 @@ export const AppHeader = (props: AppHeaderProps) => {
     useEffect(() => {
         if(!hasLoaded) {
             updateBalance();
+            getHeight().then((h) => setCurrentHeight(h));
         }
-
-        getHeight().then((h) => setCurrentHeight(h));
 
         if(props.rewards[0]) {
             let pending = 0;
