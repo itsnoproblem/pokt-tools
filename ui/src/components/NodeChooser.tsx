@@ -77,7 +77,6 @@ export const NodeChooser = (props: NodeChooserProps) => {
                                 <form onSubmit={(e: SyntheticEvent) => {
                                     e.preventDefault();
                                     document.location = `/node/${(e.target as any).elements.address.value}/rewards`;
-                                    console.log("form", e)
                                 }}>
                                     <HStack>
                                         <Input type={"text"} placeholder={"servicer id (address)"} id={"address"} name={"address"} w={"100%"}/>

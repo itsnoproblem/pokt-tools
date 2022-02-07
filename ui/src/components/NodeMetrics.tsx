@@ -122,10 +122,10 @@ export const NodeMetrics = (props: AppStatusProps) => {
         const latestTxTime = () => {
             for(let j = 0; j < props.rewards.length; j++) {
                 const txs = props.rewards[j].transactions;
-                console.log("txs", txs);
+
                 for(let i=txs.length-1; i >= 0; i--) {
                     if(txs[i].is_confirmed) {
-                        console.log("latestTxTime", txs[i].time)
+                        // console.log("latestTxTime", txs[i].time)
                         return new Date(txs[i].time);
                     };
                 }
