@@ -1,5 +1,5 @@
 import {NodeContext} from "../context";
-import {useContext, useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import axios from "axios";
 import {logsAreEqual, PocketError} from "../types/error";
 import {
@@ -8,17 +8,17 @@ import {
     FormControl,
     HStack,
     IconButton,
-    Select, Skeleton, Stack,
+    Select,
+    Skeleton,
+    Stack,
     Table,
     Tbody,
     Td,
     Text,
-    Th,
     Thead,
     Tr
 } from "@chakra-ui/react";
-import {ArrowLeftIcon, ArrowRightIcon, ChevronRightIcon} from "@chakra-ui/icons";
-import {log} from "util";
+import {ArrowLeftIcon, ArrowRightIcon} from "@chakra-ui/icons";
 
 export const Errors = () => {
     const node = useContext(NodeContext)
@@ -66,7 +66,7 @@ export const Errors = () => {
         }
         return (
             <Stack>
-                {rows.map(() => (<Skeleton height={'53px'}/>))}
+                {rows.map((r, i) => (<Skeleton key={i} height={'53px'}/>))}
             </Stack>
         )
     }
@@ -78,10 +78,10 @@ export const Errors = () => {
         <Box>
             <Flex pt={10} pb={10} pl={40} pr={40}>
                 <FormControl>
-                    <Select onChange={switchChains} isFullWidth={false} placeholder={"Select a chain"}>
-                        {node.chains.map((ch) => {
+                    <Select onChange={switchChains} isFullWidth={false} minW={"150px"} placeholder={"Select a chain"}>
+                        {node.chains.map((ch, i) => {
                             const selected = (chain === ch.id) ? "selected" : "";
-                            return (<option value={ch.id} {...selected}>{ch.name}</option>)
+                            return (<option key={i} value={ch.id} {...selected}>{ch.name}</option>)
                         })}
                     </Select>
                 </FormControl>
@@ -106,11 +106,13 @@ export const Errors = () => {
             { (errors.length > 0  && !isLoading) && (
                 <Table variant={"striped"} w={"100%"}>
                     <Thead>
-                        <Th w={"250px"}>Timestamp</Th>
-                        <Th w={"100px"}>Chain</Th>
-                        <Th w={"200px"}>Method</Th>
-                        <Th w={"80px"}>Code</Th>
-                        <Th w={"auto"}>Message</Th>
+                        <tr>
+                            <Td w={"250px"}>Timestamp</Td>
+                            <Td w={"100px"}>Chain</Td>
+                            <Td w={"200px"}>Method</Td>
+                            <Td w={"80px"}>Code</Td>
+                            <Td w={"auto"}>Message</Td>
+                        </tr>
                     </Thead>
                     <Tbody>
                     {errors.map((err, index) => {
@@ -134,9 +136,19 @@ export const Errors = () => {
                             }
                         }
                         return (logRepeats > 0) ?
-                            !doneRepeating ? ( <></>) : ( <Tr><Td colSpan={5} fontSize={"sm"}><ChevronRightIcon/> Repeats {logRepeats} times: {err.message}</Td></Tr>)
+                            !doneRepeating ? (
+                                <></>
+                            ) : (
+                                <Tr key={index}>
+                                    <Td w={"250px"}>{(new Date(err.timestamp)).toLocaleString()}</Td>
+                                    <Td w={"100px"}>{err.blockchain}</Td>
+                                    <Td w="250px" maxW={"250px"} overflow={"hidden"} isTruncated={true}>{err.method}</Td>
+                                    <Td w={"80px"}>{err.code ?? '-'}</Td>
+                                    <Td w={"auto"}>{err.message} <Text color={"gray.500"}><em>(Repeats {logRepeats} times)</em></Text></Td>
+                                </Tr>
+                            )
                         : (
-                            <Tr>
+                            <Tr key={index}>
                                 <Td w={"250px"}>{(new Date(err.timestamp)).toLocaleString()}</Td>
                                 <Td w={"100px"}>{err.blockchain}</Td>
                                 <Td w="250px" maxW={"250px"} overflow={"hidden"} isTruncated={true}>{err.method}</Td>
