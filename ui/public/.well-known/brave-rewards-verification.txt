@@ -1,0 +1,4 @@
+This is a Brave Rewards publisher verification file.
+
+Domain: pokt.tools
+Token: 6ab64eca6b1ebbc3ea143d27d89a384fc74ea858aed4d63427bd12de3d82b8bc
