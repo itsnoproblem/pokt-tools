@@ -95,7 +95,11 @@ export const HamburgerMenu = () => {
                                 </>
                             )}
                             <Spacer></Spacer>
-                            <ColorModeSwitcher/>
+                            <ColorModeSwitcher
+                                _focus={{boxShadow: "none"}}
+                                alignSelf="flex-end"
+                            />
+
                             {/* Source code link */}
                             <IconButton
                                 aria-label={"View on GitHub"}
