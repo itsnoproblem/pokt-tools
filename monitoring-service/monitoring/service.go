@@ -3,6 +3,7 @@ package monitoring
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"sort"
 	"time"
 
@@ -194,6 +195,10 @@ func (s *Service) RewardsByMonth(address string) (map[string]pocket.MonthlyRewar
 			prevTx = tx
 		}
 		mo.AvgSecsBetweenRewards = totalSecs / numTxs
+		if math.IsNaN(mo.AvgSecsBetweenRewards) {
+			mo.AvgSecsBetweenRewards = 0
+		}
+
 		mo.TotalSecsBetweenRewards = totalSecs
 		months[monthKey] = mo
 	}
