@@ -27,6 +27,7 @@ import {MonthlyReward, monthNames} from "../types/monthly-reward";
 import {RewardTransaction} from "./RewardTransaction";
 import {PieChart} from "./PieChart";
 import {getClaims} from "../MonitoringService";
+import {EVENT_MONTH_CLOSE, EVENT_MONTH_METRICS, EVENT_MONTH_OPEN, EVENT_MONTH_TRANSACTIONS, trackGoal} from "../events";
 
 type MonthlyRewardsProps = {
     rewards: MonthlyReward[],
@@ -86,7 +87,20 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
             })}
         </Stack>
     ) : (
-        <Accordion allowMultiple maxW="100%" w={["100%", "1280px"]} ml={"auto"} mr={"auto"} mt={[2,8]} p={0}>
+        <Accordion
+            onChange={(e: number[]) => {
+                if(e.length === 0) {
+                    trackGoal(EVENT_MONTH_CLOSE);
+                } else {
+                    trackGoal(EVENT_MONTH_OPEN);
+                }
+            }}
+            allowMultiple={true}
+            maxW="100%"
+            w={["100%", "1280px"]}
+            ml={"auto"} mr={"auto"}
+            mt={[2,8]} p={0}
+        >
             {props.rewards.map((month: MonthlyReward, i) => {
                 const relays = relaysByChain(month)
                 return (
@@ -107,10 +121,18 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
                             </AccordionButton>
                         </h2>
                         <AccordionPanel pb={4}>
-                            <Tabs>
+                            <Tabs onChange={(i) => {
+                                console.log(`tab ${i}`)
+                                if(i === 0) {
+                                    trackGoal(EVENT_MONTH_TRANSACTIONS);
+                                } else if(i === 1) {
+                                    trackGoal(EVENT_MONTH_METRICS);
+                                }
+                            }
+                            }>
                                 <TabList>
-                                    <Tab>Transactions</Tab>
-                                    <Tab>Metrics</Tab>
+                                    <Tab onChange={(e) => { console.log(e); }}>Transactions</Tab>
+                                    <Tab onChange={(e) => { console.log(e); }}>Metrics</Tab>
                                 </TabList>
                                 <TabPanels>
                                     <TabPanel p={0}>

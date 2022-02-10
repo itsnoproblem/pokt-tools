@@ -11,6 +11,7 @@ import {
 import React, {useEffect, useRef, useState} from "react";
 import {CryptoNode} from "../types/crypto-node";
 import {MonthlyReward, monthNames} from "../types/monthly-reward";
+import {EVENT_TOGGLE_LIFETIME_AVG, trackGoal} from "../events";
 
 interface AppStatusProps {
     rewards: MonthlyReward[],
@@ -209,7 +210,10 @@ export const NodeMetrics = (props: AppStatusProps) => {
                              borderColor={statBorderColor}
                              _hover={ {borderColor: statHoverColor} }
                              cursor={'pointer'}
-                             onClick={toggleShowAllTime}
+                             onClick={() => {
+                                 trackGoal(EVENT_TOGGLE_LIFETIME_AVG);
+                                 toggleShowAllTime();
+                             }}
                         >
                             <Stat _hover={ {color: statHoverColor} } align={"center"}>
                                 <StatLabel>

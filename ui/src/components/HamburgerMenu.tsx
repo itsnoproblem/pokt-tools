@@ -21,6 +21,7 @@ import {NodeSummary} from "./NodeSummary";
 import {NodeDiagnostics} from "./NodeDiagnostics";
 import {getActivePath, pathIdErrors, pathIdRewards} from "../App";
 import {ColorModeSwitcher} from "./ColorModeSwitcher";
+import {EVENT_HAMBURGER_CLOSE, EVENT_HAMBURGER_OPEN, trackGoal} from "../events";
 
 export const HamburgerMenu = () => {
     const {isOpen, onOpen, onClose} = useDisclosure();
@@ -28,10 +29,30 @@ export const HamburgerMenu = () => {
     const activePath = getActivePath();
     const isMobile = useBreakpointValue([true, false]);
 
+    const openDrawer = () => {
+        onOpen();
+        trackGoal(EVENT_HAMBURGER_OPEN);
+    }
+
+    const closeDrawer = () => {
+        onClose();
+        trackGoal(EVENT_HAMBURGER_CLOSE);
+    }
+
     return (
         <>
-            <IconButton onClick={onOpen} variant={"ghost"} aria-label={"Menu"} icon={(<HamburgerIcon/>)}/>
-            <Drawer onClose={onClose} isOpen={isOpen} size={"lg"} placement={"left"}>
+            <IconButton
+                icon={(<HamburgerIcon/>)}
+                aria-label={"Menu"}
+                variant={"ghost"}
+                onClick={openDrawer}
+            />
+            <Drawer
+                onClose={closeDrawer}
+                isOpen={isOpen}
+                size={"lg"}
+                placement={"left"}
+            >
                 <DrawerOverlay/>
                 <DrawerContent>
                     <DrawerCloseButton p={3} mt={3} mr={1}/>
@@ -94,7 +115,7 @@ export const HamburgerMenu = () => {
                                     </Button>
                                 </>
                             )}
-                            <Spacer></Spacer>
+                            <Spacer/>
                             <ColorModeSwitcher
                                 _focus={{boxShadow: "none"}}
                                 alignSelf="flex-end"

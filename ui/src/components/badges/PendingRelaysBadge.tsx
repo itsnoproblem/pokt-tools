@@ -1,6 +1,7 @@
 import {Badge, ChakraProps, useColorModeValue, useDisclosure} from "@chakra-ui/react";
 import React from "react";
 import {POKTPerRelay} from "../NodeMetrics";
+import {EVENT_TOGGLE_PENDING_UNITS, trackGoal} from "../../events";
 
 type PendingRelaysProps = {
     num: number
@@ -16,7 +17,10 @@ export const PendingRelaysBadge = (props: PendingRelaysProps) => {
             borderRadius={55}
             variant={variant}
             colorScheme={colorScheme}
-            onClick={onToggle}
+            onClick={() => {
+                trackGoal(EVENT_TOGGLE_PENDING_UNITS);
+                onToggle();
+            }}
             _hover={{ cursor: "pointer" }}
             aria-label={"switch between relays and pokt amount pending"}
             // fontSize={"x-small"}
