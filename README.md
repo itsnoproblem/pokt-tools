@@ -40,4 +40,4 @@ Happy exploring!
 
 Several people have requested a POKT address they can send donations to, in order to support this project. 
 
-If you find this tool usefule and would like to buy me a coffee, or a beer, or a taco, feel free to send POKT to `4fdb144edcfd0d44be506face06be7bddc680fe8`
+If you find this tool useful and would like to buy me a coffee, or a beer, or a taco, feel free to send POKT to `4fdb144edcfd0d44be506face06be7bddc680fe8`
