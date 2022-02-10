@@ -9,12 +9,18 @@ export type MonthlyReward = {
     avg_sec_between_rewards: number,
     total_sec_between_rewards: number,
     transactions: Array<Transaction>
+    days_of_week: DayOfWeek[]
 }
 
 export type RelaysByChain = {
     chain: string,
     name: string,
     num_relays: number,
+}
+
+export type DayOfWeek = {
+    name: string
+    num_proofs: number
 }
 
 export const monthNames: Record<number, string> = {

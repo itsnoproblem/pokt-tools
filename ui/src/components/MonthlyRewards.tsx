@@ -5,6 +5,7 @@ import {
     AccordionItem,
     AccordionPanel,
     Box,
+    BoxProps,
     Grid,
     GridItem,
     HStack,
@@ -18,6 +19,7 @@ import {
     TabPanels,
     Tabs,
     Text,
+    forwardRef,
     useBreakpointValue,
     useColorModeValue
 } from "@chakra-ui/react";
@@ -27,6 +29,7 @@ import {MonthlyReward, monthNames} from "../types/monthly-reward";
 import {RewardTransaction} from "./RewardTransaction";
 import {PieChart} from "./PieChart";
 import {getClaims} from "../MonitoringService";
+import {DayOfWeekChart} from "./DayOfWeekChart";
 
 type MonthlyRewardsProps = {
     rewards: MonthlyReward[],
@@ -77,6 +80,26 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
         });
     }, []);
 
+    interface chartData {
+        id: string
+        label: string
+        value: number
+    }
+
+    const getDaysOfWeekData = (month: MonthlyReward) => {
+        const daysOfWeekData: chartData[] = []
+
+        for(let i = 0; i < 7; i++) {
+            daysOfWeekData[i] = {
+                id: month.days_of_week[i].name.slice(0, 3),
+                label: month.days_of_week[i].name,
+                value: month.days_of_week[i].num_proofs,
+            }
+        }
+        return daysOfWeekData;
+    }
+
+
     return props.isRefreshing ? (
         <Stack w={["100vw", "1280px"]} ml={"auto"} mr={"auto"} mt={2}>
 
@@ -86,7 +109,7 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
             })}
         </Stack>
     ) : (
-        <Accordion allowMultiple maxW="100%" w={["100%", "1280px"]} ml={"auto"} mr={"auto"} mt={[2,8]} p={0}>
+        <Accordion allowMultiple={true} maxW="100%" w={["100%", "1280px"]} ml={"auto"} mr={"auto"} mt={[2,8]} p={0}>
             {props.rewards.map((month: MonthlyReward, i) => {
                 const relays = relaysByChain(month)
                 return (
@@ -136,22 +159,25 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
                                             <Box w={["100%", "100%"]} height={"400px"} color={"gray.50"}>
                                                 <PieChart data={relays}/>
                                             </Box>
-                                            <Box w={["100%", "100%"]}>
-                                                <SimpleGrid columns={3} mt={8}>
-                                                    <Box padding={3} backgroundColor={"blue.900"}>Chain</Box>
-                                                    <Box padding={3} backgroundColor={"blue.900"} align={"right"}>Relays</Box>
-                                                    <Box padding={3} backgroundColor={"blue.900"} align={"right"}>Percent</Box>
-                                                    { relays.map((r, z) => {
-                                                        return (
-                                                            <React.Fragment key={z}>
-                                                                <Box padding={3}>{r.id}</Box>
-                                                                <Box padding={3} align={"right"}>{Number(r.value).toLocaleString()}</Box>
-                                                                <Box padding={3} align={"right"}>{Number((r.value/month.num_relays)*100).toPrecision(4)}%</Box>
-                                                            </React.Fragment>
-                                                        )
-                                                    })}
-                                                </SimpleGrid>
+                                            <Box w={"100%"} height={"400px"}>
+                                                <DayOfWeekChart data={getDaysOfWeekData(month)}/>
                                             </Box>
+                                            {/*<Box w={["100%", "100%"]}>*/}
+                                            {/*    <SimpleGrid columns={3} mt={8}>*/}
+                                            {/*        <Box padding={3} backgroundColor={"blue.900"}>Chain</Box>*/}
+                                            {/*        <Box padding={3} backgroundColor={"blue.900"} align={"right"}>Relays</Box>*/}
+                                            {/*        <Box padding={3} backgroundColor={"blue.900"} align={"right"}>Percent</Box>*/}
+                                            {/*        { relays.map((r, z) => {*/}
+                                            {/*            return (*/}
+                                            {/*                <React.Fragment key={z}>*/}
+                                            {/*                    <Box padding={3}>{r.id}</Box>*/}
+                                            {/*                    <Box padding={3} align={"right"}>{Number(r.value).toLocaleString()}</Box>*/}
+                                            {/*                    <Box padding={3} align={"right"}>{Number((r.value/month.num_relays)*100).toPrecision(4)}%</Box>*/}
+                                            {/*                </React.Fragment>*/}
+                                            {/*            )*/}
+                                            {/*        })}*/}
+                                            {/*    </SimpleGrid>*/}
+                                            {/*</Box>*/}
                                         </Stack>
 
                                     </TabPanel>

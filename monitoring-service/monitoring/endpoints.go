@@ -42,14 +42,20 @@ type monthlyRewardsRequest struct {
 }
 
 type monthlyRewardsResponse struct {
-	Year                   uint                  `json:"year"`
-	Month                  uint                  `json:"month"`
-	NumRelays              uint                  `json:"num_relays"`
-	PoktAmount             float64               `json:"pokt_amount"`
-	RelaysByChain          []relaysByChain       `json:"relays_by_chain"`
-	AvgSecBetweenRewards   float64               `json:"avg_sec_between_rewards"`
-	TotalSecBetweenRewards float64               `json:"total_sec_between_rewards"`
-	Transactions           []transactionResponse `json:"transactions"`
+	Year                   uint                       `json:"year"`
+	Month                  uint                       `json:"month"`
+	NumRelays              uint                       `json:"num_relays"`
+	PoktAmount             float64                    `json:"pokt_amount"`
+	RelaysByChain          []relaysByChain            `json:"relays_by_chain"`
+	AvgSecBetweenRewards   float64                    `json:"avg_sec_between_rewards"`
+	TotalSecBetweenRewards float64                    `json:"total_sec_between_rewards"`
+	Transactions           []transactionResponse      `json:"transactions"`
+	DaysOfWeek             map[int]daysOfWeekResponse `json:"days_of_week"`
+}
+
+type daysOfWeekResponse struct {
+	Name      string `json:"name"`
+	NumProofs uint   `json:"num_proofs"`
 }
 
 type relaysByChain struct {
@@ -124,6 +130,14 @@ func MonthlyRewardsEndpoint(svc Service) endpoint.Endpoint {
 				}
 
 				resp[i].RelaysByChain = append(resp[i].RelaysByChain, byChainResp)
+			}
+
+			resp[i].DaysOfWeek = make(map[int]daysOfWeekResponse, len(month.DaysOfWeek))
+			for j, d := range month.DaysOfWeek {
+				resp[i].DaysOfWeek[j] = daysOfWeekResponse{
+					Name:      d.Name,
+					NumProofs: d.Proofs,
+				}
 			}
 			i++
 		}

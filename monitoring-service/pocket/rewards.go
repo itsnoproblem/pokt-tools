@@ -6,7 +6,13 @@ type MonthlyReward struct {
 	TotalProofs             uint
 	AvgSecsBetweenRewards   float64
 	TotalSecsBetweenRewards float64
+	DaysOfWeek              map[int]*DayOfWeek
 	Transactions            []Transaction
+}
+
+type DayOfWeek struct {
+	Name   string
+	Proofs uint
 }
 
 func (r *MonthlyReward) PoktAmount() float64 {

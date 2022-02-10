@@ -168,7 +168,15 @@ func (s *Service) RewardsByMonth(address string) (map[string]pocket.MonthlyRewar
 				Year:        uint(tx.Time.Year()),
 				Month:       uint(tx.Time.Month()),
 				TotalProofs: 0,
+				DaysOfWeek:  make(map[int]*pocket.DayOfWeek, 7),
 			}
+			months[monthKey].DaysOfWeek[0] = &pocket.DayOfWeek{Name: "Sunday", Proofs: 0}
+			months[monthKey].DaysOfWeek[1] = &pocket.DayOfWeek{Name: "Monday", Proofs: 0}
+			months[monthKey].DaysOfWeek[2] = &pocket.DayOfWeek{Name: "Tuesday", Proofs: 0}
+			months[monthKey].DaysOfWeek[3] = &pocket.DayOfWeek{Name: "Wednesday", Proofs: 0}
+			months[monthKey].DaysOfWeek[4] = &pocket.DayOfWeek{Name: "Thursday", Proofs: 0}
+			months[monthKey].DaysOfWeek[5] = &pocket.DayOfWeek{Name: "Friday", Proofs: 0}
+			months[monthKey].DaysOfWeek[6] = &pocket.DayOfWeek{Name: "Saturday", Proofs: 0}
 		}
 		month := months[monthKey]
 		if tx.IsConfirmed {
@@ -193,6 +201,9 @@ func (s *Service) RewardsByMonth(address string) (map[string]pocket.MonthlyRewar
 				numTxs++
 			}
 			prevTx = tx
+
+			dayOfWeek := int(tx.Time.Weekday())
+			months[monthKey].DaysOfWeek[dayOfWeek].Proofs += tx.NumProofs
 		}
 		mo.AvgSecsBetweenRewards = totalSecs / numTxs
 		if math.IsNaN(mo.AvgSecsBetweenRewards) {
@@ -201,6 +212,7 @@ func (s *Service) RewardsByMonth(address string) (map[string]pocket.MonthlyRewar
 
 		mo.TotalSecsBetweenRewards = totalSecs
 		months[monthKey] = mo
+
 	}
 
 	return months, nil
