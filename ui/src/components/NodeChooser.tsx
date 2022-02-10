@@ -22,6 +22,12 @@ import * as React from "react";
 import {SyntheticEvent, useContext} from "react";
 import {NodeContext} from "../context";
 import {useLocalStorage} from "react-use";
+import {
+    EVENT_ADDRESS_CHOOSER_CHOOSE,
+    EVENT_ADDRESS_CHOOSER_CLOSE, EVENT_ADDRESS_CHOOSER_FAVORITE,
+    EVENT_ADDRESS_CHOOSER_OPEN, EVENT_ADDRESS_CHOOSER_UNFAVORITE,
+    trackGoal
+} from "../events";
 
 type NodeChooserProps = {
     address: string
@@ -33,12 +39,21 @@ export const NodeChooser = (props: NodeChooserProps) => {
     const defaultSavedAddresses: Array<string> = [];
     const [savedAddresses, setSavedAddresses] = useLocalStorage("savedAddresses", defaultSavedAddresses);
     addressIsSaved = savedAddresses?.includes(node.address) ?? false;
-    const {onOpen, onClose} = useDisclosure();
+    const {isOpen, onOpen, onClose} = useDisclosure();
 
     return (
         <HStack spacing={0}>
             <VStack>
-                <Popover>
+                <Popover
+                    isOpen={isOpen}
+                    onOpen={() => {
+                        trackGoal(EVENT_ADDRESS_CHOOSER_OPEN);
+                        onOpen();
+                    }}
+                    onClose={() => {
+                        trackGoal(EVENT_ADDRESS_CHOOSER_CLOSE);
+                        onClose();
+                    }}>
                     <PopoverTrigger>
                         <Button
                             alignSelf="flex-end"
@@ -48,8 +63,6 @@ export const NodeChooser = (props: NodeChooserProps) => {
                             borderRightRadius={0}
                             marginRight={0}
                             _focus={{boxShadow: "none"}}
-                            onMouseOver={onOpen}
-                            onMouseOut={onClose}
                         >
                             {props.address === "" ?
                                 (<>Connect</>) :
@@ -76,6 +89,7 @@ export const NodeChooser = (props: NodeChooserProps) => {
                             <PopoverFooter>
                                 <form onSubmit={(e: SyntheticEvent) => {
                                     e.preventDefault();
+                                    trackGoal(EVENT_ADDRESS_CHOOSER_CHOOSE);
                                     document.location = `/node/${(e.target as any).elements.address.value}/rewards`;
                                 }}>
                                     <HStack>
@@ -103,10 +117,12 @@ export const NodeChooser = (props: NodeChooserProps) => {
                     if(addressIsSaved) {
                         const index = savedAddresses.indexOf(props.address);
                         if(index > -1) {
+                            trackGoal(EVENT_ADDRESS_CHOOSER_UNFAVORITE);
                             savedAddresses.splice(index, 1);
                             setSavedAddresses(savedAddresses);
                         }
                     } else {
+                        trackGoal(EVENT_ADDRESS_CHOOSER_FAVORITE);
                         savedAddresses?.push(props.address);
                         setSavedAddresses(savedAddresses);
                     }
