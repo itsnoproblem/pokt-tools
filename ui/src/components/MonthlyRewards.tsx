@@ -109,10 +109,27 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
                             <AccordionButton>
                                 <Box flex='1'>
                                     <HStack pt={1} pb={1}>
-                                        <Box pl={[1,8]} w={["200px", "200px"]} textAlign='left'>{monthNames[month.month]} {month.year}</Box>
-                                        <Spacer/>
-                                        { !isMobile && (<Box flexGrow={1} textAlign={"right"}>{Number(month.num_relays).toLocaleString()} relays</Box>) }
-                                        <Box pr={[2,8]} flexGrow={1} textAlign='right'>
+                                        <Box pl={[1,8]} w={["200px", "40%"]} textAlign='left'>{monthNames[month.month]} {month.year}</Box>
+                                        {/*<Spacer/>*/}
+                                        { !isMobile && (
+                                            <>
+                                                <Box
+                                                    fontFamily={"Roboto Mono, mono"}
+                                                    fontSize={"sm"}
+                                                    w={"15%"} flexGrow={1} textAlign={"right"}>
+                                                    {month.num_relays.toLocaleString()} <Text d={"inline"} fontSize="xs" textTransform={"uppercase"}> relays</Text>
+                                                </Box>
+                                                <Box fontFamily={"Roboto Mono, mono"} fontSize={"sm"} w={"15%"} flexGrow={1} textAlign={"right"}>
+                                                    {month.transactions.length.toLocaleString()}
+                                                    <Text d={"inline"} fontSize="xs" textTransform={"uppercase"}> sessions</Text>
+                                                </Box>
+                                                <Box fontFamily={"Roboto Mono, mono"} fontSize={"sm"} w={"15%"} flexGrow={1} textAlign={"right"}>
+                                                    {((month.num_relays/month.transactions.length) * 0.0089).toFixed(2)}
+                                                    <Text d={"inline"} fontSize="xs" textTransform={"uppercase"}> pokt/sess</Text>
+                                                </Box>
+                                            </>
+                                        ) }
+                                        <Box fontFamily={"Roboto Mono, mono"} fontSize={"sm"} minW={["150px", "15%"]} pr={[2,8]} flexGrow={1} textAlign='right'>
                                             {month.pokt_amount} <Text d="inline" fontSize={"xs"} textTransform={"uppercase"}>pokt</Text>
                                         </Box>
                                     </HStack>
