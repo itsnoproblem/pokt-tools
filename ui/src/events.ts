@@ -12,6 +12,7 @@ export const EVENT_MONTH_METRICS = '4GHGNFZZ';
 export const EVENT_TOGGLE_LIFETIME_AVG = 'CEOMNLN0';
 export const EVENT_TOGGLE_LIFETIME_AVG_PER_SESS = 'IENKUKJO';
 export const EVENT_TOGGLE_PENDING_UNITS = '0IVHB1EO';
+export const EVENT_TOGGLE_TEN_THIRTY_NINETY = 'ISKX5JUD';
 
 export const trackGoal = (eventCode: string) => {
     // @ts-ignore

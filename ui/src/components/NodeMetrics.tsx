@@ -11,7 +11,12 @@ import {
 import React, {useEffect, useRef, useState} from "react";
 import {CryptoNode} from "../types/crypto-node";
 import {MonthlyReward, monthNames} from "../types/monthly-reward";
-import {EVENT_TOGGLE_LIFETIME_AVG, EVENT_TOGGLE_LIFETIME_AVG_PER_SESS, trackGoal} from "../events";
+import {
+    EVENT_TOGGLE_LIFETIME_AVG,
+    EVENT_TOGGLE_LIFETIME_AVG_PER_SESS,
+    EVENT_TOGGLE_TEN_THIRTY_NINETY,
+    trackGoal
+} from "../events";
 
 interface AppStatusProps {
     rewards: MonthlyReward[],
@@ -34,6 +39,7 @@ export const NodeMetrics = (props: AppStatusProps) => {
     const statBorderColor = useColorModeValue('gray.50', 'gray.50');
     const { isOpen: showAllTime, onToggle: toggleShowAllTime } = useDisclosure({ defaultIsOpen: true });
     const { isOpen: showAllTimePerSess, onToggle: toggleShowAllTimePerSess } = useDisclosure({ defaultIsOpen: true })
+    const [tenThirtyNinetyState, setTenThirtyNinetyState] = useState(0);
 
     const emptyTimeUnits: TimeUnits = { units: '---', value: -1 }
     const [timeBetweenRewardsLatest, setTimeBetweenRewardsLatest] = useState(emptyTimeUnits);
@@ -188,26 +194,37 @@ export const NodeMetrics = (props: AppStatusProps) => {
                             <StatHelpText>{sortedByChain[0]?.num_relays?.toLocaleString()} relays</StatHelpText>
                         </Stat>
                     </Box>
-                    <Box  p={5} minWidth={"185px"}>
-                        <Stat align={"center"}>
-                            <StatLabel>10 Day Average</StatLabel>
-                            <StatNumber>{avgPoktForLastDays(10)}</StatNumber>
-                            <StatHelpText>POKT per day</StatHelpText>
-                        </Stat>
-                    </Box>
-                    <Box borderWidth={1} borderRadius={20} p={5} minWidth={"185px"} borderColor={"gray.50"}>
-                        <Stat align={"center"}>
-                            <StatLabel>30 Day Average</StatLabel>
-                            <StatNumber>{avgPoktForLastDays(30)}</StatNumber>
-                            <StatHelpText>POKT per day</StatHelpText>
-                        </Stat>
-                    </Box>
-                    <Box  p={5} minWidth={"185px"}>
-                        <Stat align={"center"}>
-                            <StatLabel>90 Day Average</StatLabel>
-                            <StatNumber>{avgPoktForLastDays(90)}</StatNumber>
-                            <StatHelpText>POKT per day</StatHelpText>
-                        </Stat>
+                    <Box p={5} minWidth={"185px"}
+                         _hover={ {color: statHoverColor} }
+                         cursor={'pointer'}
+                         onClick={() => {
+                             const newState = tenThirtyNinetyState + 1;
+                             setTenThirtyNinetyState(newState > 2 ? 0 : newState);
+                             trackGoal(EVENT_TOGGLE_TEN_THIRTY_NINETY);
+                        }}
+                    >
+                        {tenThirtyNinetyState === 0 && (
+                            <Stat align={"center"}>
+                                <StatLabel>10 Day Average</StatLabel>
+                                <StatNumber>{avgPoktForLastDays(10)}</StatNumber>
+                                <StatHelpText>POKT per day</StatHelpText>
+                            </Stat>
+                        )}
+                        {tenThirtyNinetyState === 1 && (
+                            <Stat align={"center"}>
+                                <StatLabel>30 Day Average</StatLabel>
+                                <StatNumber>{avgPoktForLastDays(30)}</StatNumber>
+                                <StatHelpText>POKT per day</StatHelpText>
+                            </Stat>
+                        )}
+                        {tenThirtyNinetyState === 2 && (
+                            <Stat align={"center"}>
+                                <StatLabel>90 Day Average</StatLabel>
+                                <StatNumber>{avgPoktForLastDays(90)}</StatNumber>
+                                <StatHelpText>POKT per day</StatHelpText>
+                            </Stat>
+                        )}
+
                     </Box>
                     <Box  p={5} minWidth={"185px"} borderWidth={1} borderRadius={20} borderColor={"gray.50"}>
                         <Stat align={"center"}>
