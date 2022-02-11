@@ -11,7 +11,7 @@ import {
 import React, {useEffect, useRef, useState} from "react";
 import {CryptoNode} from "../types/crypto-node";
 import {MonthlyReward, monthNames} from "../types/monthly-reward";
-import {EVENT_TOGGLE_LIFETIME_AVG, trackGoal} from "../events";
+import {EVENT_TOGGLE_LIFETIME_AVG, EVENT_TOGGLE_LIFETIME_AVG_PER_SESS, trackGoal} from "../events";
 
 interface AppStatusProps {
     rewards: MonthlyReward[],
@@ -265,7 +265,7 @@ export const NodeMetrics = (props: AppStatusProps) => {
                     <Box p={5} minWidth={"185px"}
                          cursor={'pointer'}
                          onClick={() => {
-                             // trackGoal(EVENT_TOGGLE_LIFETIME_AVG);
+                             trackGoal(EVENT_TOGGLE_LIFETIME_AVG_PER_SESS);
                              toggleShowAllTimePerSess();
                          }}
                     >
