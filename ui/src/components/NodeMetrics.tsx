@@ -36,7 +36,8 @@ export const POKTPerRelay = 0.0089;
 export const NodeMetrics = (props: AppStatusProps) => {
 
     const statHoverColor = useColorModeValue('cyan.800', 'blue.100');
-    const statBorderColor = useColorModeValue('gray.50', 'gray.50');
+    const statColor = useColorModeValue('cyan.800', 'gray.50');
+
     const { isOpen: showAllTime, onToggle: toggleShowAllTime } = useDisclosure({ defaultIsOpen: true });
     const { isOpen: showAllTimePerSess, onToggle: toggleShowAllTimePerSess } = useDisclosure({ defaultIsOpen: true })
     const [tenThirtyNinetyState, setTenThirtyNinetyState] = useState(0);
@@ -187,7 +188,12 @@ export const NodeMetrics = (props: AppStatusProps) => {
                 {/*{!isMobile && (*/}
                 {/*    <HorizontalScroll reverseScroll={true} animValues={15} pageLock={true}>*/}
                 <HStack>
-                    <Box  p={5} minWidth={"185px"} borderWidth={1} borderRadius={20} borderColor={"gray.50"}>
+                    <Box p={5}
+                         minWidth={"185px"}
+                         borderWidth={1}
+                         borderRadius={20}
+                         borderColor={statHoverColor}
+                    >
                         <Stat align={"center"}>
                             <StatLabel>Top Chain This Month</StatLabel>
                             <StatNumber>{sortedByChain[0]?.name}</StatNumber>
@@ -226,7 +232,12 @@ export const NodeMetrics = (props: AppStatusProps) => {
                         )}
 
                     </Box>
-                    <Box  p={5} minWidth={"185px"} borderWidth={1} borderRadius={20} borderColor={"gray.50"}>
+                    <Box p={5}
+                         borderColor={statHoverColor}
+                         borderWidth={1}
+                         borderRadius={20}
+                         minWidth={"185px"}
+                    >
                         <Stat align={"center"}>
                             <StatLabel>Last 24 hrs</StatLabel>
                             <StatNumber>{avgPoktForLastDays(1) ?? 0}</StatNumber>
@@ -241,8 +252,8 @@ export const NodeMetrics = (props: AppStatusProps) => {
                         </Stat>
                     </Box>
                     <Box p={5} minWidth={"185px"} borderWidth={1} borderRadius={20}
-                         borderColor={statBorderColor}
-                         _hover={ {borderColor: statHoverColor} }
+                         borderColor={statHoverColor}
+                         _hover={{ borderColor: statHoverColor, color: statHoverColor }}
                          cursor={'pointer'}
                          onClick={() => {
                              trackGoal(EVENT_TOGGLE_LIFETIME_AVG);
