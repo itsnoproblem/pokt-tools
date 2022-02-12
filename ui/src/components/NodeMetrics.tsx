@@ -191,7 +191,7 @@ export const NodeMetrics = (props: AppStatusProps) => {
         <>
             <Box mt={8} mb={8} p={0} pl={4} pr={4}
                  ml={'auto'} mr={'auto'}
-                 w={["100%", 'unset']} h={"100%"}
+                 w={["100vw", 'unset']} h={"100%"}
                  overflow={['scroll', 'unset']}
                  ref={scrollRef}
                  style={ { scrollSnapType: "x mandatory" } }
