@@ -43,7 +43,7 @@ export const NodeMetrics = (props: AppStatusProps) => {
     const statFontSize = useBreakpointValue(["6xl", "xl"])
 
     const statLabelSize = useBreakpointValue(["xl", "md"])
-    const statNumberSize = useBreakpointValue(["6xl", "4xl"])
+    const statNumberSize = useBreakpointValue(["6xl", "2xl"])
     const statHelpTextSize = useBreakpointValue(["xl", "sm"])
 
     const { isOpen: showAllTime, onToggle: toggleShowAllTime } = useDisclosure({ defaultIsOpen: true });
