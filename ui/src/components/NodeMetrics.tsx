@@ -4,7 +4,7 @@ import {
     Stat,
     StatHelpText,
     StatLabel,
-    StatNumber,
+    StatNumber, useBreakpointValue,
     useColorModeValue,
     useDisclosure,
 } from "@chakra-ui/react";
@@ -37,6 +37,14 @@ export const NodeMetrics = (props: AppStatusProps) => {
 
     const statHoverColor = useColorModeValue('cyan.800', 'blue.100');
     const statColor = useColorModeValue('cyan.800', 'gray.50');
+    const statWidth = useBreakpointValue(["90%", "185px"]);
+    const statHeight = useBreakpointValue(["200px", "auto"]);
+
+    const statFontSize = useBreakpointValue(["6xl", "xl"])
+
+    const statLabelSize = useBreakpointValue(["xl", "md"])
+    const statNumberSize = useBreakpointValue(["6xl", "2xl"])
+    const statHelpTextSize = useBreakpointValue(["xl", "sm"])
 
     const { isOpen: showAllTime, onToggle: toggleShowAllTime } = useDisclosure({ defaultIsOpen: true });
     const { isOpen: showAllTimePerSess, onToggle: toggleShowAllTimePerSess } = useDisclosure({ defaultIsOpen: true })
@@ -181,28 +189,34 @@ export const NodeMetrics = (props: AppStatusProps) => {
 
     return(
         <>
-            <Box mt={8} mb={8} ml={'auto'} mr={'auto'} p={0} pl={4} pr={4} w={["100%", 'unset']} h={"100%"}
-                    overflow={['scroll', 'unset']} ref={scrollRef}
+            <Box mt={8} mb={8} p={0} pl={4} pr={4}
+                 ml={'auto'} mr={'auto'}
+                 w={["100%", 'unset']} h={"100%"}
+                 overflow={['scroll', 'unset']}
+                 ref={scrollRef}
+                 style={ { scrollSnapType: "x mandatory" } }
             >
 
                 {/*{!isMobile && (*/}
                 {/*    <HorizontalScroll reverseScroll={true} animValues={15} pageLock={true}>*/}
                 <HStack>
                     <Box p={5}
-                         minWidth={"185px"}
+                         minWidth={statWidth} height={statHeight}
                          borderWidth={1}
                          borderRadius={20}
                          borderColor={statHoverColor}
+                         style={ { scrollSnapAlign: "center"} }
                     >
-                        <Stat align={"center"}>
-                            <StatLabel>Top Chain This Month</StatLabel>
-                            <StatNumber>{sortedByChain[0]?.name}</StatNumber>
-                            <StatHelpText>{sortedByChain[0]?.num_relays?.toLocaleString()} relays</StatHelpText>
+                         <Stat align={"center"}>
+                            <StatLabel fontSize={statLabelSize}>Top Chain This Month</StatLabel>
+                            <StatNumber fontSize={statNumberSize}>{sortedByChain[0]?.name}</StatNumber>
+                            <StatHelpText fontSize={statHelpTextSize}>{sortedByChain[0]?.num_relays?.toLocaleString()} relays</StatHelpText>
                         </Stat>
                     </Box>
-                    <Box p={5} minWidth={"185px"}
+                    <Box p={5} minWidth={statWidth} height={statHeight}
                          _hover={ {color: statHoverColor} }
                          cursor={'pointer'}
+                         style={ { scrollSnapAlign: "center"} }
                          onClick={() => {
                              const newState = tenThirtyNinetyState + 1;
                              setTenThirtyNinetyState(newState > 2 ? 0 : newState);
@@ -210,24 +224,24 @@ export const NodeMetrics = (props: AppStatusProps) => {
                         }}
                     >
                         {tenThirtyNinetyState === 0 && (
-                            <Stat align={"center"}>
-                                <StatLabel>10 Day Average</StatLabel>
-                                <StatNumber>{avgPoktForLastDays(10)}</StatNumber>
-                                <StatHelpText>POKT per day</StatHelpText>
+                             <Stat size={statFontSize} align={"center"}>
+                                <StatLabel fontSize={statLabelSize}>10 Day Average</StatLabel>
+                                <StatNumber fontSize={statNumberSize}>{avgPoktForLastDays(10)}</StatNumber>
+                                <StatHelpText fontSize={statHelpTextSize}>POKT per day</StatHelpText>
                             </Stat>
                         )}
                         {tenThirtyNinetyState === 1 && (
-                            <Stat align={"center"}>
-                                <StatLabel>30 Day Average</StatLabel>
-                                <StatNumber>{avgPoktForLastDays(30)}</StatNumber>
-                                <StatHelpText>POKT per day</StatHelpText>
+                             <Stat size={statFontSize} align={"center"}>
+                                <StatLabel fontSize={statLabelSize}>30 Day Average</StatLabel>
+                                <StatNumber fontSize={statNumberSize}>{avgPoktForLastDays(30)}</StatNumber>
+                                <StatHelpText fontSize={statHelpTextSize}>POKT per day</StatHelpText>
                             </Stat>
                         )}
                         {tenThirtyNinetyState === 2 && (
-                            <Stat align={"center"}>
-                                <StatLabel>90 Day Average</StatLabel>
-                                <StatNumber>{avgPoktForLastDays(90)}</StatNumber>
-                                <StatHelpText>POKT per day</StatHelpText>
+                             <Stat size={statFontSize} align={"center"}>
+                                <StatLabel fontSize={statLabelSize}>90 Day Average</StatLabel>
+                                <StatNumber fontSize={statNumberSize}>{avgPoktForLastDays(90)}</StatNumber>
+                                <StatHelpText fontSize={statHelpTextSize}>POKT per day</StatHelpText>
                             </Stat>
                         )}
 
@@ -236,22 +250,26 @@ export const NodeMetrics = (props: AppStatusProps) => {
                          borderColor={statHoverColor}
                          borderWidth={1}
                          borderRadius={20}
-                         minWidth={"185px"}
+                         minWidth={statWidth} height={statHeight}
+                         style={ { scrollSnapAlign: "center"} }
                     >
-                        <Stat align={"center"}>
-                            <StatLabel>Last 24 hrs</StatLabel>
-                            <StatNumber>{avgPoktForLastDays(1) ?? 0}</StatNumber>
-                            <StatHelpText>POKT earned</StatHelpText>
+                         <Stat size={statFontSize} align={"center"}>
+                            <StatLabel fontSize={statLabelSize}>Last 24 hrs</StatLabel>
+                            <StatNumber fontSize={statNumberSize}>{avgPoktForLastDays(1) ?? 0}</StatNumber>
+                            <StatHelpText fontSize={statHelpTextSize}>POKT earned</StatHelpText>
                         </Stat>
                     </Box>
-                    <Box  p={5} minWidth={"185px"}>
-                        <Stat align={"center"}>
-                            <StatLabel>Last reward</StatLabel>
-                            <StatNumber>{timeSinceReward.value > 0 ? timeSinceReward.value : '--'}</StatNumber>
-                            <StatHelpText>{timeSinceReward.units} ago</StatHelpText>
+                    <Box  p={5} minWidth={statWidth}
+                          height={statHeight}
+                          style={ { scrollSnapAlign: "center"} }
+                    >
+                         <Stat size={statFontSize} align={"center"}>
+                            <StatLabel fontSize={statLabelSize}>Last reward</StatLabel>
+                            <StatNumber fontSize={statNumberSize}>{timeSinceReward.value > 0 ? timeSinceReward.value : '--'}</StatNumber>
+                            <StatHelpText fontSize={statHelpTextSize}>{timeSinceReward.units} ago</StatHelpText>
                         </Stat>
                     </Box>
-                    <Box p={5} minWidth={"185px"} borderWidth={1} borderRadius={20}
+                    <Box style={ { scrollSnapAlign: "center"} } p={5} minWidth={statWidth} height={statHeight} borderWidth={1} borderRadius={20}
                          borderColor={statHoverColor}
                          _hover={{ borderColor: statHoverColor, color: statHoverColor }}
                          cursor={'pointer'}
@@ -260,15 +278,15 @@ export const NodeMetrics = (props: AppStatusProps) => {
                              toggleShowAllTime();
                          }}
                     >
-                        <Stat _hover={ {color: statHoverColor} } align={"center"}>
-                            <StatLabel>
+                         <Stat size={statFontSize} _hover={ {color: statHoverColor} } align={"center"}>
+                            <StatLabel fontSize={statLabelSize}>
                                 {showAllTime ?
                                     (<>Lifetime Avg</>) :
                                     (<>{timeBetweenRewardsLatest.value < 0 ? '---' : latestMonthName} Avg</>)
 
                                 }
                             </StatLabel>
-                            <StatNumber>
+                            <StatNumber fontSize={statNumberSize}>
                                 {showAllTime ?
                                     (
                                         <>
@@ -287,25 +305,26 @@ export const NodeMetrics = (props: AppStatusProps) => {
                                 }
 
                             </StatNumber>
-                            <StatHelpText>between rewards</StatHelpText>
+                            <StatHelpText fontSize={statHelpTextSize}>between rewards</StatHelpText>
                         </Stat>
                     </Box>
-                    <Box p={5} minWidth={"185px"}
+                    <Box p={5} minWidth={statWidth} height={statHeight}
                          cursor={'pointer'}
+                         style={ { scrollSnapAlign: "center"} }
                          onClick={() => {
                              trackGoal(EVENT_TOGGLE_LIFETIME_AVG_PER_SESS);
                              toggleShowAllTimePerSess();
                          }}
                     >
-                        <Stat _hover={ {color: statHoverColor} } align={"center"}>
-                            <StatLabel>
+                         <Stat size={statFontSize} _hover={ {color: statHoverColor} } align={"center"}>
+                            <StatLabel fontSize={statLabelSize}>
                                 {showAllTimePerSess ?
                                     (<>Lifetime Avg</>) :
                                     (<>{timeBetweenRewardsLatest.value < 0 ? '---' : latestMonthName} Avg</>)
 
                                 }
                             </StatLabel>
-                            <StatNumber>
+                            <StatNumber fontSize={statNumberSize}>
                                 {showAllTimePerSess ?
                                     (
                                         <>{avgPoktPerSession >= 0 ? avgPoktPerSession.toFixed(0) : '---'}</>
@@ -315,7 +334,7 @@ export const NodeMetrics = (props: AppStatusProps) => {
                                 }
 
                             </StatNumber>
-                            <StatHelpText>POKT per session</StatHelpText>
+                            <StatHelpText fontSize={statHelpTextSize}>POKT per session</StatHelpText>
                         </Stat>
                     </Box>
                     {/*</HorizontalScroll>*/}
