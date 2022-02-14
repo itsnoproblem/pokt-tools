@@ -106,7 +106,7 @@ export const AppHeader = (props: AppHeaderProps) => {
 
 
     return (
-        <HStack justifyContent={"space-between"} mt={[1,2]}>
+        <HStack justifyContent={"space-between"} mt={[1,2]} w={"100%"}>
             <HamburgerMenu/>
             {(!isMobile && node.address !== '') && (
                 <HStack>
@@ -157,17 +157,18 @@ export const AppHeader = (props: AppHeaderProps) => {
                 />
             </Box>
 
-            <NodeChooser address={address ?? ''}/>
+            <Box pt={2} pr={2}>
+                <NodeChooser address={address ?? ''}/>
+            </Box>
 
             {!isMobile && (
-                <HStack alignSelf={"flex-start"}>
-                    {/* Color Mode */}
+                // <Box alignSelf={"flex-start"}>
+                <Box pt={2} pr={2}>
                     <ColorModeSwitcher
                         _focus={{boxShadow: "none"}}
                         alignSelf="flex-end"
                     />
-
-                </HStack>
+                </Box>
             )}
         </HStack>
     )
