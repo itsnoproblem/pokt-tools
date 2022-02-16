@@ -1,6 +1,6 @@
-# POKT Calculator
+# POKT Tools
 
-A reward explorer for Pocket Network nodes.
+A reward explorer and diagnostic tool for Pocket Network nodes.
 
 ![](doc/rewards-sample.png)
 
@@ -35,3 +35,9 @@ Happy exploring!
 > 
 > You can get your own pocket network endpoint by visiting https://www.portal.pokt.network
 > and creating an app on the Pocket Mainnet. 
+
+# Support this project
+
+Several people have requested a POKT address they can send donations to, in order to support this project. 
+
+If you find this tool useful and would like to buy me a coffee, or a beer, or a taco, feel free to send POKT to `4fdb144edcfd0d44be506face06be7bddc680fe8`

@@ -32,7 +32,7 @@ export const App = () => {
     return (
         <ChakraProvider theme={theme}>
             <NodeContext.Provider value={node}>
-                <Flex direction={"column"} className={"outer-grid"} minH="100vh" w={["100vw", "100%"]} p={3}>
+                <Flex direction={"column"} className={"outer-grid"} minH="100vh" w={["100vw", "100%"]}>
                     <Router>
                         <Routes>
                             <Route

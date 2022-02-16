@@ -30,6 +30,7 @@ import {RewardTransaction} from "./RewardTransaction";
 import {PieChart} from "./PieChart";
 import {getClaims} from "../MonitoringService";
 import {DayOfWeekChart} from "./DayOfWeekChart";
+import {EVENT_MONTH_CLOSE, EVENT_MONTH_METRICS, EVENT_MONTH_OPEN, EVENT_MONTH_TRANSACTIONS, trackGoal} from "../events";
 
 type MonthlyRewardsProps = {
     rewards: MonthlyReward[],
@@ -43,6 +44,7 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
 
     const node = useContext(NodeContext)
     const isMobile = useBreakpointValue([true, false]);
+    const headerColor = useColorModeValue('gray.100', 'gray.700')
 
     const getRewards = useCallback(() => {
         props.setIsRefreshing(true);
@@ -109,7 +111,72 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
             })}
         </Stack>
     ) : (
-        <Accordion allowMultiple={true} maxW="100%" w={["100%", "1280px"]} ml={"auto"} mr={"auto"} mt={[2,8]} p={0}>
+        <Accordion
+            onChange={(e: number[]) => {
+                if(e.length === 0) {
+                    trackGoal(EVENT_MONTH_CLOSE);
+                } else {
+                    trackGoal(EVENT_MONTH_OPEN);
+                }
+            }}
+            allowMultiple={true}
+            maxW="100%"
+            w={["100%", "1280px"]}
+            ml={"auto"} mr={"auto"}
+            mt={[2,8]} p={0}
+        >
+
+            <AccordionItem
+                key={"header"}
+                borderTopWidth={0}
+                backgroundColor={headerColor}
+                borderTopLeftRadius={17}
+                borderTopRightRadius={17}
+                lineHeight={4}
+            >
+                <h2>
+                    <AccordionButton disabled={true}>
+                        <Box flex='1'>
+                            <HStack pt={1} pb={1}>
+                                <Box pl={[1,8]} w={["200px", "40%"]} textAlign='left'><b>Month</b></Box>
+                                { !isMobile && (
+                                    <>
+                                        <Box
+                                            fontSize={"sm"}
+                                            w={"15%"}
+                                            flexGrow={1}
+                                            textAlign={"right"}
+                                        >
+                                            <b>Relays</b>
+                                        </Box>
+                                        <Box
+                                            fontSize={"sm"}
+                                            w={"15%"}
+                                            flexGrow={1}
+                                            textAlign={"right"}
+                                        >
+                                            <b>Sessions</b>
+                                        </Box>
+                                        <Box
+                                            fontSize={"sm"}
+                                            w={"15%"}
+                                            flexGrow={1}
+                                            textAlign={"right"}
+                                        >
+                                            <b>pokt / sess</b>
+                                        </Box>
+                                    </>
+                                ) }
+                                <Box fontSize={"sm"} minW={["150px", "15%"]} pr={[2,8]} flexGrow={1} textAlign='right'>
+                                    <b>pokt</b>
+                                </Box>
+                                <Box w={"20px"}/>
+                            </HStack>
+                        </Box>
+                    </AccordionButton>
+                </h2>
+            </AccordionItem>
+
             {props.rewards.map((month: MonthlyReward, i) => {
                 const relays = relaysByChain(month)
                 return (
@@ -118,11 +185,26 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
                             <AccordionButton>
                                 <Box flex='1'>
                                     <HStack pt={1} pb={1}>
-                                        <Box pl={[1,8]} w={["200px", "200px"]} textAlign='left'>{monthNames[month.month]} {month.year}</Box>
-                                        <Spacer/>
-                                        { !isMobile && (<Box flexGrow={1} textAlign={"right"}>{Number(month.num_relays).toLocaleString()} relays</Box>) }
-                                        <Box pr={[2,8]} flexGrow={1} textAlign='right'>
-                                            {month.pokt_amount} <Text d="inline" fontSize={"xs"} textTransform={"uppercase"}>pokt</Text>
+                                        <Box pl={[1,8]} w={["200px", "40%"]} textAlign='left'>{monthNames[month.month]} {month.year}</Box>
+                                        {/*<Spacer/>*/}
+                                        { !isMobile && (
+                                            <>
+                                                <Box
+                                                    fontSize={"sm"}
+                                                    w={"15%"} flexGrow={1} textAlign={"right"}
+                                                >
+                                                    {month.num_relays.toLocaleString()}
+                                                </Box>
+                                                <Box fontSize={"sm"} w={"15%"} flexGrow={1} textAlign={"right"}>
+                                                    {month.transactions.length.toLocaleString()}
+                                                </Box>
+                                                <Box fontSize={"sm"} w={"15%"} flexGrow={1} textAlign={"right"}>
+                                                    {((month.num_relays/month.transactions.length) * 0.0089).toFixed(2)}
+                                                </Box>
+                                            </>
+                                        ) }
+                                        <Box fontSize={"sm"} minW={["150px", "15%"]} pr={[2,8]} flexGrow={1} textAlign='right'>
+                                            {month.pokt_amount}
                                         </Box>
                                     </HStack>
                                 </Box>
@@ -130,10 +212,18 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
                             </AccordionButton>
                         </h2>
                         <AccordionPanel pb={4}>
-                            <Tabs>
+                            <Tabs onChange={(i) => {
+                                console.log(`tab ${i}`)
+                                if(i === 0) {
+                                    trackGoal(EVENT_MONTH_TRANSACTIONS);
+                                } else if(i === 1) {
+                                    trackGoal(EVENT_MONTH_METRICS);
+                                }
+                            }
+                            }>
                                 <TabList>
-                                    <Tab>Transactions</Tab>
-                                    <Tab>Metrics</Tab>
+                                    <Tab onChange={(e) => { console.log(e); }}>Transactions</Tab>
+                                    <Tab onChange={(e) => { console.log(e); }}>Metrics</Tab>
                                 </TabList>
                                 <TabPanels>
                                     <TabPanel p={0}>
