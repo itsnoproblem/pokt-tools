@@ -16,12 +16,11 @@ import {
     TabPanels,
     Tabs,
     useBreakpointValue,
-    useColorModeValue
 } from "@chakra-ui/react";
 import React, {useCallback, useContext, useEffect, useState} from "react";
 import {NodeContext} from "../context";
 import {MonthlyReward, monthNames} from "../types/monthly-reward";
-import {RewardTransaction} from "./RewardTransaction";
+import {MonthlyTransactions} from "./MonthlyTransactions";
 import {PieChart} from "./PieChart";
 import {getClaims} from "../MonitoringService";
 import {EVENT_MONTH_CLOSE, EVENT_MONTH_METRICS, EVENT_MONTH_OPEN, EVENT_MONTH_TRANSACTIONS, trackGoal} from "../events";
@@ -38,7 +37,6 @@ type MonthlyRewardsProps = {
 
 export const MonthlyRewards = (props: MonthlyRewardsProps) => {
     const [hasLoaded, setHasLoaded] = useState(false);
-
     const node = useContext(NodeContext)
     const isMobile = useBreakpointValue([true, false]);
     const headerColor = useColorModeValue('gray.100', 'gray.700')
@@ -60,9 +58,6 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
             getRewards();
         }
     },  [hasLoaded, getRewards]);
-
-    const bgOdd = useColorModeValue("gray.200", "gray.800");
-    const bgEven = useColorModeValue("gray.50", "gray.700");
 
     const relaysByChain = useCallback((month: MonthlyReward) => {
         let data = [];
@@ -230,22 +225,19 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
                                 </TabList>
                                 <TabPanels>
                                     <TabPanel p={0}>
-                                        <Grid templateColumns={['repeat(5, auto)', 'repeat(9, auto)']} fontFamily={"monospace"} fontSize={"xs"} p={[1, 5]}>
+                                        <Grid templateColumns={['repeat(6, auto)', 'repeat(9, auto)']} fontFamily={"monospace"} fontSize={"xs"} p={[1, 5]}>
                                             <GridItem padding={2} fontWeight={900} align="left" pl={4}>Height</GridItem>
                                             <GridItem padding={2} fontWeight={900}>Time</GridItem>
                                             {!isMobile && (<GridItem padding={2} fontWeight={900} pr={4} align={"right"}>Relays</GridItem>)}
                                             <GridItem padding={2} fontWeight={900} pr={4} pl={4} align={"left"}>Chain</GridItem>
                                             {!isMobile && (<GridItem padding={2} fontWeight={900} pr={4} align={"right"}>Rate / relay</GridItem>)}
                                             <GridItem padding={2} fontWeight={900} pr={4} align={"right"} >Amount</GridItem>
+                                            <GridItem padding={2} fontWeight={900} align={"center"} >Revenue</GridItem>
+                                            <GridItem padding={2} fontWeight={900} align={"center"}>Chain</GridItem>
                                             {!isMobile && (<GridItem padding={2} fontWeight={900}>App Pubkey</GridItem>)}
                                             {!isMobile && (<GridItem padding={2} fontWeight={900}>Hash</GridItem>)}
                                             <GridItem padding={2} fontWeight={900}>Confirmed</GridItem>
-                                            {month.transactions.slice(0).reverse().map((tx, j) => {
-                                                const rowColor = (j % 2 === 0) ? bgEven : bgOdd;
-                                                return (
-                                                    <RewardTransaction key={tx.hash} tx={tx} color={rowColor}/>
-                                                )
-                                            })}
+                                            <MonthlyTransactions transactions={month.transactions} />
                                         </Grid>
                                     </TabPanel>
                                     <TabPanel minHeight={"400px"}>
@@ -281,7 +273,7 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
                                 </TabPanels>
                             </Tabs>
                         </AccordionPanel>
-                    </AccordionItem>
+                </AccordionItem>
                 )
             })}
         </Accordion>

@@ -14,4 +14,5 @@ export type Transaction = {
     expire_height: number,
     app_pubkey: string,
     is_confirmed?: boolean,
+    poktPrice: number,
 }
