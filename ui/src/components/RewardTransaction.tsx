@@ -11,7 +11,11 @@ interface RewardTransactionProps {
 export const RewardTransaction = (props: RewardTransactionProps) => {
     const tx = props.tx;
     const numProofs = tx.num_relays;
-    const amount = (tx.type === 'pocketcore/proof') ? '-' : Number(tx.num_relays * tx.pokt_per_relay).toFixed(4) + " POKT";
+    const amount = (tx.type === 'pocketcore/proof') ? '-' : Number(numProofs * tx.pokt_per_relay).toFixed(4) + " POKT";
+    const poktPrice = tx.poktPrice ? tx.poktPrice : 0;
+    const numberAmount =
+      tx.type === "pocketcore/proof" ? 0 : Number(numProofs * tx.pokt_per_relay);
+    const revenue = `$${Number(numberAmount * poktPrice).toFixed(2)}`;
     const {hasCopied, onCopy} = useClipboard(tx.hash);
     const {hasCopied: pubkeyHasCopied, onCopy: pubkeyCopy} = useClipboard(tx.app_pubkey);
     const time = new Date(tx.time);
@@ -25,10 +29,11 @@ export const RewardTransaction = (props: RewardTransactionProps) => {
                     {time.toLocaleString()}
                 </Box>
             </GridItem>
-            {!isMobile && (<GridItem padding={2} backgroundColor={props.color} pr={4} align={"right"}>{tx.num_relays.toLocaleString()} relays</GridItem>)}
+            {!isMobile && (<GridItem padding={2} backgroundColor={props.color} pr={4} align={"right"}>{numProofs.toLocaleString()} relays</GridItem>)}
             {!isMobile && (<GridItem padding={2} backgroundColor={props.color} pr={4} align={"right"}>{tx.pokt_per_relay}</GridItem>)}
             <GridItem padding={2} backgroundColor={props.color} align={"right"}>{amount}</GridItem>
-            <GridItem padding={2} backgroundColor={props.color} pr={4} align={"center"}>{tx.chain_id}</GridItem>
+            <GridItem padding={2} backgroundColor={props.color} align={"center"}>{revenue}</GridItem>
+            <GridItem padding={2} backgroundColor={props.color} align={"center"}>{tx.chain_id}</GridItem>
             {!isMobile && (
                 <GridItem padding={2} backgroundColor={props.color}>
                     <Text title={tx.app_pubkey}>

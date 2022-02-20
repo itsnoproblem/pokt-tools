@@ -2,6 +2,7 @@ import {RPC_URL} from "../configuration";
 import axios, {AxiosResponse} from "axios";
 import {CryptoNode} from "../types/crypto-node";
 import {MonthlyReward} from "../types/monthly-reward";
+import { Transaction } from '../types/transaction';
 
 const HTTP_STATUS_OK = 200;
 
@@ -29,6 +30,32 @@ export const getNode = async (address: string): Promise<CryptoNode> => {
             throw err;
         });
 }
+
+export const getPoktPrice = async (tx?: Transaction): Promise<number> => {
+    let poktPrice = 0;
+
+    if (tx && tx.time) {
+        await axios
+            .get('https://api.coinpaprika.com/v1/tickers/pokt-pocket-network/historical', {
+                params: {
+                    start: tx.time,
+                    limit: 1,
+                    quote: 'usd',
+                    interval: '5m',
+                },
+            })
+            .then(async ({ data }) => {
+                if (data.length > 0) {
+                    poktPrice =  data[0].price;
+                }
+            })
+            .catch(({ message }) => {
+                console.error('Failed to retrieve POKT price', message);
+            });
+    }
+
+    return poktPrice;
+};
 
 export  const getClaims = async (address: string): Promise<MonthlyReward[]> => {
     const url = `${RPC_URL}/node/${address}/rewards`;

@@ -1,16 +1,15 @@
 # POKT Calculator UI
-This is the user interface for the pokt-calculator application. 
+This is the user interface for the pokt-calculator application.
 ## Developers
 
 In this directory, you can run:
 
 ### `yarn start`
 
-Runs the app in the development mode. View it in a browser at 
-[http://localhost:3000](http://localhost:3000) 
+Runs the app in the development mode. View it in a browser at
+[http://localhost:3000](http://localhost:3000)
 
-You can specify the url of the monitoring service by editing `.env` and setting `rpc_url` accordingly. 
-
+You you will have to specify the url of the monitoring service by creating a `.env.local` file and setting `RPC_URL` accordingly.
 
 ### `yarn test`
 
