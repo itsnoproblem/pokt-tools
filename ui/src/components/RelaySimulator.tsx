@@ -75,7 +75,7 @@ export const RelaySimulator = () => {
         <Box>
             <Box lineHeight={"1.6em"}>
                 This tool lets you simulate relays to chains supported by your pocket node.  Before running these tests,
-                your node needs to be running with the <Kbd>--simulateRelays</Kbd> option enabled. Learn more in the &nbsp;
+                your node needs to be running with the <Kbd>--simulateRelay</Kbd> option enabled. Learn more in the &nbsp;
                 <HStack d={"inline-flex"}>
                     <Link color={"cyan.400"} target="_blank" href={"https://docs.pokt.network/home/paths/node-runner#test-your-node"}>
                     official docs
