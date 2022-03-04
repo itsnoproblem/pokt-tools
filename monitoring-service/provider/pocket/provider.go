@@ -7,13 +7,12 @@ import (
 	"fmt"
 	"io/ioutil"
 	pchttp "monitoring-service/http"
+	"monitoring-service/pocket"
 	"net/http"
 	"strconv"
 	"time"
 
 	"github.com/go-kit/kit/log"
-
-	"monitoring-service/pocket"
 )
 
 const (
@@ -24,6 +23,8 @@ const (
 	urlPathGetNode                = "query/node"
 	urlPathGetBalance             = "query/balance"
 	urlPathGetHeight              = "query/height"
+	urlPathGetParam               = "query/param"
+	urlPathGetAllParams           = "query/allParams"
 	urlPathSimulateRelay          = "v1/client/sim"
 )
 
@@ -32,8 +33,17 @@ type blockTimesRepo interface {
 	Set(height uint, t time.Time) error
 }
 
+type paramsRepo interface {
+	Get(name string, height int64) (p pocket.Params, exists bool, err error)
+	Set(name string, height int64, p pocket.Params) error
+	GetAll(height int64) (params pocket.AllParams, exists bool, err error)
+	SetAll(height int64, params pocket.AllParams) error
+}
+
 type Provider interface {
 	Height() (uint, error)
+	Param(name string, height int64) (string, error)
+	AllParams(height int64) (pocket.AllParams, error)
 	Node(address string) (pocket.Node, error)
 	Balance(address string) (uint, error)
 	BlockTime(height uint) (time.Time, error)
@@ -46,13 +56,15 @@ type Provider interface {
 type pocketProvider struct {
 	client         pchttp.Client
 	blockTimesRepo blockTimesRepo
+	paramsRepo     paramsRepo
 	pocketRpcURL   string
 }
 
-func NewPocketProvider(c pchttp.Client, pocketRpcURL string, repo blockTimesRepo) Provider {
+func NewPocketProvider(c pchttp.Client, pocketRpcURL string, blockTimesRepo blockTimesRepo, paramsRepo paramsRepo) Provider {
 	return pocketProvider{
 		client:         c,
-		blockTimesRepo: repo,
+		blockTimesRepo: blockTimesRepo,
+		paramsRepo:     paramsRepo,
 		pocketRpcURL:   pocketRpcURL,
 	}
 }
@@ -83,6 +95,65 @@ func (p pocketProvider) Height() (uint, error) {
 	return uint(resp.Height), nil
 }
 
+// Param returns the value of a given parameter at the specified height. A height of 0 means the latest block.
+func (p pocketProvider) Param(name string, height int64) (string, error) {
+	fail := func(err error) (string, error) {
+		return "", fmt.Errorf("pocketProvider.Param(%s): %s", name, err)
+	}
+
+	url := fmt.Sprintf("%s/%s", p.pocketRpcURL, urlPathGetParam)
+	pReq := paramRequest{
+		Key:    name,
+		Height: height,
+	}
+	var pRes paramResponse
+	body, err := p.doRequest(url, pReq)
+	if err != nil {
+		fail(err)
+	}
+
+	if err := json.Unmarshal(body, &pRes); err != nil {
+		fail(err)
+	}
+
+	return pRes.Value, nil
+}
+
+type allParamsRequest struct {
+	Height int64 `json:"height"`
+}
+
+// AllParams returns all network parameters.
+func (p pocketProvider) AllParams(height int64) (pocket.AllParams, error) {
+	fail := func(err error) (pocket.AllParams, error) {
+		return pocket.AllParams{}, fmt.Errorf("pocketProvider.AllParams(%d): %s", height, err)
+	}
+
+	cached, exists, err := p.paramsRepo.GetAll(height)
+	if err == nil && exists {
+		return cached, nil
+	}
+
+	url := fmt.Sprintf("%s/%s", p.pocketRpcURL, urlPathGetAllParams)
+	pReq := allParamsRequest{
+		Height: height,
+	}
+	var pRes pocket.AllParams
+	body, err := p.doRequest(url, pReq)
+	if err != nil {
+		return fail(err)
+	}
+
+	if err := json.Unmarshal(body, &pRes); err != nil {
+		return fail(fmt.Errorf("unmarshal allParamsResponse: %s", err))
+	}
+
+	if err := p.paramsRepo.SetAll(height, pRes); err != nil {
+		return fail(err)
+	}
+	return pRes, nil
+}
+
 func (p pocketProvider) Node(address string) (pocket.Node, error) {
 	var fail = func(err error) (pocket.Node, error) {
 		return pocket.Node{}, fmt.Errorf("pocketProvider.Node: %s", err)
@@ -97,8 +168,7 @@ func (p pocketProvider) Node(address string) (pocket.Node, error) {
 		return fail(err)
 	}
 
-	err = json.Unmarshal(body, &nodeResponse)
-	if err != nil {
+	if err = json.Unmarshal(body, &nodeResponse); err != nil {
 		return fail(err)
 	}
 
@@ -290,7 +360,7 @@ func (p pocketProvider) doRequest(url string, reqObj interface{}) ([]byte, error
 	if err != nil {
 		return nil, fmt.Errorf("doRequest: %s", err)
 	}
-	clientReq.Header.Set("Content-type", contentTypeJSON)
+	clientReq.Header.Set("Content-Type", contentTypeJSON)
 
 	resp, err := p.client.Do(clientReq)
 	defer resp.Body.Close()

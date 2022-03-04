@@ -8,16 +8,13 @@ import {
     Grid,
     GridItem,
     HStack,
-    SimpleGrid,
     Skeleton,
-    Spacer,
     Stack,
     Tab,
     TabList,
     TabPanel,
     TabPanels,
     Tabs,
-    Text,
     useBreakpointValue,
     useColorModeValue
 } from "@chakra-ui/react";
@@ -28,6 +25,9 @@ import {RewardTransaction} from "./RewardTransaction";
 import {PieChart} from "./PieChart";
 import {getClaims} from "../MonitoringService";
 import {EVENT_MONTH_CLOSE, EVENT_MONTH_METRICS, EVENT_MONTH_OPEN, EVENT_MONTH_TRANSACTIONS, trackGoal} from "../events";
+import {DailyChart} from "./DailyChart";
+import {DailyChartStacked} from "./DailyChartStacked";
+import {DayOfWeekChart} from "./DayOfWeekChart";
 
 type MonthlyRewardsProps = {
     rewards: MonthlyReward[],
@@ -78,6 +78,32 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
             return (i.value < j.value) ? 1 : -1;
         });
     }, []);
+
+    interface chartData {
+        id: string
+        label: string
+        value: number
+    }
+
+    const getDaysOfWeekData = (month: MonthlyReward) => {
+        const daysOfWeekData: chartData[] = [];
+
+        for(let i = 0; i < 7; i++) {
+            daysOfWeekData[i] = {
+                id: month.days_of_week[i].name.slice(0, 3),
+                label: month.days_of_week[i].name,
+                value: 0,
+            }
+        }
+
+        month.transactions.map((tx) => {
+            const dow = new Date(tx.time)
+            daysOfWeekData[dow.getDay()].value += tx.num_relays;
+        })
+
+        return daysOfWeekData;
+    }
+
 
     return props.isRefreshing ? (
         <Stack w={["100vw", "1280px"]} ml={"auto"} mr={"auto"} mt={2}>
@@ -181,7 +207,7 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
                                             </>
                                         ) }
                                         <Box fontSize={"sm"} minW={["150px", "15%"]} pr={[2,8]} flexGrow={1} textAlign='right'>
-                                            {month.pokt_amount}
+                                            {Number(month.pokt_amount).toFixed(4)}
                                         </Box>
                                     </HStack>
                                 </Box>
@@ -204,10 +230,11 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
                                 </TabList>
                                 <TabPanels>
                                     <TabPanel p={0}>
-                                        <Grid templateColumns={['repeat(5, auto)', 'repeat(8, auto)']} fontFamily={"monospace"} fontSize={"xs"} p={[1, 5]}>
+                                        <Grid templateColumns={['repeat(5, auto)', 'repeat(9, auto)']} fontFamily={"monospace"} fontSize={"xs"} p={[1, 5]}>
                                             <GridItem padding={2} fontWeight={900} align="left" pl={4}>Height</GridItem>
                                             <GridItem padding={2} fontWeight={900}>Time</GridItem>
-                                            {!isMobile && (<GridItem padding={2} fontWeight={900} pr={4} align={"right"}>Proofs</GridItem>)}
+                                            {!isMobile && (<GridItem padding={2} fontWeight={900} pr={4} align={"right"}>Relays</GridItem>)}
+                                            {!isMobile && (<GridItem padding={2} fontWeight={900} pr={4} align={"right"}>Rate / relay</GridItem>)}
                                             <GridItem padding={2} fontWeight={900} pr={4} align={"right"} >Amount</GridItem>
                                             <GridItem padding={2} fontWeight={900} align={"center"}>Chain</GridItem>
                                             {!isMobile && (<GridItem padding={2} fontWeight={900}>App Pubkey</GridItem>)}
@@ -222,26 +249,32 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
                                         </Grid>
                                     </TabPanel>
                                     <TabPanel minHeight={"400px"}>
+                                        <Box w={"100%"} margin={"auto"} mb={20}>
+                                            <DailyChartStacked txs={month.transactions}/>
+                                        </Box>
                                         <Stack direction={["column", "row"]}>
                                             <Box w={["100%", "100%"]} height={"400px"} color={"gray.50"}>
                                                 <PieChart data={relays}/>
                                             </Box>
-                                            <Box w={["100%", "100%"]}>
-                                                <SimpleGrid columns={3} mt={8}>
-                                                    <Box padding={3} backgroundColor={"blue.900"}>Chain</Box>
-                                                    <Box padding={3} backgroundColor={"blue.900"} align={"right"}>Relays</Box>
-                                                    <Box padding={3} backgroundColor={"blue.900"} align={"right"}>Percent</Box>
-                                                    { relays.map((r, z) => {
-                                                        return (
-                                                            <React.Fragment key={z}>
-                                                                <Box padding={3}>{r.id}</Box>
-                                                                <Box padding={3} align={"right"}>{Number(r.value).toLocaleString()}</Box>
-                                                                <Box padding={3} align={"right"}>{Number((r.value/month.num_relays)*100).toPrecision(4)}%</Box>
-                                                            </React.Fragment>
-                                                        )
-                                                    })}
-                                                </SimpleGrid>
+                                            <Box w={"100%"} height={"400px"}>
+                                                <DayOfWeekChart data={getDaysOfWeekData(month)}/>
                                             </Box>
+                                            {/*<Box w={["100%", "100%"]}>*/}
+                                            {/*    <SimpleGrid columns={3} mt={8}>*/}
+                                            {/*        <Box padding={3} backgroundColor={"blue.900"}>Chain</Box>*/}
+                                            {/*        <Box padding={3} backgroundColor={"blue.900"} align={"right"}>Relays</Box>*/}
+                                            {/*        <Box padding={3} backgroundColor={"blue.900"} align={"right"}>Percent</Box>*/}
+                                            {/*        { relays.map((r, z) => {*/}
+                                            {/*            return (*/}
+                                            {/*                <React.Fragment key={z}>*/}
+                                            {/*                    <Box padding={3}>{r.id}</Box>*/}
+                                            {/*                    <Box padding={3} align={"right"}>{Number(r.value).toLocaleString()}</Box>*/}
+                                            {/*                    <Box padding={3} align={"right"}>{Number((r.value/month.num_relays)*100).toPrecision(4)}%</Box>*/}
+                                            {/*                </React.Fragment>*/}
+                                            {/*            )*/}
+                                            {/*        })}*/}
+                                            {/*    </SimpleGrid>*/}
+                                            {/*</Box>*/}
                                         </Stack>
 
                                     </TabPanel>

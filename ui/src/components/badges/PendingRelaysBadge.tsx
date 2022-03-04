@@ -5,6 +5,7 @@ import {EVENT_TOGGLE_PENDING_UNITS, trackGoal} from "../../events";
 
 type PendingRelaysProps = {
     num: number
+    amt: number
 } & ChakraProps;
 
 export const PendingRelaysBadge = (props: PendingRelaysProps) => {
@@ -26,7 +27,7 @@ export const PendingRelaysBadge = (props: PendingRelaysProps) => {
             // fontSize={"x-small"}
         >
             {isOpen ? (
-                <>{(props.num * POKTPerRelay ).toLocaleString()} pending POKT</>
+                <>{(props.amt).toFixed(4)} pending POKT</>
             ) : (
                 <>{props.num.toLocaleString()} pending relays</>
             )}

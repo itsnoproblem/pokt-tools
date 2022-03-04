@@ -51,7 +51,7 @@ func (t *transactionResponse) Transaction() (pocket.Transaction, error) {
 		Height:    uint(t.Height),
 		Type:      t.StdTx.Message.Type,
 		ChainID:   t.StdTx.Message.Value.Header.Chain,
-		NumProofs: uint(numProofs),
+		NumRelays: uint(numProofs),
 	}
 
 	switch tx.Type {

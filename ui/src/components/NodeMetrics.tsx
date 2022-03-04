@@ -78,9 +78,9 @@ export const NodeMetrics = (props: AppStatusProps) => {
             r.transactions.map((t) => {
                 const txDate = new Date(t.time);
                 if((txDate.getTime() >= pastDate.getTime()) && t.is_confirmed) {
-                    total += t.num_proofs;
+                    total += t.num_relays;
                 }
-                lifetimeNumRelays += t.num_proofs;
+                lifetimeNumRelays += t.num_relays;
                 lifetimeNumSessions++;
                 return this;
             });
@@ -156,7 +156,7 @@ export const NodeMetrics = (props: AppStatusProps) => {
         let lifetimeNumSessions = 0;
         props.rewards.map((r) => {
             r.transactions.map((t) => {
-                lifetimeNumRelays += t.num_proofs;
+                lifetimeNumRelays += t.num_relays;
                 lifetimeNumSessions++;
                 return this;
             });

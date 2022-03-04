@@ -2,9 +2,11 @@ package monitoring
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"math"
 	"sort"
+	"strconv"
 	"time"
 
 	"monitoring-service/pocket"
@@ -17,6 +19,8 @@ type PocketProvider interface {
 	BlockTime(height uint) (time.Time, error)
 	Node(address string) (pocket.Node, error)
 	Balance(address string) (uint, error)
+	Param(name string, height int64) (string, error)
+	AllParams(height int64) (pocket.AllParams, error)
 	Height() (uint, error)
 }
 
@@ -65,6 +69,46 @@ func (s *Service) BlockTimes(heights []uint) (map[uint]time.Time, error) {
 	return times, nil
 }
 
+func (s *Service) ParamsAtHeight(height int64) (pocket.Params, error) {
+	params := pocket.Params{}
+
+	allParams, err := s.provider.AllParams(height)
+	if err != nil {
+		return pocket.Params{}, fmt.Errorf("ParamsAtHeight: provider error: %s", err)
+	}
+
+	np := allParams.NodeParams
+	multiplier, ok := np.Get("pos/RelaysToTokensMultiplier")
+	if !ok {
+		return pocket.Params{}, fmt.Errorf("ParamsAtHeight: node_params key not found at height %d 'pos/RelaysToTokensMultiplier'", height)
+	}
+	if params.RelaysToTokensMultiplier, err = strconv.ParseFloat(multiplier, 64); err != nil {
+		return pocket.Params{}, errors.New("ParamsAtHeight: failed to parse node_params key 'pos/RelaysToTokensMultiplier'")
+	}
+
+	daoAlloc, ok := np.Get("pos/DAOAllocation")
+	if !ok {
+		return pocket.Params{}, errors.New("ParamsAtHeight: node_params key not found 'pos/DAOAllocation'")
+	}
+	da, err := strconv.ParseInt(daoAlloc, 10, 64)
+	if err != nil {
+		return pocket.Params{}, errors.New("ParamsAtHeight: failed to parse node_params key 'pos/DAOAllocation")
+	}
+	params.DaoAllocation = uint8(da)
+
+	proposerCut, ok := np.Get("pos/ProposerPercentage")
+	if !ok {
+		return pocket.Params{}, errors.New("ParamsAtHeight: node_params key not found 'pos/ProposerPercentage'")
+	}
+	pp, err := strconv.ParseInt(proposerCut, 10, 64)
+	if err != nil {
+		return pocket.Params{}, errors.New("ParamsAtHeight: failed to parse node_params key 'pos/ProposerCut")
+	}
+	params.ProposerPercentage = uint8(pp)
+
+	return params, nil
+}
+
 func (s *Service) AccountTransactions(address string, page uint, perPage uint, sort string) ([]pocket.Transaction, error) {
 	txs, err := s.provider.AccountTransactions(address, page, perPage, sort)
 	if err != nil {
@@ -73,7 +117,13 @@ func (s *Service) AccountTransactions(address string, page uint, perPage uint, s
 
 	transactions := make([]pocket.Transaction, len(txs))
 	for i, tx := range txs {
+		params, err := s.ParamsAtHeight(int64(tx.Height))
+		if err != nil {
+			return nil, fmt.Errorf("AccountTransactions: %s", err)
+		}
+
 		tx.Time, err = s.provider.BlockTime(tx.Height)
+		tx.PoktPerRelay = params.PoktPerRelay()
 		if err != nil {
 			return nil, fmt.Errorf("AccountTransactions: %s", err)
 		}
@@ -168,11 +218,19 @@ func (s *Service) RewardsByMonth(address string) (map[string]pocket.MonthlyRewar
 				Year:        uint(tx.Time.Year()),
 				Month:       uint(tx.Time.Month()),
 				TotalProofs: 0,
+				DaysOfWeek:  make(map[int]*pocket.DayOfWeek, 7),
 			}
+			months[monthKey].DaysOfWeek[0] = &pocket.DayOfWeek{Name: "Sunday", Proofs: 0}
+			months[monthKey].DaysOfWeek[1] = &pocket.DayOfWeek{Name: "Monday", Proofs: 0}
+			months[monthKey].DaysOfWeek[2] = &pocket.DayOfWeek{Name: "Tuesday", Proofs: 0}
+			months[monthKey].DaysOfWeek[3] = &pocket.DayOfWeek{Name: "Wednesday", Proofs: 0}
+			months[monthKey].DaysOfWeek[4] = &pocket.DayOfWeek{Name: "Thursday", Proofs: 0}
+			months[monthKey].DaysOfWeek[5] = &pocket.DayOfWeek{Name: "Friday", Proofs: 0}
+			months[monthKey].DaysOfWeek[6] = &pocket.DayOfWeek{Name: "Saturday", Proofs: 0}
 		}
 		month := months[monthKey]
 		if tx.IsConfirmed {
-			month.TotalProofs = month.TotalProofs + tx.NumProofs
+			month.TotalProofs = month.TotalProofs + tx.NumRelays
 		}
 
 		month.Transactions = append(month.Transactions, tx)
@@ -193,6 +251,9 @@ func (s *Service) RewardsByMonth(address string) (map[string]pocket.MonthlyRewar
 				numTxs++
 			}
 			prevTx = tx
+
+			dayOfWeek := int(tx.Time.Weekday())
+			months[monthKey].DaysOfWeek[dayOfWeek].Proofs += tx.NumRelays
 		}
 		mo.AvgSecsBetweenRewards = totalSecs / numTxs
 		if math.IsNaN(mo.AvgSecsBetweenRewards) {
@@ -201,6 +262,7 @@ func (s *Service) RewardsByMonth(address string) (map[string]pocket.MonthlyRewar
 
 		mo.TotalSecsBetweenRewards = totalSecs
 		months[monthKey] = mo
+
 	}
 
 	return months, nil

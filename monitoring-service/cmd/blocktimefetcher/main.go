@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	batchSize        = 25
+	batchSize        = 8
 	defaultPocketURL = "https://mainnet.gateway.pokt.network/v1/lb/61d4a60d431851003b628aa8/v1"
 )
 
@@ -51,9 +51,10 @@ func main() {
 		}
 	}(bitcaskDB)
 	blockTimesRepo := db.NewBlockTimesRepo(bitcaskDB)
+	paramsRepo := db.NewParamsRepo(bitcaskDB)
 
 	// provider + MonitoringService
-	prv := pocket.NewPocketProvider(httpClient, *pocketRpcURL, blockTimesRepo)
+	prv := pocket.NewPocketProvider(httpClient, *pocketRpcURL, blockTimesRepo, paramsRepo)
 	pocketProvider := prv.WithLogger(logger)
 	nodeSvc := monitoring.NewService(pocketProvider)
 
@@ -75,10 +76,15 @@ func main() {
 		}
 
 		(func() {
-			if _, err := nodeSvc.BlockTimes(heights); err != nil {
-				fmt.Sprintf("ERROR: %s", err)
-			}
 			fmt.Printf("fetching blocks %v\n", heights)
+			if _, err := nodeSvc.BlockTimes(heights); err != nil {
+				fmt.Printf("ERROR: %s", err)
+			}
+			for _, n := range heights {
+				if _, err := nodeSvc.ParamsAtHeight(int64(n)); err != nil {
+					fmt.Printf("ERROR: %s", err)
+				}
+			}
 		})()
 		i = i + batchSize - 1
 	}
