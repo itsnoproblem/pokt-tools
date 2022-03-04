@@ -126,7 +126,7 @@ type allParamsRequest struct {
 // AllParams returns all network parameters.
 func (p pocketProvider) AllParams(height int64) (pocket.AllParams, error) {
 	fail := func(err error) (pocket.AllParams, error) {
-		return pocket.AllParams{}, fmt.Errorf("pocketProvider.AllParams(%s): %s", height, err)
+		return pocket.AllParams{}, fmt.Errorf("pocketProvider.AllParams(%d): %s", height, err)
 	}
 
 	cached, exists, err := p.paramsRepo.GetAll(height)
