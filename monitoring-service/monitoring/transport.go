@@ -15,6 +15,7 @@ import (
 
 const (
 	heightEndpointPath              = "/height"
+	paramsEndpointPath              = "/params/{height}"
 	transactionEndpointPath         = "/transactions/{hash}"
 	nodeEndpointPath                = "/node/{address}"
 	accountTransactionsEndpointPath = "/accounts/{address}/transactions"
@@ -37,6 +38,13 @@ func NewTransport(svc Service) transport {
 				Path:     heightEndpointPath,
 				Endpoint: HeightEndpoint(svc),
 				Decoder:  api.DecodeEmptyRequest,
+				Encoder:  api.EncodeResponse,
+			},
+			{
+				Path:     paramsEndpointPath,
+				Method:   http.MethodGet,
+				Endpoint: ParamsEndpoint(svc),
+				Decoder:  decodeParamsRequest,
 				Encoder:  api.EncodeResponse,
 			},
 			{
@@ -85,6 +93,21 @@ func NewTransport(svc Service) transport {
 	}
 }
 
+func decodeParamsRequest(_ context.Context, req *http.Request) (request interface{}, err error) {
+	vars := mux.Vars(req)
+	height, ok := vars["height"]
+	if !ok {
+		return nil, errors.New("decodeParamsRequest: required param 'height' not found")
+	}
+	h, err := strconv.ParseInt(height, 10, 64)
+	if err != nil {
+		return nil, fmt.Errorf("decodeParamsRequest: failed to parse height: %s", err)
+	}
+
+	return paramsRequest{
+		Height: h,
+	}, nil
+}
 func decodeTransactionRequest(_ context.Context, req *http.Request) (request interface{}, err error) {
 	vars := mux.Vars(req)
 	hash, ok := vars["hash"]

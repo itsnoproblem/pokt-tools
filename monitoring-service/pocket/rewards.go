@@ -16,5 +16,9 @@ type DayOfWeek struct {
 }
 
 func (r *MonthlyReward) PoktAmount() float64 {
-	return float64(r.TotalProofs) * 0.0089
+	var total float64
+	for _, t := range r.Transactions {
+		total += t.PoktAmount()
+	}
+	return total
 }

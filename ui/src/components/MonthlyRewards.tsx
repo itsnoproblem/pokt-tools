@@ -5,21 +5,16 @@ import {
     AccordionItem,
     AccordionPanel,
     Box,
-    BoxProps,
     Grid,
     GridItem,
     HStack,
-    SimpleGrid,
     Skeleton,
-    Spacer,
     Stack,
     Tab,
     TabList,
     TabPanel,
     TabPanels,
     Tabs,
-    Text,
-    forwardRef,
     useBreakpointValue,
     useColorModeValue
 } from "@chakra-ui/react";
@@ -29,8 +24,10 @@ import {MonthlyReward, monthNames} from "../types/monthly-reward";
 import {RewardTransaction} from "./RewardTransaction";
 import {PieChart} from "./PieChart";
 import {getClaims} from "../MonitoringService";
-import {DayOfWeekChart} from "./DayOfWeekChart";
 import {EVENT_MONTH_CLOSE, EVENT_MONTH_METRICS, EVENT_MONTH_OPEN, EVENT_MONTH_TRANSACTIONS, trackGoal} from "../events";
+import {DailyChart} from "./DailyChart";
+import {DailyChartStacked} from "./DailyChartStacked";
+import {DayOfWeekChart} from "./DayOfWeekChart";
 
 type MonthlyRewardsProps = {
     rewards: MonthlyReward[],
@@ -89,15 +86,21 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
     }
 
     const getDaysOfWeekData = (month: MonthlyReward) => {
-        const daysOfWeekData: chartData[] = []
+        const daysOfWeekData: chartData[] = [];
 
         for(let i = 0; i < 7; i++) {
             daysOfWeekData[i] = {
                 id: month.days_of_week[i].name.slice(0, 3),
                 label: month.days_of_week[i].name,
-                value: month.days_of_week[i].num_proofs,
+                value: 0,
             }
         }
+
+        month.transactions.map((tx) => {
+            const dow = new Date(tx.time)
+            daysOfWeekData[dow.getDay()].value += tx.num_relays;
+        })
+
         return daysOfWeekData;
     }
 
@@ -204,7 +207,7 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
                                             </>
                                         ) }
                                         <Box fontSize={"sm"} minW={["150px", "15%"]} pr={[2,8]} flexGrow={1} textAlign='right'>
-                                            {month.pokt_amount}
+                                            {Number(month.pokt_amount).toFixed(4)}
                                         </Box>
                                     </HStack>
                                 </Box>
@@ -227,10 +230,11 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
                                 </TabList>
                                 <TabPanels>
                                     <TabPanel p={0}>
-                                        <Grid templateColumns={['repeat(5, auto)', 'repeat(8, auto)']} fontFamily={"monospace"} fontSize={"xs"} p={[1, 5]}>
+                                        <Grid templateColumns={['repeat(5, auto)', 'repeat(9, auto)']} fontFamily={"monospace"} fontSize={"xs"} p={[1, 5]}>
                                             <GridItem padding={2} fontWeight={900} align="left" pl={4}>Height</GridItem>
                                             <GridItem padding={2} fontWeight={900}>Time</GridItem>
-                                            {!isMobile && (<GridItem padding={2} fontWeight={900} pr={4} align={"right"}>Proofs</GridItem>)}
+                                            {!isMobile && (<GridItem padding={2} fontWeight={900} pr={4} align={"right"}>Relays</GridItem>)}
+                                            {!isMobile && (<GridItem padding={2} fontWeight={900} pr={4} align={"right"}>Rate / relay</GridItem>)}
                                             <GridItem padding={2} fontWeight={900} pr={4} align={"right"} >Amount</GridItem>
                                             <GridItem padding={2} fontWeight={900} align={"center"}>Chain</GridItem>
                                             {!isMobile && (<GridItem padding={2} fontWeight={900}>App Pubkey</GridItem>)}
@@ -245,6 +249,9 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
                                         </Grid>
                                     </TabPanel>
                                     <TabPanel minHeight={"400px"}>
+                                        <Box w={"100%"} margin={"auto"} mb={20}>
+                                            <DailyChartStacked txs={month.transactions}/>
+                                        </Box>
                                         <Stack direction={["column", "row"]}>
                                             <Box w={["100%", "100%"]} height={"400px"} color={"gray.50"}>
                                                 <PieChart data={relays}/>

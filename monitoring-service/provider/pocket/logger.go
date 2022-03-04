@@ -45,6 +45,28 @@ func (p loggingProvider) Height() (uint, error) {
 	return h, nil
 }
 
+func (p loggingProvider) AllParams(height int64) (pocket.AllParams, error) {
+	t := timer.Start()
+	params, err := p.provider.AllParams(height)
+	if err != nil {
+		p.error(err.Error())
+	}
+
+	p.info("AllParams at height %d (took %s)", height, t.Elapsed().String())
+	return params, nil
+}
+
+func (p loggingProvider) Param(name string, height int64) (string, error) {
+	t := timer.Start()
+	param, err := p.provider.Param(name, height)
+	if err != nil {
+		p.error(err.Error())
+	}
+
+	p.info("Param %s at height %d is %s (took %s)", name, height, param, t.Elapsed().String())
+	return param, nil
+}
+
 func (p loggingProvider) Node(address string) (pocket.Node, error) {
 	t := timer.Start()
 	n, err := p.provider.Node(address)

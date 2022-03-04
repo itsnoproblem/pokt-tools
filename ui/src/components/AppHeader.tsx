@@ -31,6 +31,7 @@ export const AppHeader = (props: AppHeaderProps) => {
     const isMobile = useBreakpointValue([true, false]);
     const [currentHeight, setCurrentHeight] = useState(0);
     const [pendingRelays, setPendingRelays] = useState(0);
+    const [poktAmt, setpoktAmt] = useState(0.00);
     const node = useContext(NodeContext);
     const activePath = getActivePath();
 
@@ -93,14 +94,16 @@ export const AppHeader = (props: AppHeaderProps) => {
         }
 
         if(props.rewards[0]) {
-            let pending = 0;
+            let pending = 0, poktAmount = 0;
             props.rewards[0].transactions.map((t) => {
                 if(!t.is_confirmed && t.expire_height > currentHeight) {
-                    pending += t.num_proofs;
+                    pending += t.num_relays;
+                    poktAmount += t.num_relays * t.pokt_per_relay;
                 }
                 return t;
             })
             setPendingRelays(pending);
+            setpoktAmt(poktAmount);
         }
     }, [pendingRelays, props, currentHeight, hasLoaded, updateBalance]);
 
@@ -147,7 +150,7 @@ export const AppHeader = (props: AppHeaderProps) => {
                 </HStack>
 
             )}
-            <Box ml={2}><PendingRelaysBadge num={pendingRelays}/></Box>
+            <Box ml={2}><PendingRelaysBadge num={pendingRelays} amt={poktAmt}/></Box>
             <Spacer/>
             <Box>
                 <MdBrightness1

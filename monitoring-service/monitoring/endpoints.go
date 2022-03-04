@@ -14,6 +14,7 @@ import (
 
 type Endpoints struct {
 	Height              endpoint.Endpoint
+	Params              endpoint.Endpoint
 	Node                endpoint.Endpoint
 	Transaction         endpoint.Endpoint
 	AccountTransactions endpoint.Endpoint
@@ -101,7 +102,7 @@ func MonthlyRewardsEndpoint(svc Service) endpoint.Endpoint {
 					byChain[tx.ChainID] = 0
 				}
 
-				byChain[tx.ChainID] += tx.NumProofs
+				byChain[tx.ChainID] += tx.NumRelays
 				resp[i].Transactions[j] = transactionResponse{
 					Hash:          tx.Hash,
 					Height:        tx.Height,
@@ -111,7 +112,8 @@ func MonthlyRewardsEndpoint(svc Service) endpoint.Endpoint {
 					SessionHeight: tx.SessionHeight,
 					ExpireHeight:  tx.ExpireHeight,
 					AppPubkey:     tx.AppPubkey,
-					NumProofs:     tx.NumProofs,
+					NumRelays:     tx.NumRelays,
+					PoktPerRelay:  tx.PoktPerRelay,
 					IsConfirmed:   tx.IsConfirmed,
 				}
 			}
@@ -180,6 +182,35 @@ func BlockTimesEndpoint(svc Service) endpoint.Endpoint {
 	}
 }
 
+type paramsRequest struct {
+	Height int64
+}
+
+type paramsResponse struct {
+	Value interface{}
+}
+
+func ParamsEndpoint(svc Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		fail := func(err error) (interface{}, error) {
+			return nil, fmt.Errorf("ParamsEndpoint: %s", err)
+		}
+
+		req, ok := request.(paramsRequest)
+		if !ok {
+			err := fmt.Errorf("failed to parse request: %v", request)
+			return fail(err)
+		}
+
+		params, err := svc.ParamsAtHeight(req.Height)
+		if err != nil {
+			return fail(err)
+		}
+
+		return params, nil
+	}
+}
+
 type transactionRequest struct {
 	Hash string
 }
@@ -193,7 +224,8 @@ type transactionResponse struct {
 	SessionHeight uint      `json:"session_height"`
 	ExpireHeight  uint      `json:"expire_height"`
 	AppPubkey     string    `json:"app_pubkey"`
-	NumProofs     uint      `json:"num_proofs"`
+	NumRelays     uint      `json:"num_relays"`
+	PoktPerRelay  float64   `json:"pokt_per_relay"`
 	IsConfirmed   bool      `json:"is_confirmed"`
 }
 
@@ -215,12 +247,13 @@ func TransactionEndpoint(svc Service) endpoint.Endpoint {
 		}
 
 		return transactionResponse{
-			Hash:      txn.Hash,
-			Height:    txn.Height,
-			Time:      txn.Time,
-			Type:      txn.Type,
-			ChainID:   txn.ChainID,
-			NumProofs: txn.NumProofs,
+			Hash:         txn.Hash,
+			Height:       txn.Height,
+			Time:         txn.Time,
+			Type:         txn.Type,
+			ChainID:      txn.ChainID,
+			NumRelays:    txn.NumRelays,
+			PoktPerRelay: txn.PoktPerRelay,
 		}, nil
 	}
 }
@@ -262,7 +295,8 @@ func AccountTransactionsEndpoint(svc Service) endpoint.Endpoint {
 				SessionHeight: tx.SessionHeight,
 				ExpireHeight:  tx.ExpireHeight,
 				AppPubkey:     tx.AppPubkey,
-				NumProofs:     tx.NumProofs,
+				NumRelays:     tx.NumRelays,
+				PoktPerRelay:  tx.PoktPerRelay,
 			}
 		}
 

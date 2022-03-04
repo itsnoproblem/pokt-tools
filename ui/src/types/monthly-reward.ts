@@ -20,7 +20,7 @@ export type RelaysByChain = {
 
 export type DayOfWeek = {
     name: string
-    num_proofs: number
+    num_relays: number
 }
 
 export const monthNames: Record<number, string> = {
