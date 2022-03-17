@@ -1,0 +1,26 @@
+.react-tags__selected > button {
+    background-color: #000;
+    padding: 4px 12px;
+    margin-left: 2px;
+    margin-right: 2px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.react-tags__selected > button:hover {
+    background-color: #300A56FF;
+}
+
+.react-tags__selected > button::after {
+    content: " x";
+}
+
+.react-tags__search-wrapper {
+    margin-top: 10px;
+}
+
+.react-tags__search-wrapper > input {
+    width: 100%;
+    color: #000;
+}
