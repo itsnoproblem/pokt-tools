@@ -1,21 +1,21 @@
 import {
     Box,
     Button,
-    FormControl,
+    FormControl, FormErrorIcon,
     FormLabel,
     HStack, Input,
     Kbd,
-    Link,
+    Link, SimpleGrid,
     Spinner, Stack,
     Textarea,
     useDisclosure,
     useToast
 } from "@chakra-ui/react";
-import {BiError, BiLinkExternal} from "react-icons/all";
+import {AiFillCloseCircle, BiError, BiErrorCircle, BiLinkExternal} from "react-icons/all";
 import React, {useContext, useRef, useState} from "react";
 import {NodeContext} from "../context";
 import {AxiosResponse} from "axios";
-import {CheckCircleIcon} from "@chakra-ui/icons";
+import {CheckCircleIcon, WarningTwoIcon} from "@chakra-ui/icons";
 import {
     Select,
     CreatableSelect,
@@ -26,6 +26,8 @@ import {
 import {allChains} from "../MonitoringService";
 import {simulateRelays} from "../NodeChecker";
 import {Chain} from "../types/chain";
+import {RelayTestResponse} from "../types/relay-test-response";
+import {RelayResult} from "./RelayResult";
 
 interface ChainOption extends OptionBase {
     label: string;
@@ -38,6 +40,8 @@ export const RelaySimulator = () => {
     const {isOpen: testIsRunning, onOpen: startTest, onClose: stopTest} = useDisclosure();
     const [selectedChains, setSelectedChains] = useState((): ChainOption[] => []);
     const [nodeURL, setNodeURL] = useState(node.service_url);
+    const emptyTestResponse = {} as Record<string, RelayTestResponse>
+    const [relayTestResponse, setRelayTestResponse] = useState(emptyTestResponse);
 
     const runTest = async () => {
         startTest();
@@ -52,15 +56,17 @@ export const RelaySimulator = () => {
             })
             stopTest();
         }
+
         try {
             const chains: string[] = [];
             selectedChains.map((ch) => {
                 chains.push(ch.value)
             });
 
-            simulateRelays(nodeURL, node.address, chains).then((result) => {
+            return simulateRelays(nodeURL, node.address, chains).then((result) => {
                 console.log("Done", result);
-                // if(result.status)
+                setRelayTestResponse(result);
+
                 stopTest();
             }).catch((err) => {
                 fail(err);
@@ -86,6 +92,8 @@ export const RelaySimulator = () => {
         return data;
     }
 
+    const response = (relayTestResponse as Record<string, RelayTestResponse>);
+
     return (
         <Box textAlign={"left"}>
             <Stack mt={4}>
@@ -95,7 +103,7 @@ export const RelaySimulator = () => {
                     <Input type={"text"}
                            fontFamily={"monospace"}
                            defaultValue={node.service_url}
-                           onChange={(v) => setNodeURL(v.target.value)}
+                           onBlur={(v) => setNodeURL(v.target.value)}
                     />
                     </Box>
                 </FormControl>
@@ -129,6 +137,8 @@ export const RelaySimulator = () => {
                     </Box>
                 </FormControl>
             </Stack>
+
+            <RelayResult relayResponse={response}/>
 
         </Box>
     )

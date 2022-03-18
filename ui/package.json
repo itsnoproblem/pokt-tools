@@ -28,6 +28,7 @@
     "react-dom": "^17.0.2",
     "react-focus-lock": "^2.7.1",
     "react-icons": "^3.0.0",
+    "react-json-view": "^1.21.3",
     "react-router-dom": "^6.2.1",
     "react-scripts": "5.0.0",
     "react-tag-autocomplete": "^6.3.0",
@@ -39,7 +40,8 @@
     "start": "./env.sh .env.local && cp env-config.js ./public/ && react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "deploy": "./env.sh .env.prod && cp env-config.js ./public/ && react-scripts build && ./scripts/deploy.sh",
+    "deploy": "./env.sh .env.prod && cp env-config.js ./public/ && react-scripts build && ./scripts/deploy.sh prod",
+    "deploy-test": "./env.sh .env.test && cp env-config.js ./public/ && react-scripts build && ./scripts/deploy.sh test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

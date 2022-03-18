@@ -3,7 +3,7 @@ import axios, {AxiosResponse} from "axios";
 import {CryptoNode} from "../types/crypto-node";
 import {MonthlyReward} from "../types/monthly-reward";
 import {Chain} from "../types/chain";
-import {RelayResponse} from "../types/relay-test-response";
+import {RelayTestResponse} from "../types/relay-test-response";
 
 const POKT_LINT_URL = 'https://2eqrf8goof.execute-api.us-east-1.amazonaws.com/prod';
 const HTTP_STATUS_OK = 200;
@@ -25,7 +25,7 @@ export const simulateRelays = async (nodeURL: string, nodeID: string, chains: st
                 throw new Error(`${result.status}: ${result.statusText}`)
             }
 
-            return result.data as Record<string, RelayResponse>;
+            return result.data as Record<string, RelayTestResponse>;
         })
         .catch((err) => {
             console.error(err);

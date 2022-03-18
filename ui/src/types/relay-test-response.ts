@@ -16,6 +16,8 @@ export type RelayRequest = {
 }
 
 export type RelayResponse = {
+    chain_id?: string
+    chain_name?: string
     status_code: number
     data: any
 }
