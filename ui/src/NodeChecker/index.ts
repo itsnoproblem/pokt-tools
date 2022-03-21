@@ -8,9 +8,10 @@ import {RelayTestResponse} from "../types/relay-test-response";
 const POKT_LINT_URL = 'https://2eqrf8goof.execute-api.us-east-1.amazonaws.com/prod';
 const HTTP_STATUS_OK = 200;
 const httpClientTimeout = 5000;
+const RELAY_TEST_PATH = 'relay-test';
 
 export const simulateRelays = async (nodeURL: string, nodeID: string, chains: string[]): Promise<any> => {
-    const url = `${POKT_LINT_URL}/relay-test`
+    const url = `${POKT_LINT_URL}/relay-test-qa`
     var data;
     console.log("simulateRelays", chains)
     data =  {
@@ -28,7 +29,7 @@ export const simulateRelays = async (nodeURL: string, nodeID: string, chains: st
             return result.data as Record<string, RelayTestResponse>;
         })
         .catch((err) => {
-            console.error(err);
+            console.error(url, err);
             throw err;
         });
 }

@@ -25,7 +25,11 @@ interface SingleResultProps {
 
 export const RelayResult = (props: RelayResultProps) => {
     return (
-        <Grid templateColumns={"repeat(5,1fr)"} mt={30} spacing={1}>
+        <Grid templateColumns={"repeat(5,1fr)"} mt={30} spacing={1} fontSize={"sm"}>
+            <GridItem colSpan={2}>Chain</GridItem>
+            <GridItem>Duration</GridItem>
+            <GridItem textAlign={"right"}>HTTP status</GridItem>
+            <GridItem textAlign={"right"}></GridItem>
             {Object.entries(props.relayResponse).map(([ch, v], i) => {
                 return (
                     <SingleResult key={ch} relayTestResponse={v}/>
@@ -43,8 +47,8 @@ const SingleResult = (props: SingleResultProps) => {
     return (
         <React.Fragment key={props.relayTestResponse.chain_id}>
             <GridItem colSpan={2}>({props.relayTestResponse.chain_id}) {props.relayTestResponse.chain_name}</GridItem>
-            <GridItem>{props.relayTestResponse.duration_ms}ms</GridItem>
-            <GridItem>{props.relayTestResponse.status_code}</GridItem>
+            <GridItem>{props.relayTestResponse.duration_avg_ms}ms</GridItem>
+            <GridItem textAlign={"right"}>{props.relayTestResponse.status_code}</GridItem>
             <GridItem textAlign={"right"}>
                 {props.relayTestResponse.status_code === 200 ?
                     (<CheckCircleIcon color={"green.300"}/>) :
@@ -68,8 +72,12 @@ const SingleResult = (props: SingleResultProps) => {
                     />
                 )}
             </GridItem>
+            {/*-------*/}
             <GridItem colSpan={5} p={3} lineHeight={1}>
                 <Collapse in={isOpen} animateOpacity={true}>
+                    <Box textAlign={"center"} mb={2}>
+                        Avg: {props.relayTestResponse.duration_min_ms} / Min: {props.relayTestResponse.duration_min_ms} / Max: {props.relayTestResponse.duration_max_ms}
+                    </Box>
                     <ReactJson
                         src={props.relayTestResponse.relay_request}
                         displayDataTypes={false}
@@ -80,12 +88,12 @@ const SingleResult = (props: SingleResultProps) => {
                         style={jsonStyleProps}
                     />
                     <ReactJson
-                        src={props.relayTestResponse.relay_response}
+                        src={props.relayTestResponse.relay_responses}
                         displayDataTypes={false}
                         displayObjectSize={false}
                         enableClipboard={false}
                         theme={jsonTheme}
-                        name={"response"}
+                        name={"responses"}
                         style={jsonStyleProps}
                     />
                 </Collapse>

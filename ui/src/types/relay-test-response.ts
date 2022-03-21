@@ -1,10 +1,12 @@
 export type RelayTestResponse = {
     chain_id: string
     chain_name: string
-    duration_ms: number
+    duration_avg_ms: number
+    duration_min_ms: number
+    duration_max_ms: number
     message: string
     relay_request: RelayRequest
-    relay_response: RelayResponse
+    relay_responses: RelayResponse[]
     status_code: number
     success: boolean
 }
@@ -16,8 +18,7 @@ export type RelayRequest = {
 }
 
 export type RelayResponse = {
-    chain_id?: string
-    chain_name?: string
+    duration_ms: number
     status_code: number
     data: any
 }
