@@ -16,6 +16,7 @@ import {
     TabPanels,
     Tabs,
     useBreakpointValue,
+    useColorModeValue,
 } from "@chakra-ui/react";
 import React, {useCallback, useContext, useEffect, useState} from "react";
 import {NodeContext} from "../context";
@@ -225,14 +226,14 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
                                 </TabList>
                                 <TabPanels>
                                     <TabPanel p={0}>
-                                        <Grid templateColumns={['repeat(6, auto)', 'repeat(9, auto)']} fontFamily={"monospace"} fontSize={"xs"} p={[1, 5]}>
-                                            <GridItem padding={2} fontWeight={900} align="left" pl={4}>Height</GridItem>
+                                        <Grid templateColumns={['repeat(6, auto)', 'repeat(10, auto)']} fontFamily={"monospace"} fontSize={"xs"} p={[1, 5]}>
+                                            <GridItem padding={2} fontWeight={900} textAlign="left" pl={4}>Height</GridItem>
                                             <GridItem padding={2} fontWeight={900}>Time</GridItem>
-                                            {!isMobile && (<GridItem padding={2} fontWeight={900} pr={4} align={"right"}>Relays</GridItem>)}
-                                            {!isMobile && (<GridItem padding={2} fontWeight={900} pr={4} align={"right"}>Rate / relay</GridItem>)}
-                                            <GridItem padding={2} fontWeight={900} pr={4} align={"right"} >Amount</GridItem>
-                                            <GridItem padding={2} fontWeight={900} align={"center"} >Revenue</GridItem>
-                                            <GridItem padding={2} fontWeight={900} align={"center"}>Chain</GridItem>
+                                            {!isMobile && (<GridItem padding={2} fontWeight={900} pr={4} textAlign={"right"}>Relays</GridItem>)}
+                                            {!isMobile && (<GridItem padding={2} fontWeight={900} pr={4} textAlign={"right"}>Rate / relay</GridItem>)}
+                                            <GridItem padding={2} fontWeight={900} pr={4} textAlign={"right"} >Amount</GridItem>
+                                            <GridItem padding={2} fontWeight={900} textAlign={"center"} >Revenue</GridItem>
+                                            <GridItem padding={2} fontWeight={900} textAlign={"center"}>Chain</GridItem>
                                             {!isMobile && (<GridItem padding={2} fontWeight={900}>App Pubkey</GridItem>)}
                                             {!isMobile && (<GridItem padding={2} fontWeight={900}>Hash</GridItem>)}
                                             <GridItem padding={2} fontWeight={900}>Confirmed</GridItem>

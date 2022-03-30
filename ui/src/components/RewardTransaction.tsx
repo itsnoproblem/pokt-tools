@@ -23,17 +23,17 @@ export const RewardTransaction = (props: RewardTransactionProps) => {
 
     return (
         <React.Fragment key={tx.hash}>
-            <GridItem padding={2} backgroundColor={props.color} align="left" pl={4}>{tx.height}</GridItem>
+            <GridItem padding={2} backgroundColor={props.color} textAlign="left" pl={4}>{tx.height}</GridItem>
             <GridItem padding={2} backgroundColor={props.color}>
                 <Box>
                     {time.toLocaleString()}
                 </Box>
             </GridItem>
-            {!isMobile && (<GridItem padding={2} backgroundColor={props.color} pr={4} align={"right"}>{numProofs.toLocaleString()} relays</GridItem>)}
-            {!isMobile && (<GridItem padding={2} backgroundColor={props.color} pr={4} align={"right"}>{tx.pokt_per_relay}</GridItem>)}
-            <GridItem padding={2} backgroundColor={props.color} align={"right"}>{amount}</GridItem>
-            <GridItem padding={2} backgroundColor={props.color} align={"center"}>{revenue}</GridItem>
-            <GridItem padding={2} backgroundColor={props.color} align={"center"}>{tx.chain_id}</GridItem>
+            {!isMobile && (<GridItem padding={2} backgroundColor={props.color} pr={4} textAlign={"right"}>{numProofs.toLocaleString()} relays</GridItem>)}
+            {!isMobile && (<GridItem padding={2} backgroundColor={props.color} pr={4} textAlign={"right"}>{tx.pokt_per_relay}</GridItem>)}
+            <GridItem padding={2} backgroundColor={props.color} textAlign={"right"}>{amount}</GridItem>
+            <GridItem padding={2} backgroundColor={props.color} textAlign={"center"}>{revenue}</GridItem>
+            <GridItem padding={2} backgroundColor={props.color} textAlign={"center"}>{tx.chain_id}</GridItem>
             {!isMobile && (
                 <GridItem padding={2} backgroundColor={props.color}>
                     <Text title={tx.app_pubkey}>
@@ -52,7 +52,7 @@ export const RewardTransaction = (props: RewardTransactionProps) => {
                     </Text>
                 </GridItem>
             )}
-            <GridItem backgroundColor={props.color} align={"center"}>
+            <GridItem backgroundColor={props.color} textAlign={"center"}>
                 {tx.is_confirmed ?
                     (
                         <IconButton
