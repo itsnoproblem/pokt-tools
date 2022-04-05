@@ -86,11 +86,11 @@ export const DailyChartStacked = (props: DailyChartProps) => {
                 dayValues.push(0);
             }
             const txDay = (new Date(tx.time)).getDate();
-            if(chains[tx.chain_id] === undefined) {
-                chains[tx.chain_id] = dayValues;
+            if(chains[tx.chain.name] === undefined) {
+                chains[tx.chain.name] = dayValues;
             }
 
-            chains[tx.chain_id][txDay] += tx.num_relays;
+            chains[tx.chain.name][txDay] += tx.num_relays;
         });
 
         const shuffle = (array: Array<any>) => {
@@ -110,7 +110,7 @@ export const DailyChartStacked = (props: DailyChartProps) => {
         Object.entries(chains).map(([chain, values], i) => {
             colors = shuffle(colors);
             data.datasets.push({
-                label: `chain ${chain}`,
+                label: chain,
                 data: values,
                 backgroundColor: colors.pop() ?? '',
             })

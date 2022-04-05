@@ -103,12 +103,17 @@ func MonthlyRewardsEndpoint(svc Service) endpoint.Endpoint {
 				}
 
 				byChain[tx.ChainID] += tx.NumRelays
+				chain, _ := tx.Chain()
 				resp[i].Transactions[j] = transactionResponse{
-					Hash:          tx.Hash,
-					Height:        tx.Height,
-					Time:          tx.Time,
-					Type:          tx.Type,
-					ChainID:       tx.ChainID,
+					Hash:    tx.Hash,
+					Height:  tx.Height,
+					Time:    tx.Time,
+					Type:    tx.Type,
+					ChainID: tx.ChainID,
+					Chain: chainResponse{
+						Name: chain.Name,
+						ID:   chain.ID,
+					},
 					SessionHeight: tx.SessionHeight,
 					ExpireHeight:  tx.ExpireHeight,
 					AppPubkey:     tx.AppPubkey,
@@ -216,17 +221,18 @@ type transactionRequest struct {
 }
 
 type transactionResponse struct {
-	Hash          string    `json:"hash"`
-	Height        uint      `json:"height"`
-	Time          time.Time `json:"time"`
-	Type          string    `json:"type"`
-	ChainID       string    `json:"chain_id"`
-	SessionHeight uint      `json:"session_height"`
-	ExpireHeight  uint      `json:"expire_height"`
-	AppPubkey     string    `json:"app_pubkey"`
-	NumRelays     uint      `json:"num_relays"`
-	PoktPerRelay  float64   `json:"pokt_per_relay"`
-	IsConfirmed   bool      `json:"is_confirmed"`
+	Hash          string        `json:"hash"`
+	Height        uint          `json:"height"`
+	Time          time.Time     `json:"time"`
+	Type          string        `json:"type"`
+	ChainID       string        `json:"chain_id"`
+	Chain         chainResponse `json:"chain"`
+	SessionHeight uint          `json:"session_height"`
+	ExpireHeight  uint          `json:"expire_height"`
+	AppPubkey     string        `json:"app_pubkey"`
+	NumRelays     uint          `json:"num_relays"`
+	PoktPerRelay  float64       `json:"pokt_per_relay"`
+	IsConfirmed   bool          `json:"is_confirmed"`
 }
 
 func TransactionEndpoint(svc Service) endpoint.Endpoint {

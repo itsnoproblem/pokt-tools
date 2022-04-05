@@ -34,7 +34,7 @@ export const DayOfWeekChart = (props: DayOfWeekChartProps) => {
     // const isMobile = useBreakpointValue([true, false]);
     // const legendItemWidth = useBreakpointValue([70, 90]) ?? 90
 
-    console.log("bar", props.data);
+    // console.log("bar", props.data);
 
     const chartTextColor = useColorModeValue("#333", "#CCC");
     const chartLabelColor = useColorModeValue("#333", "#333");

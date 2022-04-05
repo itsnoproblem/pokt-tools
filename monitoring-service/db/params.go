@@ -36,7 +36,7 @@ func (r ParamsRepo) Set(name string, height int64, p pocket.Params) error {
 	paramsB, _ := json.Marshal(p)
 	err := r.db.Put(keyB, paramsB)
 	if err != nil {
-		return fmt.Errorf("ParamsRepo.Set [%s, %d]: %s", err)
+		return fmt.Errorf("ParamsRepo.Set [%s, %d]: %s", name, height, err)
 	}
 
 	return nil
