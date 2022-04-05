@@ -1,6 +1,9 @@
 package pocket
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 const TypeClaim = "pocketcore/claim"
 const TypeProof = "pocketcore/proof"
@@ -17,6 +20,15 @@ type Transaction struct {
 	ExpireHeight  uint
 	AppPubkey     string
 	IsConfirmed   bool
+}
+
+func (t Transaction) Chain() (Chain, error) {
+	chain, err := ChainFromID(t.ChainID)
+	if err != nil {
+		return Chain{}, fmt.Errorf("Transaction.Chain: %s", err)
+	}
+
+	return chain, nil
 }
 
 func (tx Transaction) PoktAmount() float64 {

@@ -236,7 +236,7 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
                                             {!isMobile && (<GridItem padding={2} fontWeight={900} pr={4} align={"right"}>Relays</GridItem>)}
                                             {!isMobile && (<GridItem padding={2} fontWeight={900} pr={4} align={"right"}>Rate / relay</GridItem>)}
                                             <GridItem padding={2} fontWeight={900} pr={4} align={"right"} >Amount</GridItem>
-                                            <GridItem padding={2} fontWeight={900} align={"center"}>Chain</GridItem>
+                                            <GridItem padding={2} fontWeight={900} pr={4} align={"right"}>Chain</GridItem>
                                             {!isMobile && (<GridItem padding={2} fontWeight={900}>App Pubkey</GridItem>)}
                                             {!isMobile && (<GridItem padding={2} fontWeight={900}>Hash</GridItem>)}
                                             <GridItem padding={2} fontWeight={900}>Confirmed</GridItem>

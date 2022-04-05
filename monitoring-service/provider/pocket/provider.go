@@ -363,10 +363,14 @@ func (p pocketProvider) doRequest(url string, reqObj interface{}) ([]byte, error
 	clientReq.Header.Set("Content-Type", contentTypeJSON)
 
 	resp, err := p.client.Do(clientReq)
-	defer resp.Body.Close()
 	if err != nil {
 		return nil, fmt.Errorf("doRequest: %s", err)
 	}
+	defer func() {
+		if resp.Body != nil {
+			resp.Body.Close()
+		}
+	}()
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, errors.New(fmt.Sprintf("pocketProvider.doRequest: got unexpected response status %s - %s", resp.Status, string(reqBody)))

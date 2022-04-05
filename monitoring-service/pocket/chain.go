@@ -1,14 +1,21 @@
 package pocket
 
-import (
-	"fmt"
-)
+import "fmt"
 
 type Chain struct {
 	ID           string
 	Name         string
 	PortalPrefix string
 	IsMonetized  bool
+}
+
+func ChainFromID(id string) (Chain, error) {
+	chain, ok := allChains[id]
+	if !ok {
+		return Chain{}, fmt.Errorf("ChainFromID: unknown chain %s", id)
+	}
+
+	return chain, nil
 }
 
 var allChains = map[string]Chain{
@@ -276,13 +283,4 @@ var allChains = map[string]Chain{
 		PortalPrefix: "sol-testnet",
 		IsMonetized:  false,
 	},
-}
-
-func ChainFromID(id string) (Chain, error) {
-	chain, ok := allChains[id]
-	if !ok {
-		return Chain{}, fmt.Errorf("ChainFromID: unknown chain %s", id)
-	}
-
-	return chain, nil
 }
