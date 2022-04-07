@@ -202,7 +202,7 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
                                                     {month.transactions.length.toLocaleString()}
                                                 </Box>
                                                 <Box fontSize={"sm"} w={"15%"} flexGrow={1} textAlign={"right"}>
-                                                    {((month.num_relays/month.transactions.length) * 0.0089).toFixed(2)}
+                                                    {(month.pokt_amount/month.transactions.length).toFixed(2)}
                                                 </Box>
                                             </>
                                         ) }

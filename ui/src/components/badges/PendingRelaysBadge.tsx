@@ -1,6 +1,5 @@
 import {Badge, ChakraProps, useColorModeValue, useDisclosure} from "@chakra-ui/react";
 import React from "react";
-import {POKTPerRelay} from "../NodeMetrics";
 import {EVENT_TOGGLE_PENDING_UNITS, trackGoal} from "../../events";
 
 type PendingRelaysProps = {

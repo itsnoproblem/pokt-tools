@@ -31,8 +31,6 @@ interface TimeUnits {
     value: number
 }
 
-export const POKTPerRelay = 0.0089;
-
 export const NodeMetrics = (props: AppStatusProps) => {
 
     const statHoverColor = useColorModeValue('cyan.800', 'blue.100');
@@ -72,15 +70,19 @@ export const NodeMetrics = (props: AppStatusProps) => {
         }
 
         let total = 0;
+        let totalPOKT = 0;
         let lifetimeNumRelays = 0;
+        let lifetimePOKT = 0;
         let lifetimeNumSessions = 0;
         props.rewards.map((r) => {
             r.transactions.map((t) => {
                 const txDate = new Date(t.time);
                 if((txDate.getTime() >= pastDate.getTime()) && t.is_confirmed) {
                     total += t.num_relays;
+                    totalPOKT += t.num_relays * t.pokt_per_relay;
                 }
                 lifetimeNumRelays += t.num_relays;
+                lifetimePOKT += (t.num_relays * t.pokt_per_relay)
                 lifetimeNumSessions++;
                 return this;
             });
@@ -88,11 +90,13 @@ export const NodeMetrics = (props: AppStatusProps) => {
         });
 
         let relays = total;
+        let pokt = totalPOKT;
         if(numDays > 0) {
             relays = (total/numDays);
+            pokt = (totalPOKT/numDays);
         }
 
-        return Math.round(relays * POKTPerRelay);
+        return Math.round(pokt);
     }
 
     const timeUnits = (seconds: number): TimeUnits => {
@@ -154,22 +158,24 @@ export const NodeMetrics = (props: AppStatusProps) => {
 
         let lifetimeNumRelays = 0;
         let lifetimeNumSessions = 0;
+        let lifetimePOKT = 0;
         props.rewards.map((r) => {
             r.transactions.map((t) => {
                 lifetimeNumRelays += t.num_relays;
+                lifetimePOKT += t.num_relays * t.pokt_per_relay;
                 lifetimeNumSessions++;
                 return this;
             });
             return this;
         });
-        setAvgPoktPerSession((lifetimeNumRelays/lifetimeNumSessions) * 0.0089);
+        setAvgPoktPerSession(lifetimePOKT/lifetimeNumSessions);
 
         const latestMonth = sortedRewards[0]?.month;
         const lastRewardDate = latestTxTime();
         setTimeBetweenRewardsLatest(timeUnits(sortedRewards[0]?.avg_sec_between_rewards ?? -1));
         setLatestMonthName(latestMonth ? monthNames[latestMonth] : '---');
         if(latestMonth) {
-            setAvgPoktPerSessionLatestMonth((sortedRewards[0].num_relays / sortedRewards[0].transactions.length) * 0.0089);
+            setAvgPoktPerSessionLatestMonth((sortedRewards[0].pokt_amount / sortedRewards[0].transactions.length));
         }
 
         if(lastRewardDate) {
