@@ -37,7 +37,8 @@
     "start": "./env.sh .env.local && cp env-config.js ./public/ && react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "deploy": "./env.sh .env.prod && cp env-config.js ./public/ && react-scripts build && ./scripts/deploy.sh",
+    "deploy": "./env.sh .env.prod && cp env-config.js ./public/ && react-scripts build && ./scripts/deploy.sh pokt.tools",
+    "deploy-test": "./env.sh .env.test && cp env-config.js ./public/ && react-scripts build && ./scripts/deploy.sh test.pokt.tools",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
