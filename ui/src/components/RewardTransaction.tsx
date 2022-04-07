@@ -26,9 +26,9 @@ export const RewardTransaction = (props: RewardTransactionProps) => {
                 </Box>
             </GridItem>
             {!isMobile && (<GridItem padding={2} backgroundColor={props.color} pr={4} align={"right"}>{tx.num_relays.toLocaleString()} relays</GridItem>)}
-            {!isMobile && (<GridItem padding={2} backgroundColor={props.color} pr={4} align={"right"}>{tx.pokt_per_relay}</GridItem>)}
+            <GridItem padding={2} backgroundColor={props.color} pr={2} pl={2} align={"left"}>({tx.chain.id}) {tx.chain.name}</GridItem>
+            {!isMobile && (<GridItem padding={2} backgroundColor={props.color} pr={4} align={"right"}>{tx.pokt_per_relay.toFixed(8)}</GridItem>)}
             <GridItem padding={2} backgroundColor={props.color} align={"right"}>{amount}</GridItem>
-            <GridItem padding={2} backgroundColor={props.color} pr={2} align={"right"}>{tx.chain.name} ({tx.chain.id})</GridItem>
             {!isMobile && (
                 <GridItem padding={2} backgroundColor={props.color}>
                     <Text title={tx.app_pubkey}>
