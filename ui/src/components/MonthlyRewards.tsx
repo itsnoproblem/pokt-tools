@@ -202,7 +202,7 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
                                                     {month.transactions.length.toLocaleString()}
                                                 </Box>
                                                 <Box fontSize={"sm"} w={"15%"} flexGrow={1} textAlign={"right"}>
-                                                    {((month.num_relays/month.transactions.length) * 0.0089).toFixed(2)}
+                                                    {(month.pokt_amount/month.transactions.length).toFixed(2)}
                                                 </Box>
                                             </>
                                         ) }
@@ -234,9 +234,9 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
                                             <GridItem padding={2} fontWeight={900} align="left" pl={4}>Height</GridItem>
                                             <GridItem padding={2} fontWeight={900}>Time</GridItem>
                                             {!isMobile && (<GridItem padding={2} fontWeight={900} pr={4} align={"right"}>Relays</GridItem>)}
+                                            <GridItem padding={2} fontWeight={900} pr={4} pl={4} align={"left"}>Chain</GridItem>
                                             {!isMobile && (<GridItem padding={2} fontWeight={900} pr={4} align={"right"}>Rate / relay</GridItem>)}
                                             <GridItem padding={2} fontWeight={900} pr={4} align={"right"} >Amount</GridItem>
-                                            <GridItem padding={2} fontWeight={900} pr={4} align={"right"}>Chain</GridItem>
                                             {!isMobile && (<GridItem padding={2} fontWeight={900}>App Pubkey</GridItem>)}
                                             {!isMobile && (<GridItem padding={2} fontWeight={900}>Hash</GridItem>)}
                                             <GridItem padding={2} fontWeight={900}>Confirmed</GridItem>
