@@ -26,13 +26,13 @@ export const RewardTransaction = (props: RewardTransactionProps) => {
                 </Box>
             </GridItem>
             {!isMobile && (<GridItem padding={2} backgroundColor={props.color} pr={4} align={"right"}>{tx.num_relays.toLocaleString()} relays</GridItem>)}
-            {!isMobile && (<GridItem padding={2} backgroundColor={props.color} pr={4} align={"right"}>{tx.pokt_per_relay}</GridItem>)}
+            <GridItem padding={2} backgroundColor={props.color} pr={2} pl={2} align={"left"}>({tx.chain.id}) {tx.chain.name}</GridItem>
+            {!isMobile && (<GridItem padding={2} backgroundColor={props.color} pr={4} align={"right"}>{tx.pokt_per_relay.toFixed(8)}</GridItem>)}
             <GridItem padding={2} backgroundColor={props.color} align={"right"}>{amount}</GridItem>
-            <GridItem padding={2} backgroundColor={props.color} pr={4} align={"center"}>{tx.chain_id}</GridItem>
             {!isMobile && (
                 <GridItem padding={2} backgroundColor={props.color}>
                     <Text title={tx.app_pubkey}>
-                        {tx.app_pubkey.substring(0, 4)}...{tx.app_pubkey.substring(tx.app_pubkey.length - 2, tx.app_pubkey.length)}&nbsp;
+                        {tx.app_pubkey.substring(0, 3)}...{tx.app_pubkey.substring(tx.app_pubkey.length - 3, tx.app_pubkey.length)}&nbsp;
                         {pubkeyHasCopied && <CheckIcon/>}
                         {!pubkeyHasCopied && <CopyIcon  onClick={pubkeyCopy} cursor={"pointer"}/>}
                     </Text>
@@ -41,7 +41,7 @@ export const RewardTransaction = (props: RewardTransactionProps) => {
             {!isMobile && (
                 <GridItem padding={2} backgroundColor={props.color}>
                     <Text title={tx.hash}>
-                        {tx.hash.substring(0, 4)}...{tx.hash.substring(tx.hash.length - 2, tx.hash.length)}&nbsp;
+                        {tx.hash.substring(0, 3)}...{tx.hash.substring(tx.hash.length - 3, tx.hash.length)}&nbsp;
                         {hasCopied && <CheckIcon/>}
                         {!hasCopied && <CopyIcon  onClick={onCopy} cursor={"pointer"}/>}
                     </Text>
