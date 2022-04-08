@@ -84,6 +84,10 @@ export const allChains: Chain[] = [
         name: "AVAX Archival"
     },
     {
+        id: "03DF",
+        name: "DeFi Kingdoms"
+    },
+    {
         id: "0004",
         name: "BSC"
     },

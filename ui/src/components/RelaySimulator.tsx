@@ -12,7 +12,7 @@ import {
     useToast
 } from "@chakra-ui/react";
 import {AiFillCloseCircle, BiError, BiErrorCircle, BiLinkExternal} from "react-icons/all";
-import React, {useContext, useRef, useState} from "react";
+import React, {useContext, useEffect, useRef, useState} from "react";
 import {NodeContext} from "../context";
 import {AxiosResponse} from "axios";
 import {CheckCircleIcon, WarningTwoIcon} from "@chakra-ui/icons";
@@ -21,7 +21,7 @@ import {
     CreatableSelect,
     AsyncSelect,
     OptionBase,
-    GroupBase
+    GroupBase, SelectComponent
 } from "chakra-react-select";
 import {allChains} from "../MonitoringService";
 import {simulateRelays} from "../NodeChecker";
@@ -42,6 +42,7 @@ export const RelaySimulator = () => {
     const [nodeURL, setNodeURL] = useState(node.service_url);
     const emptyTestResponse = {} as Record<string, RelayTestResponse>
     const [relayTestResponse, setRelayTestResponse] = useState(emptyTestResponse);
+    const chainPickerRef = useRef(null);
 
     const runTest = async () => {
         startTest();
@@ -59,13 +60,20 @@ export const RelaySimulator = () => {
 
         try {
             const chains: string[] = [];
-            selectedChains.map((ch) => {
-                chains.push(ch.value)
+            selectedChains.map((ch, index) => {
+                chains[index] = ch.value
             });
+
+            console.log("runTests", chains);
 
             return simulateRelays(nodeURL, node.address, chains).then((result) => {
                 console.log("Done", result);
-                setRelayTestResponse(result);
+                if(result.errorMessage) {
+                    fail(result.errorMessage)
+                }
+                else {
+                    setRelayTestResponse(result);
+                }
 
                 stopTest();
             }).catch((err) => {
@@ -83,16 +91,23 @@ export const RelaySimulator = () => {
             chains = allChains
         }
         const data: ChainOption[] = [];
+
         chains.map((ch) => {
             data.push({
                 value: ch.id,
                 label: ch.name + " (" + ch.id + ")"
             })
         });
+
         return data;
     }
 
     const response = (relayTestResponse as Record<string, RelayTestResponse>);
+    useEffect(() => {
+        if(selectedChains.length === 0) {
+            setSelectedChains(chainPickerData(node.chains))
+        }
+    })
 
     return (
         <Box textAlign={"left"}>
@@ -114,11 +129,13 @@ export const RelaySimulator = () => {
                         <Select<ChainOption, true>
                             isMulti
                             name="chains"
+                            id="relayTestChains"
                             options={chainPickerData()}
                             placeholder="Select the chains to test..."
                             closeMenuOnSelect={false}
                             defaultValue={chainPickerData(node.chains)}
                             onChange={(t) => setSelectedChains(t as ChainOption[])}
+                            ref={chainPickerRef}
                         />
                     </Box>
                 </FormControl>

@@ -25,17 +25,21 @@ interface SingleResultProps {
 
 export const RelayResult = (props: RelayResultProps) => {
     return (
+        <>
+        {(Object.entries(props.relayResponse).length > 0) && (
         <Grid templateColumns={"repeat(5,1fr)"} mt={30} spacing={1} fontSize={"sm"}>
-            <GridItem colSpan={2}>Chain</GridItem>
-            <GridItem>Duration</GridItem>
-            <GridItem textAlign={"right"}>HTTP status</GridItem>
-            <GridItem textAlign={"right"}></GridItem>
+            <GridItem mb={2} pb={2} borderBottomWidth={1} colSpan={2}>Chain</GridItem>
+            <GridItem mb={2} pb={2} borderBottomWidth={1}>Duration</GridItem>
+            <GridItem mb={2} pb={2} borderBottomWidth={1} textAlign={"right"}>HTTP status</GridItem>
+            <GridItem mb={2} pb={2} borderBottomWidth={1} textAlign={"right"}></GridItem>
             {Object.entries(props.relayResponse).map(([ch, v], i) => {
                 return (
                     <SingleResult key={ch} relayTestResponse={v}/>
                 )
             })}
         </Grid>
+        )}
+        </>
     )
 }
 
@@ -47,7 +51,7 @@ const SingleResult = (props: SingleResultProps) => {
     return (
         <React.Fragment key={props.relayTestResponse.chain_id}>
             <GridItem colSpan={2}>({props.relayTestResponse.chain_id}) {props.relayTestResponse.chain_name}</GridItem>
-            <GridItem>{props.relayTestResponse.duration_avg_ms}ms</GridItem>
+            <GridItem>{props.relayTestResponse.duration_avg_ms.toFixed(2)} ms</GridItem>
             <GridItem textAlign={"right"}>{props.relayTestResponse.status_code}</GridItem>
             <GridItem textAlign={"right"}>
                 {props.relayTestResponse.status_code === 200 ?
