@@ -1,28 +1,7 @@
-import {
-    Box,
-    Button,
-    FormControl, FormErrorIcon,
-    FormLabel,
-    HStack, Input,
-    Kbd,
-    Link, SimpleGrid,
-    Spinner, Stack,
-    Textarea,
-    useDisclosure,
-    useToast
-} from "@chakra-ui/react";
-import {AiFillCloseCircle, BiError, BiErrorCircle, BiLinkExternal} from "react-icons/all";
+import {Box, Button, FormControl, FormLabel, Input, Spinner, Stack, useDisclosure, useToast} from "@chakra-ui/react";
 import React, {useContext, useEffect, useRef, useState} from "react";
 import {NodeContext} from "../context";
-import {AxiosResponse} from "axios";
-import {CheckCircleIcon, WarningTwoIcon} from "@chakra-ui/icons";
-import {
-    Select,
-    CreatableSelect,
-    AsyncSelect,
-    OptionBase,
-    GroupBase, SelectComponent
-} from "chakra-react-select";
+import {OptionBase, Select} from "chakra-react-select";
 import {allChains} from "../MonitoringService";
 import {simulateRelays} from "../NodeChecker";
 import {Chain} from "../types/chain";

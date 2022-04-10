@@ -1,12 +1,12 @@
 import {
     Box,
-    Button,
-    Heading, HStack, Kbd, Link,
-    Popover, PopoverArrow,
+    HStack,
+    Kbd,
+    Link,
+    Popover,
     PopoverBody,
     PopoverCloseButton,
     PopoverContent,
-    PopoverHeader,
     PopoverTrigger,
     Tab,
     TabList,
@@ -58,7 +58,30 @@ export const NodeDiagnostics = () => {
                             </PopoverContent>
                         </Popover>
                     </Tab>
-                    <Tab title={"Ping test"}>Ping Test</Tab>
+                    <Tab title={"Ping test"}>
+                        Ping Test
+                        <Popover variant={"ghost"}>
+                            <PopoverTrigger><InfoIcon ml={2}/></PopoverTrigger>
+                            <PopoverContent
+                                mt={4}
+                                ml={10}
+                                backgroundColor={"blue.700"}
+                                color={"gray.50"}
+                            >
+                                <PopoverCloseButton />
+                                <PopoverBody>
+                                    <Box
+                                        lineHeight={"1.6em"}
+                                        textAlign={"left"}
+                                        fontSize={"sm"}
+                                    >
+                                        This tool tests the latency of a <Kbd>GET</Kbd> request to your pocket node's
+                                        <Kbd>/v1</Kbd> endpoint.
+                                    </Box>
+                                </PopoverBody>
+                            </PopoverContent>
+                        </Popover>
+                    </Tab>
                 </TabList>
                 <TabPanels>
                     <TabPanel>

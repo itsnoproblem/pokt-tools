@@ -4,6 +4,7 @@ import {CryptoNode} from "../types/crypto-node";
 import {MonthlyReward} from "../types/monthly-reward";
 import {Chain} from "../types/chain";
 import {RelayTestResponse} from "../types/relay-test-response";
+import {PingTestResponse} from "../types/ping-test-response";
 
 const POKT_LINT_URL = 'https://2eqrf8goof.execute-api.us-east-1.amazonaws.com/prod';
 const HTTP_STATUS_OK = 200;
@@ -35,15 +36,15 @@ export const simulateRelays = async (nodeURL: string, nodeID: string, chains: st
 }
 
 export const pingTest = async (nodeURL: string, numPings: number): Promise<any> => {
-    const url = `${POKT_LINT_URL}/ping-test`
+    const url = `${POKT_LINT_URL}/ping-test-qa`
 
     return axios.post(url, {
         node_url: nodeURL,
-        num_pings: 10
+        num_pings: numPings
     })
         .then(async (result) => {
             console.log(result);
-            return result;
+            return result.data as PingTestResponse;
         })
         .catch((err) => {
             console.error(err);
