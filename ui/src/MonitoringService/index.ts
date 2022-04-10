@@ -2,6 +2,7 @@ import {RPC_URL} from "../configuration";
 import axios, {AxiosResponse} from "axios";
 import {CryptoNode} from "../types/crypto-node";
 import {MonthlyReward} from "../types/monthly-reward";
+import {Chain} from "../types/chain";
 
 const HTTP_STATUS_OK = 200;
 
@@ -72,4 +73,103 @@ export const getHeight = async (): Promise<number> => {
        return result.data.data.height;
     });
 }
+
+export const allChains: Chain[] = [
+    {
+        id: "0003",
+        name: "AVAX"
+    },
+    {
+        id: "00A3",
+        name: "AVAX Archival"
+    },
+    {
+        id: "03DF",
+        name: "DeFi Kingdoms"
+    },
+    {
+        id: "0004",
+        name: "BSC"
+    },
+    {
+        id: "0010",
+        name: "BSC Archival"
+    },
+    {
+        id: "0021",
+        name: "ETH"
+    },
+    {
+        id: "0022",
+        name: "ETH Archival"
+    },
+    {
+        id:"0028",
+        name: "ETH Archival Trace"
+    },
+    {
+        id: "0026",
+        name: "ETH Goerli"
+    },
+    {
+        id: "0024",
+        name: "ETH Kovan"
+    },
+    {
+        id: "0025",
+        name: "ETH Rinkeby"
+    },
+    {
+        id: "0023",
+        name: "ETH Ropsten"
+    },
+    {
+        id: "0005",
+        name: "FUSE"
+    },
+    {
+        id: "000A",
+        name: "FUSE Archival"
+    },
+    {
+        id: "0040",
+        name: "HMY 0"
+    },
+    {
+        id: "0044",
+        name: "IoTeX"
+    },
+    {
+        id: "0001",
+        name: "POKT"
+    },
+    {
+        id: "0002",
+        name: "POKT testnet"
+    },
+    {
+        id: "0009",
+        name: "Polygon"
+    },
+    {
+        id: "000B",
+        name: "Polygon Archival",
+    },
+    {
+        id: "000F",
+        name: "Polygon Mumbai"
+    },
+    {
+        id: "0006",
+        name: "Solana"
+    },
+    {
+        id: "0027",
+        name: "Gnosis (XDAI)"
+    },
+    {
+        id: "000C",
+        name: "xDAI Archival"
+    }
+];
 
