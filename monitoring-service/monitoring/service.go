@@ -16,6 +16,7 @@ type PocketProvider interface {
 	SimulateRelay(servicerUrl, chainID string, payload json.RawMessage) (json.RawMessage, error)
 	AccountTransactions(address string, page uint, perPage uint, sort string) ([]pocket.Transaction, error)
 	Transaction(hash string) (pocket.Transaction, error)
+	BlockProposer(height uint) (string, error)
 	BlockTime(height uint) (time.Time, error)
 	Node(address string) (pocket.Node, error)
 	Balance(address string) (uint, error)
@@ -54,7 +55,21 @@ func (s *Service) Transaction(hash string) (pocket.Transaction, error) {
 		return pocket.Transaction{}, fmt.Errorf("Transaction: %s", err)
 	}
 
+	txn.BlockProposer, err = s.provider.BlockProposer(txn.Height)
+	if err != nil {
+		return pocket.Transaction{}, fmt.Errorf("Transaction: %s", err)
+	}
+
 	return txn, nil
+}
+
+func (s *Service) BlockProposer(height uint) (string, error) {
+	blockProposer, err := s.provider.BlockProposer(height)
+	if err != nil {
+		return "", fmt.Errorf("BlockProposer: %s", err)
+	}
+
+	return blockProposer, nil
 }
 
 func (s *Service) BlockTimes(heights []uint) (map[uint]time.Time, error) {
@@ -82,7 +97,9 @@ func (s *Service) ParamsAtHeight(height int64) (pocket.Params, error) {
 	if !ok {
 		return pocket.Params{}, fmt.Errorf("ParamsAtHeight: node_params key not found at height %d 'pos/RelaysToTokensMultiplier'", height)
 	}
-	if params.RelaysToTokensMultiplier, err = strconv.ParseFloat(multiplier, 64); err != nil {
+
+	params.RelaysToTokensMultiplier, err = strconv.ParseFloat(multiplier, 64)
+	if err != nil {
 		return pocket.Params{}, errors.New("ParamsAtHeight: failed to parse node_params key 'pos/RelaysToTokensMultiplier'")
 	}
 

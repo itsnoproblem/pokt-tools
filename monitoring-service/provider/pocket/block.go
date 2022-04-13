@@ -16,5 +16,6 @@ type blockResponseBlock struct {
 }
 
 type blockHeaderResponse struct {
-	Time time.Time `json:"time"`
+	Proposer string    `json:"proposer_address"`
+	Time     time.Time `json:"time"`
 }

@@ -20,6 +20,7 @@ type Transaction struct {
 	ExpireHeight  uint
 	AppPubkey     string
 	IsConfirmed   bool
+	BlockProposer string
 }
 
 func (t Transaction) Chain() (Chain, error) {

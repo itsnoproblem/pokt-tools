@@ -46,6 +46,7 @@ type Provider interface {
 	AllParams(height int64) (pocket.AllParams, error)
 	Node(address string) (pocket.Node, error)
 	Balance(address string) (uint, error)
+	BlockProposer(height uint) (string, error)
 	BlockTime(height uint) (time.Time, error)
 	Transaction(hash string) (pocket.Transaction, error)
 	AccountTransactions(address string, page uint, perPage uint, sort string) ([]pocket.Transaction, error)
@@ -218,6 +219,32 @@ func (p pocketProvider) Balance(address string) (uint, error) {
 	}
 
 	return balResponse.Balance, nil
+}
+
+func (p pocketProvider) BlockProposer(height uint) (string, error) {
+	var fail = func(err error) (string, error) {
+		return "", fmt.Errorf("pocketProvider.Block: %s", err)
+	}
+
+	url := fmt.Sprintf("%s/%s", p.pocketRpcURL, urlPathGetBlock)
+	blkRequest := blockRequest{Height: height}
+	var blkResponse blockResponse
+
+	body, err := p.doRequest(url, blkRequest)
+	if err != nil {
+		return fail(err)
+	}
+
+	err = json.Unmarshal(body, &blkResponse)
+	if err != nil {
+		return fail(err)
+	}
+
+	if err != nil {
+		return "", fmt.Errorf("pocketProvider.BlockProposer: %s", err)
+	}
+
+	return blkResponse.Block.Header.Proposer, nil
 }
 
 func (p pocketProvider) BlockTime(height uint) (time.Time, error) {
