@@ -18,6 +18,7 @@ type Endpoints struct {
 	Node                endpoint.Endpoint
 	Transaction         endpoint.Endpoint
 	AccountTransactions endpoint.Endpoint
+	Block               endpoint.Endpoint
 	BlockTimes          endpoint.Endpoint
 	MonthlyRewards      endpoint.Endpoint
 }
@@ -224,6 +225,7 @@ type transactionResponse struct {
 	Hash          string        `json:"hash"`
 	Height        uint          `json:"height"`
 	Time          time.Time     `json:"time"`
+	BlockProposer string        `json:"proposer_address"`
 	Type          string        `json:"type"`
 	ChainID       string        `json:"chain_id"`
 	Chain         chainResponse `json:"chain"`
@@ -253,13 +255,14 @@ func TransactionEndpoint(svc Service) endpoint.Endpoint {
 		}
 
 		return transactionResponse{
-			Hash:         txn.Hash,
-			Height:       txn.Height,
-			Time:         txn.Time,
-			Type:         txn.Type,
-			ChainID:      txn.ChainID,
-			NumRelays:    txn.NumRelays,
-			PoktPerRelay: txn.PoktPerRelay,
+			Hash:          txn.Hash,
+			Height:        txn.Height,
+			Time:          txn.Time,
+			BlockProposer: txn.BlockProposer,
+			Type:          txn.Type,
+			ChainID:       txn.ChainID,
+			NumRelays:     txn.NumRelays,
+			PoktPerRelay:  txn.PoktPerRelay,
 		}, nil
 	}
 }
@@ -296,6 +299,7 @@ func AccountTransactionsEndpoint(svc Service) endpoint.Endpoint {
 				Hash:          tx.Hash,
 				Height:        tx.Height,
 				Time:          tx.Time,
+				BlockProposer: tx.BlockProposer,
 				Type:          tx.Type,
 				ChainID:       tx.ChainID,
 				SessionHeight: tx.SessionHeight,

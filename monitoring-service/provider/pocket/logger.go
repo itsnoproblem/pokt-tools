@@ -91,6 +91,17 @@ func (p loggingProvider) Balance(address string) (uint, error) {
 	return b, nil
 }
 
+func (p loggingProvider) BlockProposer(height uint) (string, error) {
+	bp, err := p.provider.BlockProposer(height)
+	if err != nil {
+		p.error(err.Error())
+		return "", err
+	}
+
+	p.info("BlockProposer", bp)
+	return bp, nil
+}
+
 func (p loggingProvider) BlockTime(height uint) (time.Time, error) {
 	//t := timer.Start()
 	bt, err := p.provider.BlockTime(height)
