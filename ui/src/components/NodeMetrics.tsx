@@ -201,7 +201,7 @@ export const NodeMetrics = (props: AppStatusProps) => {
                          minWidth={statWidth} height={statHeight}
                          style={ { scrollSnapAlign: "center"} }
                     >
-                        <Stat size={statFontSize} align={"center"}>
+                        <Stat size={statFontSize} textAlign={"center"}>
                             <StatLabel fontSize={statLabelSize}>Last 24 hrs</StatLabel>
                             <StatNumber fontSize={statNumberSize}>{avgPoktForLastDays(1) ?? 0}</StatNumber>
                             <StatHelpText fontSize={statHelpTextSize}>POKT earned</StatHelpText>
@@ -211,7 +211,7 @@ export const NodeMetrics = (props: AppStatusProps) => {
                           height={statHeight}
                           style={ { scrollSnapAlign: "center"} }
                     >
-                        <Stat size={statFontSize} align={"center"}>
+                        <Stat size={statFontSize} textAlign={"center"}>
                             <StatLabel fontSize={statLabelSize}>Last reward</StatLabel>
                             <StatNumber fontSize={statNumberSize}>{timeSinceReward.value > 0 ? timeSinceReward.value : '--'}</StatNumber>
                             <StatHelpText fontSize={statHelpTextSize}>{timeSinceReward.units} ago</StatHelpText>
@@ -226,7 +226,7 @@ export const NodeMetrics = (props: AppStatusProps) => {
                              toggleShowAllTime();
                          }}
                     >
-                        <Stat size={statFontSize} _hover={ {color: statHoverColor} } align={"center"}>
+                        <Stat size={statFontSize} _hover={ {color: statHoverColor} } textAlign={"center"}>
                             <StatLabel fontSize={statLabelSize}>
                                 {showAllTime ?
                                     (<>Lifetime Avg</>) :
@@ -267,21 +267,21 @@ export const NodeMetrics = (props: AppStatusProps) => {
                          }}
                     >
                         {tenThirtyNinetyState === 0 && (
-                            <Stat size={statFontSize} align={"center"}>
+                            <Stat size={statFontSize} textAlign={"center"}>
                                 <StatLabel fontSize={statLabelSize}>10 Day Average</StatLabel>
                                 <StatNumber fontSize={statNumberSize}>{avgPoktForLastDays(10)}</StatNumber>
                                 <StatHelpText fontSize={statHelpTextSize}>POKT per day</StatHelpText>
                             </Stat>
                         )}
                         {tenThirtyNinetyState === 1 && (
-                            <Stat size={statFontSize} align={"center"}>
+                            <Stat size={statFontSize} textAlign={"center"}>
                                 <StatLabel fontSize={statLabelSize}>30 Day Average</StatLabel>
                                 <StatNumber fontSize={statNumberSize}>{avgPoktForLastDays(30)}</StatNumber>
                                 <StatHelpText fontSize={statHelpTextSize}>POKT per day</StatHelpText>
                             </Stat>
                         )}
                         {tenThirtyNinetyState === 2 && (
-                            <Stat size={statFontSize} align={"center"}>
+                            <Stat size={statFontSize} textAlign={"center"}>
                                 <StatLabel fontSize={statLabelSize}>90 Day Average</StatLabel>
                                 <StatNumber fontSize={statNumberSize}>{avgPoktForLastDays(90)}</StatNumber>
                                 <StatHelpText fontSize={statHelpTextSize}>POKT per day</StatHelpText>
@@ -300,7 +300,7 @@ export const NodeMetrics = (props: AppStatusProps) => {
                          borderRadius={20}
                          borderColor={statHoverColor}
                     >
-                        <Stat size={statFontSize} _hover={ {color: statHoverColor} } align={"center"}>
+                        <Stat size={statFontSize} _hover={ {color: statHoverColor} } textAlign={"center"}>
                             <StatLabel fontSize={statLabelSize}>
                                 {showAllTimePerSess ?
                                     (<>Lifetime Avg</>) :
@@ -325,7 +325,7 @@ export const NodeMetrics = (props: AppStatusProps) => {
                          minWidth={statWidth} height={statHeight}
                          style={ { scrollSnapAlign: "center"} }
                     >
-                         <Stat align={"center"}>
+                         <Stat textAlign={"center"}>
                             <StatLabel fontSize={statLabelSize}>Top Chain This Month</StatLabel>
                             <StatNumber fontSize={statNumberSize}>{sortedByChain[0]?.name}</StatNumber>
                             <StatHelpText fontSize={statHelpTextSize}>{sortedByChain[0]?.num_relays?.toLocaleString()} relays</StatHelpText>
