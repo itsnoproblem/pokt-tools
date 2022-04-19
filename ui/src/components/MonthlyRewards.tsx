@@ -1,21 +1,22 @@
 import {
-    Accordion,
-    AccordionButton,
-    AccordionIcon,
-    AccordionItem,
-    AccordionPanel,
-    Box,
-    Grid,
-    GridItem,
-    HStack,
-    Skeleton,
-    Stack,
-    Tab,
-    TabList,
-    TabPanel,
-    TabPanels,
-    Tabs,
-    useBreakpointValue,
+  Accordion,
+  AccordionButton,
+  AccordionIcon,
+  AccordionItem,
+  AccordionPanel,
+  Box,
+  Grid,
+  GridItem,
+  HStack,
+  Skeleton,
+  Stack,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  useBreakpointValue,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import React, {useCallback, useContext, useEffect, useState} from "react";
 import {NodeContext} from "../context";
@@ -225,15 +226,14 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
                                 </TabList>
                                 <TabPanels>
                                     <TabPanel p={0}>
-                                        <Grid templateColumns={['repeat(6, auto)', 'repeat(9, auto)']} fontFamily={"monospace"} fontSize={"xs"} p={[1, 5]}>
-                                            <GridItem padding={2} fontWeight={900} align="left" pl={4}>Height</GridItem>
+                                        <Grid templateColumns={['repeat(6, auto)', 'repeat(10, auto)']} fontFamily={"monospace"} fontSize={"xs"} p={[1, 5]}>
+                                            <GridItem padding={2} fontWeight={900} textAlign="left" pl={4}>Height</GridItem>
                                             <GridItem padding={2} fontWeight={900}>Time</GridItem>
-                                            {!isMobile && (<GridItem padding={2} fontWeight={900} pr={4} align={"right"}>Relays</GridItem>)}
-                                            <GridItem padding={2} fontWeight={900} pr={4} pl={4} align={"left"}>Chain</GridItem>
-                                            {!isMobile && (<GridItem padding={2} fontWeight={900} pr={4} align={"right"}>Rate / relay</GridItem>)}
-                                            <GridItem padding={2} fontWeight={900} pr={4} align={"right"} >Amount</GridItem>
-                                            <GridItem padding={2} fontWeight={900} align={"center"} >Revenue</GridItem>
-                                            <GridItem padding={2} fontWeight={900} align={"center"}>Chain</GridItem>
+                                            {!isMobile && (<GridItem padding={2} fontWeight={900} pr={4} textAlign={"right"}>Relays</GridItem>)}
+                                            <GridItem padding={2} fontWeight={900} textAlign={"center"}>Chain</GridItem>
+                                            {!isMobile && (<GridItem padding={2} fontWeight={900} pr={4} textAlign={"right"}>Rate / relay</GridItem>)}
+                                            <GridItem padding={2} fontWeight={900} pr={4} textAlign={"right"} >Amount</GridItem>
+                                            <GridItem padding={2} fontWeight={900} textAlign={"center"} >Revenue</GridItem>
                                             {!isMobile && (<GridItem padding={2} fontWeight={900}>App Pubkey</GridItem>)}
                                             {!isMobile && (<GridItem padding={2} fontWeight={900}>Hash</GridItem>)}
                                             <GridItem padding={2} fontWeight={900}>Confirmed</GridItem>
@@ -254,14 +254,14 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
                                             {/*<Box w={["100%", "100%"]}>*/}
                                             {/*    <SimpleGrid columns={3} mt={8}>*/}
                                             {/*        <Box padding={3} backgroundColor={"blue.900"}>Chain</Box>*/}
-                                            {/*        <Box padding={3} backgroundColor={"blue.900"} align={"right"}>Relays</Box>*/}
-                                            {/*        <Box padding={3} backgroundColor={"blue.900"} align={"right"}>Percent</Box>*/}
+                                            {/*        <Box padding={3} backgroundColor={"blue.900"} textAlign={"right"}>Relays</Box>*/}
+                                            {/*        <Box padding={3} backgroundColor={"blue.900"} textAlign={"right"}>Percent</Box>*/}
                                             {/*        { relays.map((r, z) => {*/}
                                             {/*            return (*/}
                                             {/*                <React.Fragment key={z}>*/}
                                             {/*                    <Box padding={3}>{r.id}</Box>*/}
-                                            {/*                    <Box padding={3} align={"right"}>{Number(r.value).toLocaleString()}</Box>*/}
-                                            {/*                    <Box padding={3} align={"right"}>{Number((r.value/month.num_relays)*100).toPrecision(4)}%</Box>*/}
+                                            {/*                    <Box padding={3} textAlign={"right"}>{Number(r.value).toLocaleString()}</Box>*/}
+                                            {/*                    <Box padding={3} textAlign={"right"}>{Number((r.value/month.num_relays)*100).toPrecision(4)}%</Box>*/}
                                             {/*                </React.Fragment>*/}
                                             {/*            )*/}
                                             {/*        })}*/}

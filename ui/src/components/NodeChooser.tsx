@@ -75,7 +75,7 @@ export const NodeChooser = (props: NodeChooserProps) => {
                             <PopoverHeader>Select a node</PopoverHeader>
                             <PopoverCloseButton />
                             <PopoverBody>
-                                <VStack align={"left"}>
+                                <VStack textAlign={"left"}>
                                 {savedAddresses?.filter((val) => !(val === props.address)).map((addr, i) => (
                                     <Link key={i} d="flex" href={`/node/${addr}/rewards`} colorScheme='blue'>
                                         <Box pt={1} pr={2}><FaBookmark/></Box>
