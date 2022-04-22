@@ -1,9 +1,8 @@
 import {Transaction} from "../types/transaction";
 import {Box, GridItem, IconButton, Text, useBreakpointValue, useClipboard} from "@chakra-ui/react";
 import {CheckCircleIcon, CheckIcon, CopyIcon, TimeIcon} from "@chakra-ui/icons";
-import React, {useContext} from 'react';
-import {NodeContext} from "../context";
-import {BiError, BiErrorAlt, BiErrorCircle, BiMessageError, GiTerror, MdError} from "react-icons/all";
+import React from 'react';
+import {MdError} from "react-icons/all";
 
 interface RewardTransactionProps {
     tx: Transaction,
@@ -13,13 +12,11 @@ interface RewardTransactionProps {
 
 export const RewardTransaction = (props: RewardTransactionProps) => {
     const tx = props.tx;
-    const numProofs = tx.num_relays;
     const amount = (tx.type === 'pocketcore/proof') ? '-' : Number(tx.num_relays * tx.pokt_per_relay).toFixed(4) + " POKT";
     const {hasCopied, onCopy} = useClipboard(tx.hash);
     const {hasCopied: pubkeyHasCopied, onCopy: pubkeyCopy} = useClipboard(tx.app_pubkey);
     const time = new Date(tx.time);
     const isMobile = useBreakpointValue([true, false]);
-    const node = useContext(NodeContext)
 
     return (
         <React.Fragment key={tx.hash}>
