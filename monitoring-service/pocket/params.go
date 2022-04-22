@@ -4,6 +4,7 @@ type Params struct {
 	RelaysToTokensMultiplier float64
 	DaoAllocation            uint8
 	ProposerPercentage       uint8
+	ClaimExpirationBlocks    uint
 }
 
 type AllParams struct {

@@ -72,7 +72,6 @@ func (t *transactionResponse) Transaction() (pocket.Transaction, error) {
 		}
 
 		tx.SessionHeight = uint(sessionHeight)
-		tx.ExpireHeight = uint(sessionHeight + ClaimExpirationBlocks)
 		tx.ChainID = t.StdTx.Message.Value.Header.Chain
 		tx.AppPubkey = t.StdTx.Message.Value.Header.AppPubKey
 		break
