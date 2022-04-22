@@ -23,7 +23,7 @@ import {NodeContext} from "../context";
 import {MonthlyReward, monthNames} from "../types/monthly-reward";
 import {RewardTransaction} from "./RewardTransaction";
 import {PieChart} from "./PieChart";
-import {getClaims} from "../MonitoringService";
+import {getClaims, getHeight} from "../MonitoringService";
 import {EVENT_MONTH_CLOSE, EVENT_MONTH_METRICS, EVENT_MONTH_OPEN, EVENT_MONTH_TRANSACTIONS, trackGoal} from "../events";
 import {DailyChart} from "./DailyChart";
 import {DailyChartStacked} from "./DailyChartStacked";
@@ -38,6 +38,7 @@ type MonthlyRewardsProps = {
 
 export const MonthlyRewards = (props: MonthlyRewardsProps) => {
     const [hasLoaded, setHasLoaded] = useState(false);
+    const [currentHeight, setCurrentHeight] = useState(0)
 
     const node = useContext(NodeContext)
     const isMobile = useBreakpointValue([true, false]);
@@ -45,6 +46,11 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
 
     const getRewards = useCallback(() => {
         props.setIsRefreshing(true);
+
+        getHeight()
+            .then((h) => setCurrentHeight(h))
+            .catch((err) => { console.error("ERROR", err); });
+
         getClaims(node.address).then((months) => {
             props.onRewardsLoaded(months);
         }).catch((err) => {
@@ -243,7 +249,12 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
                                             {month.transactions.slice(0).reverse().map((tx, j) => {
                                                 const rowColor = (j % 2 === 0) ? bgEven : bgOdd;
                                                 return (
-                                                    <RewardTransaction key={tx.hash} tx={tx} color={rowColor}/>
+                                                    <RewardTransaction
+                                                        currentHeight={currentHeight}
+                                                        key={tx.hash}
+                                                        tx={tx}
+                                                        color={rowColor}
+                                                    />
                                                 )
                                             })}
                                         </Grid>

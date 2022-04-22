@@ -2,15 +2,16 @@ import {Transaction} from "../types/transaction";
 import {Box, GridItem, IconButton, Text, useBreakpointValue, useClipboard} from "@chakra-ui/react";
 import {CheckCircleIcon, CheckIcon, CopyIcon, TimeIcon} from "@chakra-ui/icons";
 import React from 'react';
+import {MdError} from "react-icons/all";
 
 interface RewardTransactionProps {
     tx: Transaction,
     color: string,
+    currentHeight: number
 }
 
 export const RewardTransaction = (props: RewardTransactionProps) => {
     const tx = props.tx;
-    const numProofs = tx.num_relays;
     const amount = (tx.type === 'pocketcore/proof') ? '-' : Number(tx.num_relays * tx.pokt_per_relay).toFixed(4) + " POKT";
     const {hasCopied, onCopy} = useClipboard(tx.hash);
     const {hasCopied: pubkeyHasCopied, onCopy: pubkeyCopy} = useClipboard(tx.app_pubkey);
@@ -60,6 +61,17 @@ export const RewardTransaction = (props: RewardTransactionProps) => {
                             title={`confirmed for session height ${tx.session_height}`}
                             icon={(<CheckCircleIcon color="green.400"/>)}
                         />
+                    ) : (tx.expire_height <= props.currentHeight) ? (
+                        <IconButton
+                            variant="ghost"
+                            boxShadow={0}
+                            _focus={{boxShadow: "none"}}
+                            _hover={{}}
+                            cursor={"default"}
+                            aria-label="expired"
+                            title={`claim expired at block ${tx.expire_height}`}
+                            icon={(<MdError style={{color: "#FF0000"}} />)}
+                        />
                     ) : (
                         <IconButton
                             variant="ghost"
@@ -68,7 +80,7 @@ export const RewardTransaction = (props: RewardTransactionProps) => {
                             _hover={{}}
                             cursor={"default"}
                             aria-label="unconfirmed"
-                            title={`unconfirmed, expires at block ${tx.expire_height}`}
+                            title={`unconfirmed as of ${props.currentHeight}, expires at block ${tx.expire_height}`}
                             icon={(<TimeIcon  color="yellow.400"/>)}
                         />
                     )

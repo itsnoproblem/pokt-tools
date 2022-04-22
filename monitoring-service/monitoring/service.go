@@ -106,6 +106,16 @@ func (s *Service) ParamsAtHeight(height int64) (pocket.Params, error) {
 	}
 	params.ProposerPercentage = uint8(pp)
 
+	claimExpirationBlocks, ok := allParams.PocketParams.Get("pocketcore/ClaimExpiration")
+	if !ok {
+		return pocket.Params{}, errors.New("ParamsAtHeight: node_params key not found 'pocketcore/ClaimExpiration'")
+	}
+	claimExpires, err := strconv.ParseUint(claimExpirationBlocks, 10, 64)
+	if err != nil {
+		return pocket.Params{}, fmt.Errorf("ParamsAtHeight: failed to parse node_params ket 'pocketcore/ClaimExpiration': %s", err)
+	}
+	params.ClaimExpirationBlocks = uint(claimExpires)
+
 	return params, nil
 }
 
@@ -128,6 +138,7 @@ func (s *Service) AccountTransactions(address string, page uint, perPage uint, s
 			return nil, fmt.Errorf("AccountTransactions: %s", err)
 		}
 
+		tx.ExpireHeight = params.ClaimExpirationBlocks + tx.Height
 		transactions[i] = tx
 	}
 
