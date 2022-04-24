@@ -19,10 +19,11 @@ import {RelaySimulator} from "./RelaySimulator";
 import {InfoIcon} from "@chakra-ui/icons";
 import {BiLinkExternal} from "react-icons/all";
 import React from "react";
+import {Withdraw} from "./Withdraw";
 
 export const NodeDiagnostics = () => {
     return (
-        <Box mt={8}>
+        <Box>
             {/*<Heading colorScheme={"messenger"} size={"md"} borderBottomWidth={1}>Diagnostics</Heading>*/}
             <Tabs mt={4} variant={"line"} colorScheme='cyan'>
                 <TabList>
@@ -82,6 +83,9 @@ export const NodeDiagnostics = () => {
                             </PopoverContent>
                         </Popover>
                     </Tab>
+                    <Tab title={"Withdraw POKT"}>
+                        Withdraw
+                    </Tab>
                 </TabList>
                 <TabPanels>
                     <TabPanel>
@@ -89,6 +93,9 @@ export const NodeDiagnostics = () => {
                     </TabPanel>
                     <TabPanel>
                         <PingTester/>
+                    </TabPanel>
+                    <TabPanel>
+                        <Withdraw/>
                     </TabPanel>
                 </TabPanels>
             </Tabs>
