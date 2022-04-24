@@ -84,17 +84,32 @@ export const Withdraw = () => {
 
     return (
         <Box mt={2}>
-            <Box mt={2} mb={2}>
+            <Box textAlign="center" mb={4}>
                 Swap POKT for tPOKT here using&nbsp;
                 <Link
-                    href="https://thunderpokt.fi/"
+                    href="https://docs.thunderpokt.fi/welcome-to-tpokt-by-thunderfi/getting-started/introduction"
                     isExternal={true}
                     textDecoration={"underline"}
                     target="_blank"
                 >
                     thunderpokt.fi
-                </Link><ExternalLinkIcon mx='2px' /> on Polygon network.
+                </Link><ExternalLinkIcon mx='2px' /> on the Polygon network.
             </Box>
+
+            <InputGroup>
+                <InputLeftAddon>
+                    <Box w={"32px"}><Img borderRadius={50} src={"/polygon.jpg"}/></Box>
+                </InputLeftAddon>
+                <Input
+                    value={outputAddress}
+                    placeholder={"Wallet address on Polygon"}
+                    onChange={(v) => setOutputAddress(v.target.value)}
+                />
+            </InputGroup>
+            <Box mt={1} mb={4} fontSize={"xs"} textAlign={"right"}>
+                <Link onClick={() => setOutputAddress(tipJarAddress)}>Send to pokt.tools tip-jar</Link>
+            </Box>
+
             <InputGroup
                 backgroundColor={inputBgColor}
                 borderRadius={15}
@@ -174,22 +189,7 @@ export const Withdraw = () => {
                     Fee: 0.01
                 </InputRightAddon>
             </InputGroup>
-            <Box mt={4} mb={2} fontSize={"xs"}>
-                Withdrawal address on Polygon
-            </Box>
-            <InputGroup>
-                <InputLeftAddon>
-                    <Box w={"32px"}><Img borderRadius={50} src={"/polygon.jpg"}/></Box>
-                </InputLeftAddon>
-                <Input
-                    value={outputAddress}
-                    placeholder={tipJarAddress}
-                    onChange={(v) => setOutputAddress(v.target.value)}
-                />
-            </InputGroup>
-            <Box mt={2} fontSize={"xs"} textAlign={"right"}>
-                <Link onClick={() => setOutputAddress(tipJarAddress)}>Send to pokt.tools tip-jar</Link>
-            </Box>
+
             <Box textAlign={"center"} mt={4}>
                 <Button colorScheme={"blue"} onClick={doPreview}>Preview</Button>
             </Box>
