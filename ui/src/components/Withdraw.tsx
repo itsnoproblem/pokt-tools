@@ -1,26 +1,31 @@
 import {
-    Badge,
     Box,
-    Button,
-    HStack,
+    Button, HStack,
     Img,
     Input,
     InputGroup,
     InputLeftAddon,
-    InputLeftElement,
     InputRightAddon,
     InputRightElement,
-    Link, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay,
-    NumberDecrementStepper,
-    NumberIncrementStepper,
+    Link,
+    Modal,
+    ModalBody,
+    ModalCloseButton,
+    ModalContent,
+    ModalFooter,
+    ModalHeader,
+    ModalOverlay,
     NumberInput,
     NumberInputField,
-    NumberInputStepper, Text, Textarea,
-    useColorModeValue, useDisclosure
+    Text,
+    Textarea, useClipboard,
+    useColorModeValue,
+    useDisclosure,
+    useToast
 } from "@chakra-ui/react";
 import React, {useContext, useRef, useState} from "react";
 import {NodeContext} from "../context";
-import {ArrowDownIcon, CheckIcon} from "@chakra-ui/icons";
+import {ArrowDownIcon, CheckCircleIcon, CopyIcon, ExternalLinkIcon} from "@chakra-ui/icons";
 
 export const Withdraw = () => {
     const tipJarAddress = "0xd7b0EbE6a841f094358b8E9c53946235948d2368";
@@ -37,6 +42,7 @@ export const Withdraw = () => {
     const outputRef = useRef<HTMLInputElement>(null);
 
     const {isOpen, onOpen, onClose} = useDisclosure();
+    const toast = useToast();
 
     const setIn = (v: string) => {
         const outputNum = Number.parseFloat(v) * 1.0;
@@ -45,10 +51,50 @@ export const Withdraw = () => {
         setOutputAmount(outputAmt.toString());
     }
 
+    const doPreview = () => {
+        const outputAmt = Number.parseFloat(outputAmount)
+        let errors = false;
+
+        if(outputAddress == "") {
+            errors = true;
+            toast({
+                title: "Error",
+                status: "error",
+                description: "output address is invalid"
+            });
+        }
+
+        if(outputAmt === 0) {
+            errors = true;
+            toast({
+                title: "Error",
+                status: "error",
+                description: "output amount must be greater than 0"
+            });
+        }
+
+        if(!errors) {
+            onOpen();
+        }
+
+    }
+
     const sendCommand = `pocket accounts send-tx ${node.address} ${tPoktAddress} ${Number.parseFloat(inputAmount) * 1e6} mainnet 10000 '{"evmAddress":"${outputAddress}","chainId":137}'`;
+    const {value: commandValue, onCopy, hasCopied} = useClipboard(sendCommand);
 
     return (
-        <Box mt={6}>
+        <Box mt={2}>
+            <Box mt={2} mb={2}>
+                Swap POKT for tPOKT here using&nbsp;
+                <Link
+                    href="https://thunderpokt.fi/"
+                    isExternal={true}
+                    textDecoration={"underline"}
+                    target="_blank"
+                >
+                    thunderpokt.fi
+                </Link><ExternalLinkIcon mx='2px' /> on Polygon network.
+            </Box>
             <InputGroup
                 backgroundColor={inputBgColor}
                 borderRadius={15}
@@ -67,7 +113,7 @@ export const Withdraw = () => {
                     min={0}
                     max={maxBalance}
                     precision={6}
-                    clampValueOnBlur={true}
+                    // clampValueOnBlur={true}
                     backgroundColor={inputBgColor}
                     fontFamily={"Roboto Mono,monospace"}
                 >
@@ -133,7 +179,7 @@ export const Withdraw = () => {
             </Box>
             <InputGroup>
                 <InputLeftAddon>
-                    <Box w={"24px"}><Img src={"/polygon.jpg"}/></Box>
+                    <Box w={"32px"}><Img borderRadius={50} src={"/polygon.jpg"}/></Box>
                 </InputLeftAddon>
                 <Input
                     value={outputAddress}
@@ -145,7 +191,7 @@ export const Withdraw = () => {
                 <Link onClick={() => setOutputAddress(tipJarAddress)}>Send to pokt.tools tip-jar</Link>
             </Box>
             <Box textAlign={"center"} mt={4}>
-                <Button colorScheme={"blue"} onClick={onOpen}>Preview</Button>
+                <Button colorScheme={"blue"} onClick={doPreview}>Preview</Button>
             </Box>
 
             <Modal isOpen={isOpen} onClose={onClose} size={"2xl"}>
@@ -154,13 +200,20 @@ export const Withdraw = () => {
                     <ModalHeader>Withdrawal Summary</ModalHeader>
                     <ModalCloseButton />
                     <ModalBody>
-                        <Box fontSize={"sm"} mb={4}>
+                        <Box fontSize={"sm"} mb={4} lineHeight="2em">
                             You are sending <b>{inputAmount} POKT</b> to receive <b>{outputAmount} tPOKT</b><br/>
                             at polygon address <b>{outputAddress}</b>.
                         </Box>
                         <Box>
-                            <Text fontSize={"sm"}>Run this command on your node:</Text>
-                            <Textarea rows={6} fontFamily={"monospace"} value={sendCommand}/>
+                            <HStack mb={2}>
+                                <Box><Text fontSize={"sm"}>Run this command on your node:</Text></Box>
+                                <Box>{
+                                    hasCopied ?
+                                    (<Box fontSize={"sm"}><CheckCircleIcon title={"Copied!"}/> Copied!</Box>) :
+                                    (<Box fontSize={"sm"}><CopyIcon title="Copy" cursor={"pointer"} onClick={onCopy}/></Box>)
+                                }</Box>
+                            </HStack>
+                            <Textarea fontSize="sm" rows={6} fontFamily={"monospace"} value={sendCommand}/>
                         </Box>
                     </ModalBody>
 

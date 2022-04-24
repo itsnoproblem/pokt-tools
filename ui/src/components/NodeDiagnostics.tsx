@@ -27,6 +27,9 @@ export const NodeDiagnostics = () => {
             {/*<Heading colorScheme={"messenger"} size={"md"} borderBottomWidth={1}>Diagnostics</Heading>*/}
             <Tabs mt={4} variant={"line"} colorScheme='cyan'>
                 <TabList>
+                    <Tab title={"Withdraw POKT"}>
+                        Withdraw
+                    </Tab>
                     <Tab title={"Relay Tests"}>
                         Relay Tests
                         <Popover variant={"ghost"}>
@@ -83,19 +86,16 @@ export const NodeDiagnostics = () => {
                             </PopoverContent>
                         </Popover>
                     </Tab>
-                    <Tab title={"Withdraw POKT"}>
-                        Withdraw
-                    </Tab>
                 </TabList>
                 <TabPanels>
+                    <TabPanel>
+                        <Withdraw/>
+                    </TabPanel>
                     <TabPanel>
                         <RelaySimulator/>
                     </TabPanel>
                     <TabPanel>
                         <PingTester/>
-                    </TabPanel>
-                    <TabPanel>
-                        <Withdraw/>
                     </TabPanel>
                 </TabPanels>
             </Tabs>
