@@ -25,11 +25,18 @@ import {
 } from "@chakra-ui/react";
 import React, {useContext, useRef, useState} from "react";
 import {NodeContext} from "../context";
-import {ArrowDownIcon, CheckCircleIcon, CopyIcon, ExternalLinkIcon} from "@chakra-ui/icons";
+import {ArrowDownIcon, CheckCircleIcon, CopyIcon, ExternalLinkIcon, WarningIcon} from "@chakra-ui/icons";
+import {ethers} from "ethers";
+import {AiFillExclamationCircle, BiError} from "react-icons/all";
 
 export const Withdraw = () => {
     const tipJarAddress = "0xd7b0EbE6a841f094358b8E9c53946235948d2368";
     const tPoktAddress = "478d17c58cce93a2d046083423d30accdb32d6a7";
+    const ADDRESS_NOT_CHECKED = 0;
+    const ADDRESS_VALID = 1;
+    const ADDRESS_INVALID = -1;
+
+    const polygon = new ethers.providers.JsonRpcBatchProvider("https://poly-mainnet.gateway.pokt.network/v1/lb/626602acaa777e00391b907f");
 
     const node = useContext(NodeContext);
     const [inputAmount, setInputAmount] = useState("0.00");
@@ -40,6 +47,7 @@ export const Withdraw = () => {
     const maxBalance = (node.balance / 1e6) - 1;
     const inputRef = useRef<HTMLInputElement>(null);
     const outputRef = useRef<HTMLInputElement>(null);
+    const [outputAddressIsValid, setOutputAddressIsValid] = useState(ADDRESS_NOT_CHECKED);
 
     const {isOpen, onOpen, onClose} = useDisclosure();
     const toast = useToast();
@@ -51,11 +59,21 @@ export const Withdraw = () => {
         setOutputAmount(outputAmt.toString());
     }
 
+    const checkAddress = (addr: string) => {
+        polygon.getBalance(addr).then((bal) => {
+            console.log("Balance", bal);
+            setOutputAddressIsValid(ADDRESS_VALID);
+        }).catch((err) =>  {
+            console.error(err);
+            setOutputAddressIsValid(ADDRESS_INVALID);
+        })
+    }
+
     const doPreview = () => {
         const outputAmt = Number.parseFloat(outputAmount)
         let errors = false;
 
-        if(outputAddress == "") {
+        if(outputAddress === "") {
             errors = true;
             toast({
                 title: "Error",
@@ -70,6 +88,15 @@ export const Withdraw = () => {
                 title: "Error",
                 status: "error",
                 description: "output amount must be greater than 0"
+            });
+        }
+
+        if(outputAddressIsValid !== ADDRESS_VALID) {
+            errors = true;
+            toast({
+                title: "Error",
+                status: "error",
+                description: "not a valid polygon address"
             });
         }
 
@@ -104,10 +131,24 @@ export const Withdraw = () => {
                     value={outputAddress}
                     placeholder={"Wallet address on Polygon"}
                     onChange={(v) => setOutputAddress(v.target.value)}
+                    onBlur={() => checkAddress(outputAddress)}
+                    data-lpignore="true"
                 />
+                {outputAddressIsValid !== ADDRESS_NOT_CHECKED && (
+                    <InputRightElement>
+                        {outputAddressIsValid === ADDRESS_VALID ? (
+                            <CheckCircleIcon textColor={"green.400"}/>
+                        ) : (
+                            <WarningIcon color={"red.400"}/>
+                        )}
+                    </InputRightElement>
+                )}
             </InputGroup>
             <Box mt={1} mb={4} fontSize={"xs"} textAlign={"right"}>
-                <Link onClick={() => setOutputAddress(tipJarAddress)}>Send to pokt.tools tip-jar</Link>
+                <Link onClick={() => {
+                    setOutputAddress(tipJarAddress);
+                    checkAddress(tipJarAddress);
+                }}>Send to pokt.tools tip-jar</Link>
             </Box>
 
             <InputGroup
@@ -134,6 +175,7 @@ export const Withdraw = () => {
                 >
                     <NumberInputField
                         _focus={{boxShadow: "none"}}
+                        data-lpignore="true"
                         outline={0}
                         borderWidth={0}
                         borderBottomWidth={1}
