@@ -30,6 +30,7 @@ import {NodeContext} from "../context";
 import {ArrowDownIcon, CheckCircleIcon, CopyIcon, ExternalLinkIcon, WarningIcon} from "@chakra-ui/icons";
 import {ethers} from "ethers";
 import {EVENT_PREVIEW_TPOKT_WITHDRAWAL, trackGoal} from "../events";
+import {POLYGON_URL} from "../configuration";
 
 export const Withdraw = () => {
     const tipJarAddress = "0xd7b0EbE6a841f094358b8E9c53946235948d2368";
@@ -38,7 +39,7 @@ export const Withdraw = () => {
     const ADDRESS_VALID = 1;
     const ADDRESS_INVALID = -1;
 
-    const polygon = new ethers.providers.JsonRpcBatchProvider("https://poly-mainnet.gateway.pokt.network/v1/lb/626602acaa777e00391b907f");
+    const polygon = new ethers.providers.JsonRpcBatchProvider(POLYGON_URL);
 
     const node = useContext(NodeContext);
     const [inputAmount, setInputAmount] = useState("0.00");
