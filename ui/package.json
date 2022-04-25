@@ -38,11 +38,11 @@
     "web-vitals": "^0.2.2"
   },
   "scripts": {
-    "start": "./env.sh .env.local && cp env-config.js ./public/ && react-scripts start",
+    "start": "./env.sh .env.local && react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "deploy": "./env.sh .env.prod && cp env-config.js ./public/ && react-scripts build && ./scripts/deploy.sh prod",
-    "deploy-test": "./env.sh .env.test && cp env-config.js ./public/ && react-scripts build && ./scripts/deploy.sh test",
+    "deploy": "./env.sh .env.prod && react-scripts build && ./scripts/deploy.sh prod",
+    "deploy-test": "./env.sh .env.test && react-scripts build && ./scripts/deploy.sh test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
