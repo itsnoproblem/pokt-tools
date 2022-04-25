@@ -1,17 +1,6 @@
-import {
-    Box,
-    Button, Collapse,
-    Grid,
-    GridItem,
-    HStack,
-    SimpleGrid, Slide, SlideFade,
-    Textarea,
-    useColorModeValue,
-    useDisclosure,
-    VStack
-} from "@chakra-ui/react";
-import {RelayResponse, RelayTestResponse} from "../types/relay-test-response";
-import React, {useEffect} from "react";
+import {Box, Collapse, Grid, GridItem, useColorModeValue, useDisclosure} from "@chakra-ui/react";
+import {RelayTestResponse} from "../types/relay-test-response";
+import React from "react";
 import {CheckCircleIcon, ChevronDownIcon, ChevronLeftIcon, WarningTwoIcon} from "@chakra-ui/icons";
 import ReactJson from "react-json-view";
 
@@ -45,7 +34,7 @@ export const RelayResult = (props: RelayResultProps) => {
 
 const SingleResult = (props: SingleResultProps) => {
     const jsonTheme = useColorModeValue("rjv-default", "hopscotch");
-    const {isOpen, onToggle, onClose} = useDisclosure({defaultIsOpen: false});
+    const {isOpen, onToggle} = useDisclosure({defaultIsOpen: false});
     const jsonStyleProps = {width: "100%", padding: "8px"};
 
     return (

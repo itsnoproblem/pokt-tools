@@ -1,18 +1,8 @@
 import {Transaction} from "../types/transaction";
-import {Box, Textarea, VStack} from "@chakra-ui/react";
-import {useContext} from "react";
-import {NodeContext} from "../context";
-import React from 'react';
-import { Bar } from 'react-chartjs-2';
-import {
-    Chart as ChartJS,
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    Title,
-    Tooltip,
-    Legend,
-} from 'chart.js';
+import {Box} from "@chakra-ui/react";
+import React from "react";
+import {Bar} from 'react-chartjs-2';
+import {BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, Title, Tooltip,} from 'chart.js';
 
 ChartJS.register(
     CategoryScale,
@@ -34,9 +24,6 @@ interface dataset {
 }
 
 export const DailyChartStacked = (props: DailyChartProps) => {
-
-    const node = useContext(NodeContext);
-
     const daysInMonth = (d: Date) => {
         const m = new Date(d.getFullYear(), d.getMonth()+1, 0);
         return m.getDate();
@@ -91,12 +78,13 @@ export const DailyChartStacked = (props: DailyChartProps) => {
             }
 
             chains[tx.chain.name][txDay] += tx.num_relays;
+            return chains;
         });
 
         const shuffle = (array: Array<any>) => {
             let currentIndex = array.length,  randomIndex;
 
-            while (currentIndex != 0) {
+            while (currentIndex !== 0) {
                 randomIndex = Math.floor(Math.random() * currentIndex);
                 currentIndex--;
 
@@ -114,6 +102,7 @@ export const DailyChartStacked = (props: DailyChartProps) => {
                 data: values,
                 backgroundColor: colors.pop() ?? '',
             })
+            return data.datasets;
         })
 
         return data;

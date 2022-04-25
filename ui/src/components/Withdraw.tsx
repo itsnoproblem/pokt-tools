@@ -1,6 +1,7 @@
 import {
     Box,
-    Button, HStack,
+    Button,
+    HStack,
     Img,
     Input,
     InputGroup,
@@ -18,7 +19,8 @@ import {
     NumberInput,
     NumberInputField,
     Text,
-    Textarea, useClipboard,
+    Textarea,
+    useClipboard,
     useColorModeValue,
     useDisclosure,
     useToast
@@ -27,7 +29,7 @@ import React, {useContext, useRef, useState} from "react";
 import {NodeContext} from "../context";
 import {ArrowDownIcon, CheckCircleIcon, CopyIcon, ExternalLinkIcon, WarningIcon} from "@chakra-ui/icons";
 import {ethers} from "ethers";
-import {AiFillExclamationCircle, BiError} from "react-icons/all";
+import {EVENT_PREVIEW_TPOKT_WITHDRAWAL, trackGoal} from "../events";
 
 export const Withdraw = () => {
     const tipJarAddress = "0xd7b0EbE6a841f094358b8E9c53946235948d2368";
@@ -107,12 +109,12 @@ export const Withdraw = () => {
     }
 
     const sendCommand = `pocket accounts send-tx ${node.address} ${tPoktAddress} ${Number.parseFloat(inputAmount) * 1e6} mainnet 10000 '{"evmAddress":"${outputAddress}","chainId":137}'`;
-    const {value: commandValue, onCopy, hasCopied} = useClipboard(sendCommand);
+    const {onCopy, hasCopied} = useClipboard(sendCommand);
 
     return (
         <Box mt={2}>
             <Box textAlign="center" mb={4}>
-                Swap POKT for tPOKT here using&nbsp;
+                Swap POKT for tPOKT using&nbsp;
                 <Link
                     href="https://docs.thunderpokt.fi/welcome-to-tpokt-by-thunderfi/getting-started/introduction"
                     isExternal={true}
@@ -233,7 +235,10 @@ export const Withdraw = () => {
             </InputGroup>
 
             <Box textAlign={"center"} mt={4}>
-                <Button colorScheme={"blue"} onClick={doPreview}>Preview</Button>
+                <Button colorScheme={"blue"} onClick={() => {
+                    doPreview();
+                    trackGoal(EVENT_PREVIEW_TPOKT_WITHDRAWAL);
+                }}>Preview</Button>
             </Box>
 
             <Modal isOpen={isOpen} onClose={onClose} size={"2xl"}>
@@ -256,6 +261,11 @@ export const Withdraw = () => {
                                 }</Box>
                             </HStack>
                             <Textarea fontSize="sm" rows={6} fontFamily={"monospace"} value={sendCommand}/>
+                        </Box>
+                        <Box fontSize={"xs"} mt={2}>
+                            Disclaimer: this feature is offered to help simplify the use of <Link target="_blank" textDecoration="underline" href={"https://thunderpokt.fi"}>
+                            thunderpokt.fi</Link> and is offered "as-is". The information here may contain errors or mistakes and
+                            is used at the user's own risk.  Users should verify information provided carefully before initiating any transaction.
                         </Box>
                     </ModalBody>
 

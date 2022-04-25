@@ -40,7 +40,8 @@ export const RelaySimulator = () => {
         try {
             const chains: string[] = [];
             selectedChains.map((ch, index) => {
-                chains[index] = ch.value
+                chains[index] = ch.value;
+                return chains;
             });
 
             console.log("runTests", chains);
@@ -76,6 +77,7 @@ export const RelaySimulator = () => {
                 value: ch.id,
                 label: ch.name + " (" + ch.id + ")"
             })
+            return data;
         });
 
         return data;
@@ -86,7 +88,7 @@ export const RelaySimulator = () => {
         if(selectedChains.length === 0) {
             setSelectedChains(chainPickerData(node.chains))
         }
-    })
+    }, [node, selectedChains])
 
     return (
         <Box textAlign={"left"}>
