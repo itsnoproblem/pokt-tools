@@ -9,7 +9,7 @@ then
 fi
 
 # Recreate config file
-rm -rf $OUTFILE
+rm -f $OUTFILE
 touch $OUTFILE
 
 # Read each line in .env file
@@ -29,7 +29,7 @@ do
 
   # Append configuration property to JS file
   echo "export const $varname = \"$value\";
-" >> $OUTFILE
+" | tee -a $OUTFILE
 done < $ENVFILE
 
-echo "}" >> ./env-config.js
+

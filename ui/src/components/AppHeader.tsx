@@ -49,6 +49,21 @@ export const AppHeader = (props: AppHeaderProps) => {
     const status = (node.isJailed || !node.exists) ?
         (node.exists ? "Jailed" : "Invalid address") : "Not Jailed";
 
+    const updateBalance = useCallback(() => {
+        if(!address) {
+            return;
+        }
+
+        getNode(address).then((node) => {
+            setCurrentAddress(node.address);
+            props.onNodeLoaded(node);
+        })
+            .catch((err) => console.error(err))
+            .finally(() => {
+                setHasLoaded(true);
+            });
+    }, [props, address, setCurrentAddress]);
+
     const updateNodeData = useCallback(async () => {
         if(!node.address) {
             return;
@@ -69,23 +84,8 @@ export const AppHeader = (props: AppHeaderProps) => {
         }
         props.setIsRefreshing(false);
 
-    }, [node, props]);
+    }, [node, props, updateBalance]);
     useInterval(updateNodeData, 900000);
-
-    const updateBalance = useCallback(() => {
-        if(!address) {
-            return;
-        }
-
-        getNode(address).then((node) => {
-            setCurrentAddress(node.address);
-            props.onNodeLoaded(node);
-        })
-        .catch((err) => console.error(err))
-        .finally(() => {
-            setHasLoaded(true);
-        });
-    }, [props, address, setCurrentAddress]);
 
     useEffect(() => {
         if(!hasLoaded) {

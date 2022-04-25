@@ -4,7 +4,8 @@ import {
     Stat,
     StatHelpText,
     StatLabel,
-    StatNumber, useBreakpointValue,
+    StatNumber,
+    useBreakpointValue,
     useColorModeValue,
     useDisclosure,
 } from "@chakra-ui/react";
@@ -69,30 +70,21 @@ export const NodeMetrics = (props: AppStatusProps) => {
             pastDate.setHours(0, 0, 1);
         }
 
-        let total = 0;
         let totalPOKT = 0;
-        let lifetimeNumRelays = 0;
-        let lifetimePOKT = 0;
-        let lifetimeNumSessions = 0;
         props.rewards.map((r) => {
             r.transactions.map((t) => {
                 const txDate = new Date(t.time);
                 if((txDate.getTime() >= pastDate.getTime()) && t.is_confirmed) {
-                    total += t.num_relays;
                     totalPOKT += t.num_relays * t.pokt_per_relay;
                 }
-                lifetimeNumRelays += t.num_relays;
-                lifetimePOKT += (t.num_relays * t.pokt_per_relay)
-                lifetimeNumSessions++;
+
                 return this;
             });
             return this;
         });
 
-        let relays = total;
         let pokt = totalPOKT;
         if(numDays > 0) {
-            relays = (total/numDays);
             pokt = (totalPOKT/numDays);
         }
 
@@ -156,12 +148,10 @@ export const NodeMetrics = (props: AppStatusProps) => {
             }
         }
 
-        let lifetimeNumRelays = 0;
         let lifetimeNumSessions = 0;
         let lifetimePOKT = 0;
         props.rewards.map((r) => {
             r.transactions.map((t) => {
-                lifetimeNumRelays += t.num_relays;
                 lifetimePOKT += t.num_relays * t.pokt_per_relay;
                 lifetimeNumSessions++;
                 return this;
@@ -203,9 +193,7 @@ export const NodeMetrics = (props: AppStatusProps) => {
                  style={ { scrollSnapType: "x mandatory" } }
             >
 
-                {/*{!isMobile && (*/}
-                {/*    <HorizontalScroll reverseScroll={true} animValues={15} pageLock={true}>*/}
-                <HStack>
+                <HStack textColor={statColor}>
                     <Box p={5}
                          borderColor={statHoverColor}
                          borderWidth={1}

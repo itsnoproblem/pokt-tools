@@ -25,7 +25,6 @@ import {RewardTransaction} from "./RewardTransaction";
 import {PieChart} from "./PieChart";
 import {getClaims, getHeight} from "../MonitoringService";
 import {EVENT_MONTH_CLOSE, EVENT_MONTH_METRICS, EVENT_MONTH_OPEN, EVENT_MONTH_TRANSACTIONS, trackGoal} from "../events";
-import {DailyChart} from "./DailyChart";
 import {DailyChartStacked} from "./DailyChartStacked";
 import {DayOfWeekChart} from "./DayOfWeekChart";
 
@@ -105,6 +104,7 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
         month.transactions.map((tx) => {
             const dow = new Date(tx.time)
             daysOfWeekData[dow.getDay()].value += tx.num_relays;
+            return daysOfWeekData;
         })
 
         return daysOfWeekData;
