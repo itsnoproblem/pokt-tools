@@ -19,7 +19,6 @@ type Endpoints struct {
 	Transaction         endpoint.Endpoint
 	AccountTransactions endpoint.Endpoint
 	Block               endpoint.Endpoint
-	BlockTimes          endpoint.Endpoint
 	MonthlyRewards      endpoint.Endpoint
 }
 
@@ -106,11 +105,12 @@ func MonthlyRewardsEndpoint(svc Service) endpoint.Endpoint {
 				byChain[tx.ChainID] += tx.NumRelays
 				chain, _ := tx.Chain()
 				resp[i].Transactions[j] = transactionResponse{
-					Hash:    tx.Hash,
-					Height:  tx.Height,
-					Time:    tx.Time,
-					Type:    tx.Type,
-					ChainID: tx.ChainID,
+					Hash:          tx.Hash,
+					Height:        tx.Height,
+					Time:          tx.Time,
+					BlockProposer: tx.Block.Proposer,
+					Type:          tx.Type,
+					ChainID:       tx.ChainID,
 					Chain: chainResponse{
 						Name: chain.Name,
 						ID:   chain.ID,
@@ -161,25 +161,25 @@ func MonthlyRewardsEndpoint(svc Service) endpoint.Endpoint {
 	}
 }
 
-type blockTimesRequest struct {
+type blockRequest struct {
 	Heights []uint `json:"heights"`
 }
 
-type blockTimesResponse map[uint]time.Time
+type blockResponse map[uint]pocket.Block
 
-func BlockTimesEndpoint(svc Service) endpoint.Endpoint {
+func BlockEndpoint(svc Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		fail := func(err error) (interface{}, error) {
-			return nil, fmt.Errorf("BlockTimesEndpoint: %s", err)
+			return nil, fmt.Errorf("BlockEndpoint: %s", err)
 		}
 
-		req, ok := request.(blockTimesRequest)
+		req, ok := request.(blockRequest)
 		if !ok {
 			err := fmt.Errorf("failed to parse request: %v", request)
 			return fail(err)
 		}
 
-		blocks, err := svc.BlockTimes(req.Heights)
+		blocks, err := svc.Blocks(req.Heights)
 		if err != nil {
 			return fail(err)
 		}
@@ -258,7 +258,7 @@ func TransactionEndpoint(svc Service) endpoint.Endpoint {
 			Hash:          txn.Hash,
 			Height:        txn.Height,
 			Time:          txn.Time,
-			BlockProposer: txn.BlockProposer,
+			BlockProposer: txn.Block.Proposer,
 			Type:          txn.Type,
 			ChainID:       txn.ChainID,
 			NumRelays:     txn.NumRelays,
@@ -299,7 +299,7 @@ func AccountTransactionsEndpoint(svc Service) endpoint.Endpoint {
 				Hash:          tx.Hash,
 				Height:        tx.Height,
 				Time:          tx.Time,
-				BlockProposer: tx.BlockProposer,
+				BlockProposer: tx.Block.Proposer,
 				Type:          tx.Type,
 				ChainID:       tx.ChainID,
 				SessionHeight: tx.SessionHeight,

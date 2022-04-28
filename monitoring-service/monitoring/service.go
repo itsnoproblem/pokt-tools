@@ -7,7 +7,6 @@ import (
 	"math"
 	"sort"
 	"strconv"
-	"time"
 
 	"monitoring-service/pocket"
 )
@@ -16,8 +15,7 @@ type PocketProvider interface {
 	SimulateRelay(servicerUrl, chainID string, payload json.RawMessage) (json.RawMessage, error)
 	AccountTransactions(address string, page uint, perPage uint, sort string) ([]pocket.Transaction, error)
 	Transaction(hash string) (pocket.Transaction, error)
-	BlockProposer(height uint) (string, error)
-	BlockTime(height uint) (time.Time, error)
+	Block(height uint) (pocket.Block, error)
 	Node(address string) (pocket.Node, error)
 	Balance(address string) (uint, error)
 	Param(name string, height int64) (string, error)
@@ -50,12 +48,8 @@ func (s *Service) Transaction(hash string) (pocket.Transaction, error) {
 		return pocket.Transaction{}, fmt.Errorf("Transaction: %s", err)
 	}
 
-	txn.Time, err = s.provider.BlockTime(txn.Height)
-	if err != nil {
-		return pocket.Transaction{}, fmt.Errorf("Transaction: %s", err)
-	}
-
-	txn.BlockProposer, err = s.provider.BlockProposer(txn.Height)
+	block, err := s.provider.Block(txn.Height)
+	txn.Block = block
 	if err != nil {
 		return pocket.Transaction{}, fmt.Errorf("Transaction: %s", err)
 	}
@@ -63,25 +57,17 @@ func (s *Service) Transaction(hash string) (pocket.Transaction, error) {
 	return txn, nil
 }
 
-func (s *Service) BlockProposer(height uint) (string, error) {
-	blockProposer, err := s.provider.BlockProposer(height)
-	if err != nil {
-		return "", fmt.Errorf("BlockProposer: %s", err)
-	}
+func (s *Service) Blocks(heights []uint) (map[uint]pocket.Block, error) {
+	blocks := make(map[uint]pocket.Block, len(heights))
 
-	return blockProposer, nil
-}
-
-func (s *Service) BlockTimes(heights []uint) (map[uint]time.Time, error) {
-	times := make(map[uint]time.Time, len(heights))
 	for _, id := range heights {
 		var err error
-		if times[id], err = s.provider.BlockTime(id); err != nil {
-			return nil, fmt.Errorf("BlockTimes: %s", err)
+		if blocks[id], err = s.provider.Block(id); err != nil {
+			return nil, fmt.Errorf("Block: %s", err)
 		}
 	}
 
-	return times, nil
+	return blocks, nil
 }
 
 func (s *Service) ParamsAtHeight(height int64) (pocket.Params, error) {
@@ -147,7 +133,7 @@ func (s *Service) AccountTransactions(address string, page uint, perPage uint, s
 			return nil, fmt.Errorf("AccountTransactions: %s", err)
 		}
 
-		tx.Time, err = s.provider.BlockTime(tx.Height)
+		tx.Block, err = s.provider.Block(tx.Height)
 		tx.PoktPerRelay = params.PoktPerRelay()
 		if err != nil {
 			return nil, fmt.Errorf("AccountTransactions: %s", err)

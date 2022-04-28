@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"monitoring-service/pocket"
 	"monitoring-service/timer"
-	"time"
 
 	log "github.com/go-kit/kit/log"
 )
@@ -91,27 +90,14 @@ func (p loggingProvider) Balance(address string) (uint, error) {
 	return b, nil
 }
 
-func (p loggingProvider) BlockProposer(height uint) (string, error) {
-	bp, err := p.provider.BlockProposer(height)
+func (p loggingProvider) Block(height uint) (pocket.Block, error) {
+	b, err := p.provider.Block(height)
 	if err != nil {
 		p.error(err.Error())
-		return "", err
+		return pocket.Block{}, err
 	}
 
-	p.info("BlockProposer", bp)
-	return bp, nil
-}
-
-func (p loggingProvider) BlockTime(height uint) (time.Time, error) {
-	//t := timer.Start()
-	bt, err := p.provider.BlockTime(height)
-	if err != nil {
-		p.error(err.Error())
-		return time.Time{}, err
-	}
-
-	//p.info("BlockTime for %d (took %s)", height, t.Elapsed().String())
-	return bt, nil
+	return b, nil
 }
 
 func (p loggingProvider) Transaction(hash string) (pocket.Transaction, error) {
