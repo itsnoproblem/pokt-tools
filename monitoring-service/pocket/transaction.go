@@ -19,6 +19,7 @@ type Transaction struct {
 	SessionHeight uint
 	ExpireHeight  uint
 	AppPubkey     string
+	ResultCode    int64
 	IsConfirmed   bool
 }
 
