@@ -18,6 +18,7 @@ import {
     ModalOverlay,
     NumberInput,
     NumberInputField,
+    Spinner,
     Text,
     Textarea,
     useClipboard,
@@ -35,16 +36,20 @@ import {POLYGON_URL} from "../configuration";
 export const Withdraw = () => {
     const tipJarAddress = "0xd7b0EbE6a841f094358b8E9c53946235948d2368";
     const tPoktAddress = "478d17c58cce93a2d046083423d30accdb32d6a7";
+    const ETH_URL = "https://eth-rpc.gateway.pokt.network";
     const ADDRESS_NOT_CHECKED = 0;
     const ADDRESS_VALID = 1;
     const ADDRESS_INVALID = -1;
+    const ADDRESS_VALIDATING = -2;
 
     const polygon = new ethers.providers.JsonRpcBatchProvider(POLYGON_URL);
+    const ethereum = new ethers.providers.JsonRpcProvider(ETH_URL);
 
     const node = useContext(NodeContext);
     const [inputAmount, setInputAmount] = useState("0.00");
     const [outputAmount, setOutputAmount] = useState("0.00");
     const [outputAddress, setOutputAddress] = useState("");
+    const [outputAddressField, setOutputAddressField] = useState("");
 
     const inputBgColor = useColorModeValue("gray.50", "gray.700");
     const maxBalance = (node.balance / 1e6) - 1;
@@ -62,13 +67,28 @@ export const Withdraw = () => {
         setOutputAmount(outputAmt.toString());
     }
 
-    const checkAddress = (addr: string) => {
-        polygon.getBalance(addr).then((bal) => {
+    const checkAddress = async (addr: string) => {
+        let resolvedAddr = addr
+        setOutputAddressIsValid(ADDRESS_VALIDATING);
+        if(addr.substring(0, 2) !== "0x") {
+            try {
+                resolvedAddr = await ethereum.resolveName(addr) ?? "";
+            } catch(err) {
+                console.error(err);
+                setOutputAddressIsValid(ADDRESS_INVALID);
+                setOutputAddress("");
+                return this;
+            }
+        }
+        setOutputAddress(resolvedAddr)
+
+        polygon.getBalance(resolvedAddr).then((bal) => {
             console.log("Balance", bal);
             setOutputAddressIsValid(ADDRESS_VALID);
         }).catch((err) =>  {
             console.error(err);
             setOutputAddressIsValid(ADDRESS_INVALID);
+            setOutputAddress("");
         })
     }
 
@@ -131,28 +151,37 @@ export const Withdraw = () => {
                     <Box w={"32px"}><Img borderRadius={50} src={"/polygon.jpg"}/></Box>
                 </InputLeftAddon>
                 <Input
-                    value={outputAddress}
-                    placeholder={"Wallet address on Polygon"}
-                    onChange={(v) => setOutputAddress(v.target.value)}
-                    onBlur={() => checkAddress(outputAddress)}
+                    value={outputAddressField}
+                    placeholder={"Recipient address (or ENS name) on Polygon"}
+                    onChange={(v) => {
+                        setOutputAddressField(v.target.value);
+                        setOutputAddress("");
+                        setOutputAddressIsValid(ADDRESS_NOT_CHECKED);
+                    }}
+                    onBlur={() => checkAddress(outputAddressField)}
                     data-lpignore="true"
                 />
                 {outputAddressIsValid !== ADDRESS_NOT_CHECKED && (
                     <InputRightElement>
                         {outputAddressIsValid === ADDRESS_VALID ? (
                             <CheckCircleIcon textColor={"green.400"}/>
+                        ) : outputAddressIsValid == ADDRESS_VALIDATING ? (
+                            <Spinner color={"yellow.400"}/>
                         ) : (
                             <WarningIcon color={"red.400"}/>
                         )}
                     </InputRightElement>
                 )}
             </InputGroup>
-            <Box mt={1} mb={4} fontSize={"xs"} textAlign={"right"}>
-                <Link onClick={() => {
-                    setOutputAddress(tipJarAddress);
-                    checkAddress(tipJarAddress);
-                }}>Send to pokt.tools tip-jar</Link>
-            </Box>
+            <HStack mt={1} mb={5} fontSize={"xs"} textColor={"gray.500"}>
+                <Box minW="60%">{outputAddress}</Box>
+                <Box minW="40%" textAlign={"right"} pr={2}>
+                    <Link onClick={() => {
+                        setOutputAddress(tipJarAddress);
+                        checkAddress(tipJarAddress);
+                    }}>Send to pokt.tools tip-jar</Link>
+                </Box>
+            </HStack>
 
             <InputGroup
                 backgroundColor={inputBgColor}
