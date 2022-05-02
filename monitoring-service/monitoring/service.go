@@ -218,8 +218,8 @@ func (s *Service) RewardsByMonth(address string) (map[string]pocket.MonthlyRewar
 	months := make(map[string]pocket.MonthlyReward)
 	for sessionKey, tx := range claims {
 		tx.IsConfirmed = false
-		_, proofExists := proofs[sessionKey]
-		if proofExists {
+		proof, proofExists := proofs[sessionKey]
+		if proofExists && proof.ResultCode == 0 {
 			tx.IsConfirmed = true
 		}
 

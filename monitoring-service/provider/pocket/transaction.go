@@ -7,10 +7,6 @@ import (
 	"monitoring-service/pocket"
 )
 
-const (
-	ClaimExpirationBlocks = 120
-)
-
 type accountTransactionsRequest struct {
 	Address string `json:"address"`
 	Height  uint   `json:"height"`
@@ -27,10 +23,15 @@ type transactionRequest struct {
 	Hash string `json:"hash"`
 }
 
+type txResult struct {
+	Code int64 `json:"code"`
+}
+
 type transactionResponse struct {
 	Hash   string        `json:"hash"`
 	Height float64       `json:"height"`
 	StdTx  stdTxResponse `json:"stdTx"`
+	Result txResult      `json:"tx_result"`
 }
 
 func (t *transactionResponse) Transaction() (pocket.Transaction, error) {
@@ -47,11 +48,12 @@ func (t *transactionResponse) Transaction() (pocket.Transaction, error) {
 	}
 
 	tx := pocket.Transaction{
-		Hash:      t.Hash,
-		Height:    uint(t.Height),
-		Type:      t.StdTx.Message.Type,
-		ChainID:   t.StdTx.Message.Value.Header.Chain,
-		NumRelays: uint(numProofs),
+		Hash:       t.Hash,
+		Height:     uint(t.Height),
+		Type:       t.StdTx.Message.Type,
+		ChainID:    t.StdTx.Message.Value.Header.Chain,
+		NumRelays:  uint(numProofs),
+		ResultCode: t.Result.Code,
 	}
 
 	switch tx.Type {
