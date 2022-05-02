@@ -270,22 +270,6 @@ export const MonthlyRewards = (props: MonthlyRewardsProps) => {
                                             <Box w={"100%"} height={"400px"}>
                                                 <DayOfWeekChart data={getDaysOfWeekData(month)}/>
                                             </Box>
-                                            {/*<Box w={["100%", "100%"]}>*/}
-                                            {/*    <SimpleGrid columns={3} mt={8}>*/}
-                                            {/*        <Box padding={3} backgroundColor={"blue.900"}>Chain</Box>*/}
-                                            {/*        <Box padding={3} backgroundColor={"blue.900"} align={"right"}>Relays</Box>*/}
-                                            {/*        <Box padding={3} backgroundColor={"blue.900"} align={"right"}>Percent</Box>*/}
-                                            {/*        { relays.map((r, z) => {*/}
-                                            {/*            return (*/}
-                                            {/*                <React.Fragment key={z}>*/}
-                                            {/*                    <Box padding={3}>{r.id}</Box>*/}
-                                            {/*                    <Box padding={3} align={"right"}>{Number(r.value).toLocaleString()}</Box>*/}
-                                            {/*                    <Box padding={3} align={"right"}>{Number((r.value/month.num_relays)*100).toPrecision(4)}%</Box>*/}
-                                            {/*                </React.Fragment>*/}
-                                            {/*            )*/}
-                                            {/*        })}*/}
-                                            {/*    </SimpleGrid>*/}
-                                            {/*</Box>*/}
                                         </Stack>
 
                                     </TabPanel>
