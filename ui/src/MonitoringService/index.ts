@@ -124,6 +124,10 @@ export const allChains: Chain[] = [
         name: "ETH Ropsten"
     },
     {
+        id: "0049",
+        name: "Fantom"
+    },
+    {
         id: "0005",
         name: "FUSE"
     },
