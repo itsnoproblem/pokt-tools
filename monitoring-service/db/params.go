@@ -60,6 +60,15 @@ func (r ParamsRepo) GetAll(height int64) (params pocket.AllParams, exists bool, 
 	return params, true, nil
 }
 
+func (r ParamsRepo) DelAll(height int64) error {
+	keyB := r.key("pocketAllParams", height)
+	if err := r.db.Delete(keyB); err != nil {
+		return fmt.Errorf("DelAll: %s", err)
+	}
+
+	return nil
+}
+
 func (r ParamsRepo) SetAll(height int64, params pocket.AllParams) error {
 	keyB := r.key("pocketAllParams", height)
 	paramsB, _ := json.Marshal(params)

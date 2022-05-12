@@ -20,7 +20,7 @@ type PocketProvider interface {
 	Node(address string) (pocket.Node, error)
 	Balance(address string) (uint, error)
 	Param(name string, height int64) (string, error)
-	AllParams(height int64) (pocket.AllParams, error)
+	AllParams(height int64, forceRefresh bool) (pocket.AllParams, error)
 	Height() (uint, error)
 }
 
@@ -69,10 +69,10 @@ func (s *Service) BlockTimes(heights []uint) (map[uint]time.Time, error) {
 	return times, nil
 }
 
-func (s *Service) ParamsAtHeight(height int64) (pocket.Params, error) {
+func (s *Service) ParamsAtHeight(height int64, forceRefresh bool) (pocket.Params, error) {
 	params := pocket.Params{}
 
-	allParams, err := s.provider.AllParams(height)
+	allParams, err := s.provider.AllParams(height, forceRefresh)
 	if err != nil {
 		return pocket.Params{}, fmt.Errorf("ParamsAtHeight: provider error: %s", err)
 	}
@@ -127,7 +127,7 @@ func (s *Service) AccountTransactions(address string, page uint, perPage uint, s
 
 	transactions := make([]pocket.Transaction, len(txs))
 	for i, tx := range txs {
-		params, err := s.ParamsAtHeight(int64(tx.Height))
+		params, err := s.ParamsAtHeight(int64(tx.Height), false)
 		if err != nil {
 			return nil, fmt.Errorf("AccountTransactions: %s", err)
 		}

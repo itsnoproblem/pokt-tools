@@ -188,7 +188,8 @@ func BlockTimesEndpoint(svc Service) endpoint.Endpoint {
 }
 
 type paramsRequest struct {
-	Height int64
+	Height       int64
+	ForceRefresh bool
 }
 
 type paramsResponse struct {
@@ -207,7 +208,7 @@ func ParamsEndpoint(svc Service) endpoint.Endpoint {
 			return fail(err)
 		}
 
-		params, err := svc.ParamsAtHeight(req.Height)
+		params, err := svc.ParamsAtHeight(req.Height, req.ForceRefresh)
 		if err != nil {
 			return fail(err)
 		}

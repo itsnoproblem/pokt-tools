@@ -81,7 +81,7 @@ func main() {
 				fmt.Printf("ERROR: %s", err)
 			}
 			for _, n := range heights {
-				if _, err := nodeSvc.ParamsAtHeight(int64(n)); err != nil {
+				if _, err := nodeSvc.ParamsAtHeight(int64(n), false); err != nil {
 					fmt.Printf("ERROR: %s", err)
 				}
 			}
