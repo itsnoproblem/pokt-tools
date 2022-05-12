@@ -23,15 +23,15 @@ const (
 func main() {
 	logger := log.NewLogfmtLogger(log.NewSyncWriter(os.Stderr))
 	logger = log.With(logger, "ts", log.DefaultTimestampUTC)
-	defaultDBPath, err := os.Getwd()
+	baseDBPath, err := os.Getwd()
 	if err != nil {
 		_ = logger.Log("ERROR: failed to get working directory")
 		panic(err)
 	}
 
-	dbPath := flag.String("dbPath", defaultDBPath+"/../.pokt-calculator-db", "Path to DB data")
+	// flags + defaults
+	dbPath := flag.String("dbPath", baseDBPath+"/../.pokt-calculator-db", "Path to DB data")
 	pocketRpcURL := flag.String("pocketURL", defaultPocketURL, "Pocket network RPC URL")
-	atHeight := flag.Uint("height", 0, "fetch block at this height")
 	flag.Parse()
 
 	fmt.Println("Start...")
@@ -45,12 +45,14 @@ func main() {
 		_ = logger.Log("ERROR opening database")
 		panic(err)
 	}
+
 	defer func(bitcaskDB *bitcask.Bitcask) {
 		err := bitcaskDB.Close()
 		if err != nil {
 			_ = logger.Log("ERROR closing database")
 		}
 	}(bitcaskDB)
+
 	blockTimesRepo := db.NewBlockTimesRepo(bitcaskDB)
 	paramsRepo := db.NewParamsRepo(bitcaskDB)
 
@@ -61,20 +63,6 @@ func main() {
 
 	height, err := nodeSvc.Height()
 	maxHeight := int(height)
-
-	if *atHeight > 0 {
-		heights := []uint{*atHeight}
-		fmt.Printf("fetching blocks %v\n", heights)
-		if _, err := nodeSvc.BlockTimes(heights); err != nil {
-			fmt.Printf("ERROR: %s", err)
-		}
-		for _, n := range heights {
-			if _, err := nodeSvc.ParamsAtHeight(int64(n)); err != nil {
-				fmt.Printf("ERROR: %s", err)
-			}
-		}
-
-	}
 
 	for i := 1; i <= maxHeight; i++ {
 		thisBatchSize := batchSize
@@ -90,13 +78,13 @@ func main() {
 			heights[j] = uint(i + j)
 		}
 
-		(func() {
+		go (func() {
 			fmt.Printf("fetching blocks %v\n", heights)
 			if _, err := nodeSvc.BlockTimes(heights); err != nil {
 				fmt.Printf("ERROR: %s", err)
 			}
 			for _, n := range heights {
-				if _, err := nodeSvc.ParamsAtHeight(int64(n), false); err != nil {
+				if _, err := nodeSvc.ParamsAtHeight(int64(n)); err != nil {
 					fmt.Printf("ERROR: %s", err)
 				}
 			}

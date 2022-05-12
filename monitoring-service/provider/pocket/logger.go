@@ -52,7 +52,6 @@ func (p loggingProvider) AllParams(height int64, forceRefresh bool) (pocket.AllP
 		p.error(err.Error())
 	}
 
-	p.info("AllParams at height %d (took %s)", height, t.Elapsed().String())
 	return params, nil
 }
 

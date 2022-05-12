@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"math"
 	"sort"
 	"strconv"
@@ -58,15 +59,37 @@ func (s *Service) Transaction(hash string) (pocket.Transaction, error) {
 }
 
 func (s *Service) BlockTimes(heights []uint) (map[uint]time.Time, error) {
+	timesc := make(chan time.Time, len(heights))
+	errc := make(chan error, len(heights))
 	times := make(map[uint]time.Time, len(heights))
 	for _, id := range heights {
-		var err error
-		if times[id], err = s.provider.BlockTime(id); err != nil {
-			return nil, fmt.Errorf("BlockTimes: %s", err)
+		log.Default().Println("---go routine for height", id)
+		go s.blockTimeAsync(id, timesc, errc)
+		times[id] = <-timesc
+		err := <-errc
+		if err != nil {
+			return nil, err
 		}
 	}
 
 	return times, nil
+}
+
+type ChanData struct {
+	Time time.Time
+}
+
+func (s *Service) blockTimeAsync(height uint, ch chan<- time.Time, errc chan<- error) {
+	log.Default().Println("-------- start: ", height)
+	t, err := s.provider.BlockTime(height)
+	log.Default().Println("-------- done: ", height)
+	if err != nil {
+		errc <- err
+		ch <- time.Time{}
+	}
+
+	ch <- t
+	errc <- nil
 }
 
 func (s *Service) ParamsAtHeight(height int64, forceRefresh bool) (pocket.Params, error) {
@@ -282,3 +305,13 @@ func (s *Service) RewardsByMonth(address string) (map[string]pocket.MonthlyRewar
 func sessionKey(tx pocket.Transaction) string {
 	return fmt.Sprintf("%d%s%s", tx.SessionHeight, tx.AppPubkey, tx.ChainID)
 }
+
+//// wrap a timeout channel in a generic interface channel
+//func makeDefaultTimeoutChan() <-chan interface{} {
+//	channel := make(chan interface{})
+//	go func() {
+//		<-time.After(30 * time.Second)
+//		channel <- struct{}{}
+//	}()
+//	return channel
+//}
