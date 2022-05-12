@@ -157,6 +157,12 @@ var allChains = map[string]Chain{
 		PortalPrefix: "evmos-mainnet",
 		IsMonetized:  false,
 	},
+	"0049":{
+		ID:           "0049",
+		Name:         "Fantom",
+		PortalPrefix: "fantom-mainnet",
+		IsMonetized:  true,
+	},
 	"0005": {
 		ID:           "0005",
 		Name:         "FUSE",
