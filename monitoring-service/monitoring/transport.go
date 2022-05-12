@@ -104,8 +104,18 @@ func decodeParamsRequest(_ context.Context, req *http.Request) (request interfac
 		return nil, fmt.Errorf("decodeParamsRequest: failed to parse height: %s", err)
 	}
 
+	var forceRefresh bool
+	force, ok := req.URL.Query()["refresh"]
+	if ok && len(force[0]) > 0 {
+		forceRefresh, err = strconv.ParseBool(force[0])
+		if err != nil {
+			return nil, fmt.Errorf("decodeParamsRequest: failed to parse refresh param: %s", err)
+		}
+	}
+
 	return paramsRequest{
-		Height: h,
+		Height:       h,
+		ForceRefresh: forceRefresh,
 	}, nil
 }
 func decodeTransactionRequest(_ context.Context, req *http.Request) (request interface{}, err error) {

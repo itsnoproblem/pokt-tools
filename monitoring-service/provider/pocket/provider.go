@@ -38,12 +38,13 @@ type paramsRepo interface {
 	Set(name string, height int64, p pocket.Params) error
 	GetAll(height int64) (params pocket.AllParams, exists bool, err error)
 	SetAll(height int64, params pocket.AllParams) error
+	DelAll(height int64) error
 }
 
 type Provider interface {
 	Height() (uint, error)
 	Param(name string, height int64) (string, error)
-	AllParams(height int64) (pocket.AllParams, error)
+	AllParams(height int64, forceRefresh bool) (pocket.AllParams, error)
 	Node(address string) (pocket.Node, error)
 	Balance(address string) (uint, error)
 	BlockTime(height uint) (time.Time, error)
@@ -124,9 +125,15 @@ type allParamsRequest struct {
 }
 
 // AllParams returns all network parameters.
-func (p pocketProvider) AllParams(height int64) (pocket.AllParams, error) {
+func (p pocketProvider) AllParams(height int64, forceRefresh bool) (pocket.AllParams, error) {
 	fail := func(err error) (pocket.AllParams, error) {
 		return pocket.AllParams{}, fmt.Errorf("pocketProvider.AllParams(%d): %s", height, err)
+	}
+
+	if forceRefresh {
+		if err := p.paramsRepo.DelAll(height); err != nil {
+			return pocket.AllParams{}, err
+		}
 	}
 
 	cached, exists, err := p.paramsRepo.GetAll(height)
