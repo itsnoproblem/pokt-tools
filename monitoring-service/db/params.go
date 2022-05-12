@@ -52,6 +52,11 @@ func (r ParamsRepo) GetAll(height int64) (params pocket.AllParams, exists bool, 
 	if err = json.Unmarshal(paramsB, &params); err != nil {
 		return pocket.AllParams{}, false, fmt.Errorf("ParamsRepo.GetAll: %s", err)
 	}
+
+	if err = params.Validate(); err != nil {
+		return pocket.AllParams{}, false, fmt.Errorf("ParamsRepo.Getall: %s", err)
+	}
+
 	return params, true, nil
 }
 
