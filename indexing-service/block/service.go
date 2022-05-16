@@ -12,6 +12,7 @@ import (
 type Service interface {
 	Height(ctx context.Context) (int, error)
 	Block(ctx context.Context, h int) (pocket.Block, error)
+	AllBlocks(ctx context.Context) (map[int]pocket.Block, error)
 }
 
 type Provider interface {
@@ -49,6 +50,10 @@ func (s *service) Block(_ context.Context, h int) (pocket.Block, error) {
 		Time:            b.Block.Header.Time,
 		ProposerAddress: b.Block.Header.ProposerAddress,
 	}, nil
+}
+
+func (s *service) AllBlocks(ctx context.Context) (map[int]pocket.Block, error) {
+	return nil, nil
 }
 
 func (s *service) Params(ctx context.Context, h int) (pocket.Param, error) {

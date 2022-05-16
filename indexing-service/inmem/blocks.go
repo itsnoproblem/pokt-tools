@@ -39,6 +39,16 @@ func (r *repo) FetchBlock(ctx context.Context, height int) (pocket.Block, bool, 
 	return blk, true, nil
 }
 
+func (r *repo) FetchBlocks(ctx context.Context, heights []int) (map[int]pocket.Block, error) {
+	blks := make(map[int]pocket.Block)
+	for _, h := range heights {
+		if blk, ok := r.blocks[h]; ok {
+			blks[h] = blk
+		}
+	}
+	return blks, nil
+}
+
 func (r *repo) InsertBlock(ctx context.Context, blk pocket.Block) error {
 	if _, exists := r.blocks[blk.Height]; exists {
 		return errors.New(fmt.Sprintf("Block already exists for height %d", blk.Height))

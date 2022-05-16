@@ -3,6 +3,7 @@ package mysql
 import (
 	"context"
 	"database/sql"
+	"strings"
 
 	"github.com/pkg/errors"
 
@@ -50,6 +51,46 @@ func (r *repo) InsertBlock(ctx context.Context, blk pocket.Block) error {
 	}
 
 	return nil
+}
+
+func (r *repo) InsertBlocks(ctx context.Context, blks []pocket.Block) error {
+	query := `INSERT INTO blocks(height, time, proposer_address) VALUES `
+	params := make([]string, len(blks))
+	values := make([]interface{}, 0)
+	for i, blk := range blks {
+		params[i] = "(?, ?, ?)"
+		values = append(values, blk.Height, blk.Time, blk.ProposerAddress)
+	}
+	query += strings.Join(params, ",")
+
+	if _, err := r.db.QueryContext(ctx, query, values); err != nil {
+		return errors.Wrap(err, "InsertBlock")
+	}
+
+	return nil
+}
+
+func (r *repo) FetchBlocks(ctx context.Context, heights []int) (map[int]pocket.Block, error) {
+	params := make([]string, len(heights))
+	for i := 0; i < len(heights); i++ {
+		params[i] = "?"
+	}
+	query := `SELECT height, time, proposer_address FROM blocks WHERE height IN (` + strings.Join(params, ",") + ")"
+	res, err := r.db.QueryContext(ctx, query, heights)
+	if err != nil {
+		return nil, errors.Wrap(err, "FetchBlocks")
+	}
+
+	blocks := make(map[int]pocket.Block)
+	for res.Next() {
+		blk := pocket.Block{}
+		if err := res.Scan(&blk.Height, &blk.Time, &blk.ProposerAddress); err != nil {
+			return nil, errors.Wrap(err, "FetchBlocks")
+		}
+		blocks[blk.Height] = blk
+	}
+
+	return blocks, nil
 }
 
 func (r *repo) FetchAllBlocks(ctx context.Context) (map[int]pocket.Block, error) {

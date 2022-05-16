@@ -16,10 +16,10 @@ import (
 )
 
 const (
-	//rpcURL           = "https://node-000.ocean1.pokt.tools"
-	rpcURL           = "https://mainnet.gateway.pokt.network/v1/lb/61d4a60d431851003b628aa8"
-	maxDBConnections = 20
-	batchSize        = 10
+	rpcURL = "https://node-000.ocean1.pokt.tools"
+	//rpcURL           = "https://mainnet.gateway.pokt.network/v1/lb/61d4a60d431851003b628aa8"
+	maxDBConnections = 50
+	batchSize        = 25
 )
 
 var wg sync.WaitGroup
@@ -66,12 +66,24 @@ func main() {
 		log.Fatalf("ERROR: %+v", err)
 	}
 
+	allBlocks, err := blockService.AllBlocks(ctx)
+	if err != nil {
+		log.Fatalf("ERROR: %+v", err)
+	}
+	log.Printf("Loaded %d cached blocks", len(allBlocks))
+
 	for h := height; h > 0; h-- {
 		wg.Add(batchSize)
 		for i := 0; i < batchSize; i++ {
 			go func(h int) {
 				defer wg.Done()
-				log.Printf("Syncing block height %d", h)
+				blk, exists := allBlocks[h]
+				if exists {
+					//log.Printf("Already have block %d - %s", h, blk.Time.String())
+					return
+				}
+
+				//log.Printf("Syncing block height %d", h)
 				blk, err := blockService.Block(context.Background(), h)
 				if err != nil {
 					log.Printf(">>> error: %+v", err)

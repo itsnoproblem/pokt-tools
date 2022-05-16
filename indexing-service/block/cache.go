@@ -11,6 +11,7 @@ type Repo interface {
 	CreateSchema(ctx context.Context) error
 	DropSchemaIfExists(ctx context.Context) error
 	FetchAllBlocks(ctx context.Context) (map[int]pocket.Block, error)
+	FetchBlocks(ctx context.Context, heights []int) (map[int]pocket.Block, error)
 	FetchBlock(ctx context.Context, height int) (pocket.Block, bool, error)
 	InsertBlock(ctx context.Context, blk pocket.Block) error
 }
@@ -55,6 +56,15 @@ func (s *cachingService) Block(ctx context.Context, h int) (pocket.Block, error)
 	}
 
 	return blk, nil
+}
+
+func (s *cachingService) AllBlocks(ctx context.Context) (map[int]pocket.Block, error) {
+	blks, err := s.repo.FetchAllBlocks(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "cachingService.AllBlocks")
+	}
+
+	return blks, nil
 }
 
 func (s *cachingService) insertBlock(ctx context.Context, blk pocket.Block) error {
