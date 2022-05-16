@@ -1,4 +1,4 @@
-package indexing_test
+package block_test
 
 import (
 	"context"
@@ -8,7 +8,8 @@ import (
 
 	"github.com/pokt-foundation/pocket-go/provider"
 
-	"github.com/itsnoproblem/pokt-calculator/indexing-service/indexing"
+	"github.com/itsnoproblem/pokt-calculator/indexing-service/block"
+	"github.com/itsnoproblem/pokt-calculator/indexing-service/inmem"
 	"github.com/itsnoproblem/pokt-calculator/indexing-service/mocks"
 )
 
@@ -52,10 +53,9 @@ func TestGetBlock(t *testing.T) {
 	}
 }
 
-func setupTests(t *testing.T, prv *mocks.Provider) (context.Context, indexing.Service) {
+func setupTests(t *testing.T, prv *mocks.Provider) (context.Context, block.Service) {
 	ctx := context.Background()
-
-	return ctx, indexing.NewService(prv)
+	return ctx, block.NewService(prv, inmem.NewBlocksRepo())
 }
 
 func mockBlock(h int) *provider.GetBlockOutput {

@@ -1,7 +1,9 @@
-package indexing
+package block
 
 import (
 	"context"
+
+	"github.com/pokt-foundation/pocket-go/provider"
 
 	"github.com/itsnoproblem/pokt-calculator/indexing-service/pocket"
 	"github.com/pkg/errors"
@@ -10,15 +12,21 @@ import (
 type Service interface {
 	Height(ctx context.Context) (int, error)
 	Block(ctx context.Context, h int) (pocket.Block, error)
-	Params(ctx context.Context, height int) (pocket.Param, error)
+}
+
+type Provider interface {
+	GetBlock(blockNumber int) (*provider.GetBlockOutput, error)
+	GetBlockHeight() (int, error)
 }
 
 type service struct {
-	provider pocket.Provider
+	provider Provider
 }
 
-func NewService(p pocket.Provider) Service {
-	return &service{provider: p}
+func NewService(p Provider) Service {
+	return &service{
+		provider: p,
+	}
 }
 
 func (s *service) Height(_ context.Context) (int, error) {
