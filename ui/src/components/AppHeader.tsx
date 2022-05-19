@@ -14,6 +14,7 @@ import {HamburgerMenu} from "./HamburgerMenu";
 import {PendingRelaysBadge} from "./badges/PendingRelaysBadge";
 import {MonthlyReward} from "../types/monthly-reward";
 import {getActivePath, pathIdErrors, pathIdRewards} from "../App";
+import {QuestionOutlineIcon} from "@chakra-ui/icons";
 
 type AppHeaderProps = {
     address: string,
@@ -134,10 +135,7 @@ export const AppHeader = (props: AppHeaderProps) => {
                     </IconButton>
 
                     {/*<ConnectedChainsBadge/>*/}
-                    <Box pl={2}>
-                        <Text d="inline" fontSize="xs" fontWeight={600} textTransform={"uppercase"}>height:</Text>
-                        <Kbd>{currentHeight}</Kbd>
-                    </Box>
+
                     <IconButton
                         ml={4} mr={4}
                         aria-label={"Refresh"}
@@ -146,12 +144,23 @@ export const AppHeader = (props: AppHeaderProps) => {
                         icon={props.isRefreshing ? (<Spinner size={"xs"}/>) : (<MdRefresh/>)}
                         onClick={updateNodeData}
                     />
-                    <Box  color={"gray.400"} ml={8}><em>Updated: {node.lastChecked?.toLocaleString()}</em></Box>
+                    <Box  color={"gray.400"} ml={8} fontSize={"sm"}>
+                        <em>Updated: {node.lastChecked?.toLocaleString()}</em>
+                    </Box>
                 </HStack>
 
             )}
             <Box ml={2}><PendingRelaysBadge num={pendingRelays} amt={poktAmt}/></Box>
             <Spacer/>
+            <Box pl={2} fontSize={"sm"}>
+                <Text d="inline" fontSize="xs" fontWeight={600} textTransform={"uppercase"}>height:</Text>
+                {node.latestBlockHeight === 0 ? (
+                    <QuestionOutlineIcon ml={2} mr={2}/>
+                ) : (
+                    <Kbd title={"node Height"}>{node.latestBlockHeight}</Kbd>
+                )}
+                <>/ <Kbd title={"network height"}>{currentHeight}</Kbd></>
+            </Box>
             <Box>
                 <MdBrightness1
                     title={"Node status: " + status}

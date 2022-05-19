@@ -42,6 +42,7 @@ type paramsRepo interface {
 }
 
 type Provider interface {
+	NodeProvider(address string) (Provider, error)
 	Height() (uint, error)
 	Param(name string, height int64) (string, error)
 	AllParams(height int64, forceRefresh bool) (pocket.AllParams, error)
@@ -62,6 +63,7 @@ type pocketProvider struct {
 }
 
 func NewPocketProvider(c pchttp.Client, pocketRpcURL string, blockTimesRepo blockTimesRepo, paramsRepo paramsRepo) Provider {
+
 	return pocketProvider{
 		client:         c,
 		blockTimesRepo: blockTimesRepo,
@@ -75,6 +77,15 @@ func (p pocketProvider) WithLogger(l log.Logger) Provider {
 		provider: p,
 		logger:   l,
 	}
+}
+
+func (p pocketProvider) NodeProvider(addr string) (Provider, error) {
+	node, err := p.Node(addr)
+	if err != nil {
+		return pocketProvider{}, err
+	}
+
+	return NewPocketProvider(p.client, fmt.Sprintf("%s/v1", node.ServiceURL), p.blockTimesRepo, p.paramsRepo), nil
 }
 
 func (p pocketProvider) Height() (uint, error) {
