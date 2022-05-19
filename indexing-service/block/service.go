@@ -52,10 +52,14 @@ func (s *service) Block(_ context.Context, h int) (pocket.Block, error) {
 	}, nil
 }
 
-func (s *service) AllBlocks(ctx context.Context) (map[int]pocket.Block, error) {
-	return nil, nil
+func (s *service) Params(_ context.Context, h int) (pocket.ParamGroups, error) {
+	return pocket.ParamGroups{}, nil
 }
 
-func (s *service) Params(ctx context.Context, h int) (pocket.Param, error) {
+func (s *service) Param(ctx context.Context, h int) (pocket.Param, error) {
 	return pocket.Param{}, nil
+}
+
+func (s *service) AllBlocks(ctx context.Context) (map[int]pocket.Block, error) {
+	return nil, nil
 }

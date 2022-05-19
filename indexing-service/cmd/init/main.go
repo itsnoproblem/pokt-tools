@@ -16,10 +16,10 @@ import (
 )
 
 const (
-	rpcURL = "https://node-000.ocean1.pokt.tools"
-	//rpcURL           = "https://mainnet.gateway.pokt.network/v1/lb/61d4a60d431851003b628aa8"
-	maxDBConnections = 50
-	batchSize        = 25
+	//rpcURL = "https://mainnet.gateway.pokt.network/v1/lb/61d4a60d431851003b628aa8"
+	rpcURL           = "https://node-000.ocean1.pokt.tools"
+	maxDBConnections = 20
+	batchSize        = 8
 )
 
 var wg sync.WaitGroup
@@ -58,6 +58,7 @@ func main() {
 	}
 
 	pocketProvider := provider.NewProvider(rpcURL, nil)
+	pocketProvider.UpdateRequestConfig(3, 30*time.Second)
 	blockService := block.NewService(pocketProvider)
 	blockService = block.ServiceWithCache(&blockService, &blocksRepo)
 
@@ -72,28 +73,37 @@ func main() {
 	}
 	log.Printf("Loaded %d cached blocks", len(allBlocks))
 
+	batch := 1
+
 	for h := height; h > 0; h-- {
 		wg.Add(batchSize)
+
 		for i := 0; i < batchSize; i++ {
-			go func(h int) {
-				defer wg.Done()
-				blk, exists := allBlocks[h]
-				if exists {
-					//log.Printf("Already have block %d - %s", h, blk.Time.String())
-					return
-				}
 
-				//log.Printf("Syncing block height %d", h)
-				blk, err := blockService.Block(context.Background(), h)
-				if err != nil {
-					log.Printf(">>> error: %+v", err)
-					return
-				}
+			newCtx, _ := context.WithTimeout(ctx, 30*time.Second)
+			go func(ctx context.Context, h int) {
+				defer func() {
+					wg.Done()
+					ctx.Done()
+				}()
+				_, exists := allBlocks[h]
 
-				log.Printf("Saved block height %d time %s:", blk.Height, blk.Time.String())
-			}(h)
+				if !exists {
+					log.Printf("Start %d...", h)
+					blk, err := blockService.Block(ctx, h)
+					if err != nil {
+						log.Printf(">>> error: %s", err.Error())
+						return
+					}
+
+					log.Printf("Synced block height [%d] time [%s]", blk.Height, blk.Time.String())
+				}
+			}(newCtx, h)
+
 			h = h - 1
 		}
+
+		batch++
 		wg.Wait()
 	}
 

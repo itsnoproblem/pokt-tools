@@ -1,13 +1,5 @@
 package pocket
 
-const (
-	ParamGroupAppParams    = "app_params"
-	ParamGroupAuthParams   = "auth_params"
-	ParamGroupGovParams    = "gov_params"
-	ParamGroupNodeParams   = "node_params"
-	ParamGroupPocketParams = "pocket_params"
-)
-
 type Param struct {
 	Group string
 	Key   string
@@ -22,6 +14,7 @@ func (p ParamsByName) Get(name string) (Param, bool) {
 }
 
 type ParamGroups struct {
+	Height       int
 	AppParams    ParamsByName
 	AuthParams   ParamsByName
 	GovParams    ParamsByName
