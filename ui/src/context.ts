@@ -10,6 +10,7 @@ const defaultNodeContext: CryptoNode = {
     isJailed: true,
     pubkey: '',
     stakedBalance: 0,
+    latestBlockHeight: 0,
 };
 
 export const NodeContext = createContext(defaultNodeContext);

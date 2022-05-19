@@ -11,6 +11,7 @@ type queryNodeResponse struct {
 	IsJailed      bool     `json:"jailed"`
 	ServiceURL    string   `json:"service_url"`
 	StakedBalance string   `json:"tokens"`
+	CurrentHeight int      `json:"current_height"`
 }
 
 type chainResponse struct {

@@ -21,6 +21,8 @@ export const getNode = async (address: string): Promise<CryptoNode> => {
                 isJailed: result.data.data.is_jailed,
                 pubkey: result.data.data.pubkey,
                 stakedBalance: result.data.data.staked_balance,
+                latestBlockHeight: result.data.data.latest_block_height,
+                latestBlockTime: result.data.data.latest_block_time,
             }
             node.lastChecked = new Date();
             return node;
