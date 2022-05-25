@@ -1,0 +1,55 @@
+version: "3.4"
+
+services:
+  grafana:
+    container_name: grafana
+    image: "grafana/grafana:latest"
+    restart: unless-stopped
+    networks:
+      - node-manager-network
+    volumes:
+      - ./grafana/data:/var/lib/grafana
+      - ./grafana/dashboard.yaml:/etc/grafana/provisioning/dashboards/dashboard.yaml
+      - ./grafana/datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=YOURADMINPASSWORD
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning/dashboards
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_DATABASE_TYPE=sqlite3
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+      - GF_SERVER_DOMAIN=monitoring.pokt.gaagl.com
+      - GF_USERS_DEFAULT_THEME=dark
+      - GF_SMTP_ENABLED=false
+      - GF_SMTP_HOST=smtp.gmail.com:587
+      - GF_SMTP_USER=myadrress@gmail.com
+      - GF_SMTP_PASSWORD=mypassword
+      - GF_SMTP_FROM_ADDRESS=myaddress@gmail.com
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./prometheus/prometheus.yaml:/etc/prometheus/prometheus.yaml
+      - ./prometheus/data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yaml'
+    ports:
+      - "9090:9090"
+    restart: unless-stopped
+    networks:
+      - node-manager-network
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter 
+    networks:
+      - node-manager-network
+    ports:
+      - "9101:9100"
+    restart: unless-stopped
+volumes:
+  grafana: {}
+  prometheus: {}
+networks:
+  node-manager-network:
+    external: true
