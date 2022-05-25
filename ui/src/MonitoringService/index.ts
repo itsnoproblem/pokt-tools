@@ -88,6 +88,10 @@ export const allChains: Chain[] = [
         name: "DeFi Kingdoms"
     },
     {
+        id: "03CB",
+        name: "Swimmer Mainnet"
+    },
+    {
         id: "0004",
         name: "BSC"
     },

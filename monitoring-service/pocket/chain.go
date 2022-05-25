@@ -61,6 +61,12 @@ var allChains = map[string]Chain{
 		PortalPrefix: "avax-archival",
 		IsMonetized:  true,
 	},
+	"03CB": {
+		ID:           "03CB",
+		Name:         "Swimmer Mainnet",
+		PortalPrefix: "avax-cra",
+		IsMonetized:  true,
+	},
 	"000E": {
 		ID:           "000E",
 		Name:         "Avalanche Fuji",
@@ -157,7 +163,7 @@ var allChains = map[string]Chain{
 		PortalPrefix: "evmos-mainnet",
 		IsMonetized:  false,
 	},
-	"0049":{
+	"0049": {
 		ID:           "0049",
 		Name:         "Fantom",
 		PortalPrefix: "fantom-mainnet",
