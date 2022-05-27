@@ -37,4 +37,4 @@ scrape_configs:
   #
     scrape_interval: 5s
     static_configs:
-    - targets: ['pokt-000:8083','pokt-001:8083']
+    - targets: [__PROMETHEUS_TARGETS__]

@@ -9,13 +9,12 @@ services:
       - node-manager-network
     volumes:
       - ./grafana/data:/var/lib/grafana
-      - ./grafana/dashboard.yaml:/etc/grafana/provisioning/dashboards/dashboard.yaml
-      - ./grafana/datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
+      - ./grafana/provisioning:/etc/grafana/provisioning
     ports:
       - "3000:3000"
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=YOURADMINPASSWORD
-      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning/dashboards
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
       - GF_USERS_ALLOW_SIGN_UP=false
       - GF_DATABASE_TYPE=sqlite3
       - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
@@ -27,16 +26,21 @@ services:
       - GF_SMTP_PASSWORD=mypassword
       - GF_SMTP_FROM_ADDRESS=myaddress@gmail.com
   prometheus:
-    image: prom/prometheus:latest
     container_name: prometheus
+    build:
+      context: ./prometheus
+      args:
+        PROMETHEUS_TARGETS: "'pokt-000:8083','pokt-001:8083'"
     volumes:
-      - ./prometheus/prometheus.yaml:/etc/prometheus/prometheus.yaml
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
       - ./prometheus/data:/prometheus
     command:
-      - '--config.file=/etc/prometheus/prometheus.yaml'
+      - '--config.file=/etc/prometheus/prometheus.yml'
     ports:
       - "9090:9090"
     restart: unless-stopped
+    depends_on:
+      - initContainers
     networks:
       - node-manager-network
   node-exporter:
@@ -47,6 +51,13 @@ services:
     ports:
       - "9101:9100"
     restart: unless-stopped
+  initContainers:
+    container_name: prometheus-data-permission-fix
+    image: busybox
+    command: ["/bin/chmod","-R","777", "/prometheus"]
+    volumes:
+      - ./prometheus/data:/prometheus
+
 volumes:
   grafana: {}
   prometheus: {}
