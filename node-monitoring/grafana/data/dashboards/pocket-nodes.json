@@ -338,30 +338,6 @@
         "total": false,
         "values": false
       },
-      "libraryPanel": {
-        "description": "Basic CPU info",
-        "meta": {
-          "connectedDashboards": 2,
-          "created": "2022-05-03T05:00:36Z",
-          "createdBy": {
-            "avatarUrl": "/avatar/46d229b033af06a191ff2267bca9ae56",
-            "id": 1,
-            "name": "admin"
-          },
-          "folderName": "General",
-          "folderUid": "",
-          "updated": "2022-05-03T05:19:41Z",
-          "updatedBy": {
-            "avatarUrl": "/avatar/46d229b033af06a191ff2267bca9ae56",
-            "id": 1,
-            "name": "admin"
-          }
-        },
-        "name": "CPU Basic",
-        "type": "graph",
-        "uid": "bo-j9V_nk",
-        "version": 2
-      },
       "lines": true,
       "linewidth": 1,
       "links": [],
@@ -525,6 +501,30 @@
         "y": 9
       },
       "id": 11,
+      "libraryPanel": {
+        "description": "",
+        "meta": {
+          "connectedDashboards": 1,
+          "created": "2022-04-12T00:45:29Z",
+          "createdBy": {
+            "avatarUrl": "/avatar/46d229b033af06a191ff2267bca9ae56",
+            "id": 1,
+            "name": "admin"
+          },
+          "folderName": "General",
+          "folderUid": "",
+          "updated": "2022-05-25T15:55:17Z",
+          "updatedBy": {
+            "avatarUrl": "/avatar/46d229b033af06a191ff2267bca9ae56",
+            "id": 1,
+            "name": "admin"
+          }
+        },
+        "name": "Avg Relay Time",
+        "type": "bargauge",
+        "uid": "YC5eK0Unk",
+        "version": 4
+      },
       "options": {
         "displayMode": "gradient",
         "minVizHeight": 10,
@@ -681,6 +681,30 @@
         "show": true,
         "total": false,
         "values": true
+      },
+      "libraryPanel": {
+        "description": "",
+        "meta": {
+          "connectedDashboards": 1,
+          "created": "2022-05-03T04:49:26Z",
+          "createdBy": {
+            "avatarUrl": "/avatar/46d229b033af06a191ff2267bca9ae56",
+            "id": 1,
+            "name": "admin"
+          },
+          "folderName": "General",
+          "folderUid": "",
+          "updated": "2022-05-09T00:46:09Z",
+          "updatedBy": {
+            "avatarUrl": "/avatar/46d229b033af06a191ff2267bca9ae56",
+            "id": 1,
+            "name": "admin"
+          }
+        },
+        "name": "I/O Utilization",
+        "type": "graph",
+        "uid": "Z8nv9Vl7k",
+        "version": 3
       },
       "lines": true,
       "linewidth": 1,
@@ -1328,6 +1352,6 @@
   "timezone": "",
   "title": "Pocket Nodes",
   "uid": "OCrjUKUnk",
-  "version": 59,
+  "version": 60,
   "weekStart": ""
 }
