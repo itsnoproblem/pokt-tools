@@ -658,30 +658,6 @@
         "total": false,
         "values": true
       },
-      "libraryPanel": {
-        "description": "",
-        "meta": {
-          "connectedDashboards": 1,
-          "created": "2022-05-03T04:49:26Z",
-          "createdBy": {
-            "avatarUrl": "/avatar/46d229b033af06a191ff2267bca9ae56",
-            "id": 1,
-            "name": "admin"
-          },
-          "folderName": "General",
-          "folderUid": "",
-          "updated": "2022-05-09T00:46:09Z",
-          "updatedBy": {
-            "avatarUrl": "/avatar/46d229b033af06a191ff2267bca9ae56",
-            "id": 1,
-            "name": "admin"
-          }
-        },
-        "name": "I/O Utilization",
-        "type": "graph",
-        "uid": "Z8nv9Vl7k",
-        "version": 3
-      },
       "lines": true,
       "linewidth": 1,
       "links": [],
@@ -1321,13 +1297,13 @@
     "list": []
   },
   "time": {
-    "from": "now-6h",
+    "from": "now/d",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Pocket Nodes",
   "uid": "OCrjUKUnk",
-  "version": 61,
+  "version": 63,
   "weekStart": ""
 }
