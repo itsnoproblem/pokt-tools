@@ -501,30 +501,6 @@
         "y": 9
       },
       "id": 11,
-      "libraryPanel": {
-        "description": "",
-        "meta": {
-          "connectedDashboards": 1,
-          "created": "2022-04-12T00:45:29Z",
-          "createdBy": {
-            "avatarUrl": "/avatar/46d229b033af06a191ff2267bca9ae56",
-            "id": 1,
-            "name": "admin"
-          },
-          "folderName": "General",
-          "folderUid": "",
-          "updated": "2022-05-25T15:55:17Z",
-          "updatedBy": {
-            "avatarUrl": "/avatar/46d229b033af06a191ff2267bca9ae56",
-            "id": 1,
-            "name": "admin"
-          }
-        },
-        "name": "Avg Relay Time",
-        "type": "bargauge",
-        "uid": "YC5eK0Unk",
-        "version": 4
-      },
       "options": {
         "displayMode": "gradient",
         "minVizHeight": 10,
@@ -1352,6 +1328,6 @@
   "timezone": "",
   "title": "Pocket Nodes",
   "uid": "OCrjUKUnk",
-  "version": 60,
+  "version": 61,
   "weekStart": ""
 }
