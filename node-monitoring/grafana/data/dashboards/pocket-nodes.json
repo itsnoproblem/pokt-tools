@@ -21,7 +21,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": null,
+  "id": 4,
   "links": [],
   "liveNow": true,
   "panels": [
@@ -525,30 +525,6 @@
         "y": 9
       },
       "id": 11,
-      "libraryPanel": {
-        "description": "",
-        "meta": {
-          "connectedDashboards": 1,
-          "created": "2022-04-12T00:45:29Z",
-          "createdBy": {
-            "avatarUrl": "/avatar/46d229b033af06a191ff2267bca9ae56",
-            "id": 1,
-            "name": "admin"
-          },
-          "folderName": "General",
-          "folderUid": "",
-          "updated": "2022-05-25T15:55:17Z",
-          "updatedBy": {
-            "avatarUrl": "/avatar/46d229b033af06a191ff2267bca9ae56",
-            "id": 1,
-            "name": "admin"
-          }
-        },
-        "name": "Avg Relay Time",
-        "type": "bargauge",
-        "uid": "YC5eK0Unk",
-        "version": 4
-      },
       "options": {
         "displayMode": "gradient",
         "minVizHeight": 10,
@@ -705,30 +681,6 @@
         "show": true,
         "total": false,
         "values": true
-      },
-      "libraryPanel": {
-        "description": "",
-        "meta": {
-          "connectedDashboards": 1,
-          "created": "2022-05-03T04:49:26Z",
-          "createdBy": {
-            "avatarUrl": "/avatar/46d229b033af06a191ff2267bca9ae56",
-            "id": 1,
-            "name": "admin"
-          },
-          "folderName": "General",
-          "folderUid": "",
-          "updated": "2022-05-09T00:46:09Z",
-          "updatedBy": {
-            "avatarUrl": "/avatar/46d229b033af06a191ff2267bca9ae56",
-            "id": 1,
-            "name": "admin"
-          }
-        },
-        "name": "I/O Utilization",
-        "type": "graph",
-        "uid": "Z8nv9Vl7k",
-        "version": 3
       },
       "lines": true,
       "linewidth": 1,
@@ -1361,7 +1313,7 @@
       "type": "timeseries"
     }
   ],
-  "refresh": "30s",
+  "refresh": "",
   "schemaVersion": 36,
   "style": "dark",
   "tags": [],
@@ -1369,13 +1321,13 @@
     "list": []
   },
   "time": {
-    "from": "now-2d",
+    "from": "now-6h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Pocket Nodes",
   "uid": "OCrjUKUnk",
-  "version": 58,
+  "version": 59,
   "weekStart": ""
 }
