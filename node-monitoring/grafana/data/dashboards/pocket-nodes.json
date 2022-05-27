@@ -3,10 +3,7 @@
     "list": [
       {
         "builtIn": 1,
-        "datasource": {
-          "type": "grafana",
-          "uid": "-- Grafana --"
-        },
+        "datasource": null,
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
@@ -29,10 +26,7 @@
   "liveNow": true,
   "panels": [
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "iJ2oFDU7z"
-      },
+      "datasource": null,
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -281,10 +275,7 @@
       "pluginVersion": "v1.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "iJ2oFDU7z"
-          },
+          "datasource": null,
           "editorMode": "code",
           "expr": "node_load15{instance=\"node-exporter:9100\"}",
           "interval": "",
@@ -316,10 +307,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": {
-        "type": "prometheus",
-        "uid": "iJ2oFDU7z"
-      },
+      "datasource": null,
       "decimals": 2,
       "description": "Basic CPU info",
       "fieldConfig": {
