@@ -18,7 +18,7 @@ services:
       - GF_USERS_ALLOW_SIGN_UP=false
       - GF_DATABASE_TYPE=sqlite3
       - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
-      - GF_SERVER_DOMAIN=monitoring.pokt.gaagl.com
+      - GF_SERVER_DOMAIN=
       - GF_USERS_DEFAULT_THEME=dark
       - GF_SMTP_ENABLED=false
       - GF_SMTP_HOST=smtp.gmail.com:587
@@ -32,7 +32,6 @@ services:
       args:
         PROMETHEUS_TARGETS: "'pokt-000:8083','pokt-001:8083'"
     volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
       - ./prometheus/data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
