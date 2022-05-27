@@ -85,7 +85,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
+        "h": 8,
         "w": 20,
         "x": 0,
         "y": 0
@@ -104,26 +104,20 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "iJ2oFDU7z"
-          },
+          "datasource": null,
           "editorMode": "code",
           "expr": "rate(label_replace({__name__=~\"pocketcore_service_relay_count_for_0(.*)\"}, \"chain\", \"$1\", \"__name__\", \"pocketcore_service_relay_count_for_0(.*)\")[$__rate_interval:])\n\n",
           "interval": "",
           "legendFormat": "{{chain}} ({{instance}})",
           "range": true,
-          "refId": "A"
+          "refId": "All Nodes Relays By Chain"
         }
       ],
       "title": "Relays for all Nodes",
       "type": "timeseries"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "iJ2oFDU7z"
-      },
+      "datasource": null,
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -169,10 +163,7 @@
       "pluginVersion": "v1.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "iJ2oFDU7z"
-          },
+          "datasource": null,
           "editorMode": "code",
           "expr": "node_load1{instance=\"node-exporter:9100\"}",
           "interval": "",
@@ -185,10 +176,7 @@
       "type": "gauge"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "iJ2oFDU7z"
-      },
+      "datasource": null,
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -234,10 +222,7 @@
       "pluginVersion": "v1.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "iJ2oFDU7z"
-          },
+          "datasource": null,
           "editorMode": "code",
           "expr": "node_load5{instance=\"node-exporter:9100\"}",
           "interval": "",
@@ -247,6 +232,68 @@
         }
       ],
       "title": "Load (5 min)",
+      "type": "gauge"
+    },
+    {
+      "datasource": null,
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "continuous-GrYlRd"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 20,
+        "y": 6
+      },
+      "id": 19,
+      "options": {
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
+      "pluginVersion": "v1.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "iJ2oFDU7z"
+          },
+          "editorMode": "code",
+          "expr": "node_load15{instance=\"node-exporter:9100\"}",
+          "interval": "",
+          "legendFormat": "Load (5 min)",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Load (15 min)",
       "type": "gauge"
     },
     {
@@ -284,10 +331,10 @@
       "fill": 4,
       "fillGradient": 0,
       "gridPos": {
-        "h": 7,
+        "h": 5,
         "w": 20,
         "x": 0,
-        "y": 6
+        "y": 8
       },
       "hiddenSeries": false,
       "id": 29,
@@ -367,10 +414,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "iJ2oFDU7z"
-          },
+          "datasource": null,
           "expr": "sum by (instance)(rate(node_cpu_seconds_total{mode=\"system\"}[$__rate_interval])) * 100",
           "format": "time_series",
           "hide": false,
@@ -380,10 +424,7 @@
           "step": 240
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "iJ2oFDU7z"
-          },
+          "datasource": null,
           "expr": "sum by (instance)(rate(node_cpu_seconds_total{mode='user'}[$__rate_interval])) * 100",
           "format": "time_series",
           "hide": false,
@@ -393,10 +434,7 @@
           "step": 240
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "iJ2oFDU7z"
-          },
+          "datasource": null,
           "expr": "sum by (instance)(rate(node_cpu_seconds_total{mode='iowait'}[$__rate_interval])) * 100",
           "format": "time_series",
           "intervalFactor": 1,
@@ -405,10 +443,7 @@
           "step": 240
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "iJ2oFDU7z"
-          },
+          "datasource": null,
           "expr": "sum by (instance)(rate(node_cpu_seconds_total{mode=~\".*irq\"}[$__rate_interval])) * 100",
           "format": "time_series",
           "intervalFactor": 1,
@@ -417,10 +452,7 @@
           "step": 240
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "iJ2oFDU7z"
-          },
+          "datasource": null,
           "expr": "sum (rate(node_cpu_seconds_total{mode!='idle',mode!='user',mode!='system',mode!='iowait',mode!='irq',mode!='softirq'}[$__rate_interval])) * 100",
           "format": "time_series",
           "intervalFactor": 1,
@@ -429,10 +461,7 @@
           "step": 240
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "iJ2oFDU7z"
-          },
+          "datasource": null,
           "expr": "sum by (mode)(rate(node_cpu_seconds_total{mode='idle'}[$__rate_interval])) * 100",
           "format": "time_series",
           "intervalFactor": 1,
@@ -477,75 +506,7 @@
       }
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "iJ2oFDU7z"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "continuous-GrYlRd"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 4,
-        "x": 20,
-        "y": 6
-      },
-      "id": 19,
-      "options": {
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true
-      },
-      "pluginVersion": "v1.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "iJ2oFDU7z"
-          },
-          "editorMode": "code",
-          "expr": "node_load15{instance=\"node-exporter:9100\"}",
-          "interval": "",
-          "legendFormat": "Load (5 min)",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Load (15 min)",
-      "type": "gauge"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "iJ2oFDU7z"
-      },
+      "datasource": null,
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -588,7 +549,7 @@
           },
           "folderName": "General",
           "folderUid": "",
-          "updated": "2022-05-25T01:53:12Z",
+          "updated": "2022-05-25T15:55:17Z",
           "updatedBy": {
             "avatarUrl": "/avatar/46d229b033af06a191ff2267bca9ae56",
             "id": 1,
@@ -598,7 +559,7 @@
         "name": "Avg Relay Time",
         "type": "bargauge",
         "uid": "YC5eK0Unk",
-        "version": 3
+        "version": 4
       },
       "options": {
         "displayMode": "gradient",
@@ -617,10 +578,7 @@
       "pluginVersion": "v1.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "iJ2oFDU7z"
-          },
+          "datasource": null,
           "editorMode": "code",
           "exemplar": false,
           "expr": "sum(pocketcore_service_avg_relay_time_for_0001_sum) / sum(pocketcore_service_avg_relay_time_for_0001_count)",
@@ -631,10 +589,7 @@
           "refId": "POKT"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "iJ2oFDU7z"
-          },
+          "datasource": null,
           "editorMode": "code",
           "expr": "sum(pocketcore_service_avg_relay_time_for_0009_sum) / sum(pocketcore_service_avg_relay_time_for_0009_count)",
           "hide": false,
@@ -643,10 +598,7 @@
           "refId": "Polygon"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "iJ2oFDU7z"
-          },
+          "datasource": null,
           "editorMode": "code",
           "exemplar": false,
           "expr": "sum(pocketcore_service_avg_relay_time_for_0021_sum) / sum(pocketcore_service_avg_relay_time_for_0021_count)",
@@ -657,10 +609,7 @@
           "refId": "ETH"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "iJ2oFDU7z"
-          },
+          "datasource": null,
           "editorMode": "code",
           "exemplar": false,
           "expr": "sum(pocketcore_service_avg_relay_time_for_0027_sum) / sum(pocketcore_service_avg_relay_time_for_0027_count)",
@@ -671,10 +620,7 @@
           "refId": "Gnosis"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "iJ2oFDU7z"
-          },
+          "datasource": null,
           "editorMode": "code",
           "exemplar": false,
           "expr": "sum(pocketcore_service_avg_relay_time_for_0040_sum) / sum(pocketcore_service_avg_relay_time_for_0040_count)",
@@ -686,10 +632,7 @@
           "refId": "Harmony One"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "iJ2oFDU7z"
-          },
+          "datasource": null,
           "editorMode": "code",
           "exemplar": false,
           "expr": "sum(pocketcore_service_avg_relay_time_for_03DF_sum) / sum(pocketcore_service_avg_relay_time_for_03DF_count)",
@@ -700,10 +643,7 @@
           "refId": "DeFi Kingdoms"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "iJ2oFDU7z"
-          },
+          "datasource": null,
           "editorMode": "code",
           "exemplar": false,
           "expr": "sum(pocketcore_service_avg_relay_time_for_03CB_sum) / sum(pocketcore_service_avg_relay_time_for_03CB_count)",
@@ -712,6 +652,30 @@
           "legendFormat": "Swimmer",
           "range": true,
           "refId": "Swimmer"
+        },
+        {
+          "datasource": null,
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum(pocketcore_service_avg_relay_time_for_0003_sum) / sum(pocketcore_service_avg_relay_time_for_0003_count)",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "AVAX",
+          "range": true,
+          "refId": "AVAX"
+        },
+        {
+          "datasource": null,
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum(pocketcore_service_avg_relay_time_for_0049_sum) / sum(pocketcore_service_avg_relay_time_for_0049_count)",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "Fantom",
+          "range": true,
+          "refId": "A"
         }
       ],
       "title": "Avg Relay Time",
@@ -724,10 +688,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": {
-        "type": "prometheus",
-        "uid": "iJ2oFDU7z"
-      },
+      "datasource": null,
       "decimals": 3,
       "description": "",
       "fieldConfig": {
@@ -739,7 +700,7 @@
       "fill": 4,
       "fillGradient": 0,
       "gridPos": {
-        "h": 7,
+        "h": 6,
         "w": 20,
         "x": 0,
         "y": 13
@@ -800,10 +761,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "iJ2oFDU7z"
-          },
+          "datasource": null,
           "expr": "rate(node_disk_io_time_seconds_total[$__rate_interval])",
           "format": "time_series",
           "hide": false,
@@ -851,10 +809,7 @@
       }
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "iJ2oFDU7z"
-      },
+      "datasource": null,
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -955,7 +910,7 @@
         "h": 6,
         "w": 20,
         "x": 0,
-        "y": 20
+        "y": 19
       },
       "id": 21,
       "options": {
@@ -971,10 +926,7 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "iJ2oFDU7z"
-          },
+          "datasource": null,
           "editorMode": "code",
           "expr": "node_load1",
           "legendFormat": "Load Avg (1 min)",
@@ -982,10 +934,7 @@
           "refId": "A"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "iJ2oFDU7z"
-          },
+          "datasource": null,
           "editorMode": "code",
           "expr": "node_load5",
           "hide": false,
@@ -995,10 +944,7 @@
           "refId": "B"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "iJ2oFDU7z"
-          },
+          "datasource": null,
           "editorMode": "code",
           "expr": "node_load15",
           "hide": false,
@@ -1012,10 +958,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "iJ2oFDU7z"
-      },
+      "datasource": null,
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1070,7 +1013,7 @@
         "h": 6,
         "w": 20,
         "x": 0,
-        "y": 26
+        "y": 25
       },
       "id": 25,
       "options": {
@@ -1086,10 +1029,7 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "iJ2oFDU7z"
-          },
+          "datasource": null,
           "editorMode": "code",
           "expr": "process_open_fds{instance=\"pokt-000:8083\"}",
           "interval": "",
@@ -1098,10 +1038,7 @@
           "refId": "A"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "iJ2oFDU7z"
-          },
+          "datasource": null,
           "editorMode": "code",
           "expr": "process_open_fds{instance=\"pokt-001:8083\"}",
           "hide": false,
@@ -1114,10 +1051,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "iJ2oFDU7z"
-      },
+      "datasource": null,
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1218,7 +1152,7 @@
         "h": 5,
         "w": 20,
         "x": 0,
-        "y": 32
+        "y": 31
       },
       "id": 15,
       "options": {
@@ -1234,10 +1168,7 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "iJ2oFDU7z"
-          },
+          "datasource": null,
           "editorMode": "code",
           "expr": "rate(node_pressure_cpu_waiting_seconds_total{}[$__rate_interval])",
           "legendFormat": "CPU Wait",
@@ -1245,10 +1176,7 @@
           "refId": "CPU Wait"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "iJ2oFDU7z"
-          },
+          "datasource": null,
           "editorMode": "code",
           "expr": "rate(node_pressure_io_waiting_seconds_total{}[$__rate_interval])",
           "hide": false,
@@ -1258,10 +1186,7 @@
           "refId": "I/O Wait"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "iJ2oFDU7z"
-          },
+          "datasource": null,
           "editorMode": "code",
           "expr": "rate(node_pressure_io_stalled_seconds_total{}[$__rate_interval])",
           "hide": false,
@@ -1275,10 +1200,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "iJ2oFDU7z"
-      },
+      "datasource": null,
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1334,7 +1256,7 @@
         "h": 5,
         "w": 20,
         "x": 0,
-        "y": 37
+        "y": 36
       },
       "id": 5,
       "options": {
@@ -1350,10 +1272,7 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "iJ2oFDU7z"
-          },
+          "datasource": null,
           "editorMode": "code",
           "exemplar": false,
           "expr": "rate(pocketcore_service_sessions_count_for_all[$__rate_interval])",
@@ -1369,10 +1288,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "iJ2oFDU7z"
-      },
+      "datasource": null,
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1427,7 +1343,7 @@
         "h": 5,
         "w": 20,
         "x": 0,
-        "y": 42
+        "y": 41
       },
       "id": 7,
       "options": {
@@ -1443,10 +1359,7 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "iJ2oFDU7z"
-          },
+          "datasource": null,
           "editorMode": "code",
           "exemplar": false,
           "expr": "rate(pocketcore_service_err_count_for_all[$__interval])",
@@ -1460,7 +1373,7 @@
       "type": "timeseries"
     }
   ],
-  "refresh": false,
+  "refresh": "30s",
   "schemaVersion": 36,
   "style": "dark",
   "tags": [],
@@ -1468,13 +1381,13 @@
     "list": []
   },
   "time": {
-    "from": "now-24h",
+    "from": "now-2d",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Pocket Nodes",
   "uid": "OCrjUKUnk",
-  "version": 55,
+  "version": 58,
   "weekStart": ""
 }

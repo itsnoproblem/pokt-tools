@@ -18,7 +18,7 @@ services:
       - GF_USERS_ALLOW_SIGN_UP=false
       - GF_DATABASE_TYPE=sqlite3
       - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
-      - GF_SERVER_DOMAIN=
+      - GF_SERVER_DOMAIN=monitoring.pokt.tools
       - GF_USERS_DEFAULT_THEME=dark
       - GF_SMTP_ENABLED=false
       - GF_SMTP_HOST=smtp.gmail.com:587
