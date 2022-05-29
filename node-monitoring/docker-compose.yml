@@ -5,14 +5,15 @@ services:
     container_name: grafana
     image: "grafana/grafana:latest"
     restart: unless-stopped
-    networks:
-      - node-manager-network
+    ports:
+      - "3000:3000"
     volumes:
       - ./grafana/data:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning
-    ports:
-      - "3000:3000"
+    networks:
+      - node-manager-network
     environment:
+      # GF_SECURITY_ADMIN_PASSWORD is only
       - GF_SECURITY_ADMIN_PASSWORD=YOURADMINPASSWORD
       - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
       - GF_USERS_ALLOW_SIGN_UP=false

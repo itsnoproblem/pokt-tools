@@ -6,13 +6,7 @@ datasources:
   access: proxy
   url: http://prometheus:9090
   isDefault: true
-  password:
-  user:
-  database:
   basicAuth: false
-  basicAuthUser:
-  basicAuthPassword:
-  withCredentials:
   jsonData:
      graphiteVersion: "1.1"
      tlsAuth: false
