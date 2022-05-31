@@ -1,7 +1,7 @@
 # Real Time Dashboard for Monitoring Pocket Nodes
 
 This directory contains a docker stack that can be used to provision a solution for monitoring pocket nodes' 
-session participation alongside basic system metrics (CPU, Load Avg, I/O Utilization, etc).
+session participation, alongside basic system metrics (CPU, Load Avg, I/O Utilization, etc).
 
 This setup is by no means exhaustive.  It is meant to serve as a reference / jumping-off point for those who would like
 to gain deeper insight into their nodes' performance, and to have the ability to monitor the servicing of relays in 
@@ -11,7 +11,7 @@ real-time.
 
 ## Overview
 
-The enclosed *docker-compose.yml* will sping up the following containers:
+The enclosed *docker-compose.yml* defines the following containers:
 - prometheus (port 9090)
 - node_exporter (port 9100)
 - grafana (port 3003)

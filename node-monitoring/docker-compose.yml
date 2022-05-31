@@ -1,5 +1,19 @@
 version: "3.4"
 
+volumes:
+  grafana: {}
+  prometheus: {}
+
+# Note: this stack is configured to run on the same network as node pilot (node-manager-network).
+# If you are not using node pilot, you can set this to the network name of your docker network (if using docker).
+# The point is that the prometheus container needs to be able to access the exported metrics on your pocket nodes,
+# generally exposed on pokt-node-host:8083
+#
+# See below under the prometheus service definition, PROMETHEUS_TARGETS
+networks:
+  node-manager-network:
+    external: true
+
 services:
   grafana:
     container_name: grafana
@@ -13,9 +27,9 @@ services:
     networks:
       - node-manager-network
     environment:
-      # GF_SECURITY_ADMIN_PASSWORD is only
       - GF_SECURITY_ADMIN_PASSWORD=YOURADMINPASSWORD
       - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+      - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/var/lib/grafana/dashboards/monitoring/pocket-nodes.json
       - GF_USERS_ALLOW_SIGN_UP=false
       - GF_DATABASE_TYPE=sqlite3
       - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
@@ -58,9 +72,4 @@ services:
     volumes:
       - ./prometheus/data:/prometheus
 
-volumes:
-  grafana: {}
-  prometheus: {}
-networks:
-  node-manager-network:
-    external: true
+
