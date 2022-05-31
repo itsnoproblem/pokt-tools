@@ -40,3 +40,8 @@ access to this port to trusted IPs only.
    docker-compose up -d 
    ```
    Now you can visit your grafana instance at http://yournodeurl:3003 
+
+## Acknowledgements
+
+The work here is based on the work of the Pocket Network's core-deployments reference, 
+[which can be found here](https://github.com/pokt-network/pocket-core-deployments/tree/staging/docker-compose/stacks/pocket-validator).
