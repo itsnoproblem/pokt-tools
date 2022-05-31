@@ -63,11 +63,11 @@ func main() {
 			_ = logger.Log("ERROR closing database")
 		}
 	}(bitcaskDB)
-	blockTimesRepo := db.NewBlockTimesRepo(bitcaskDB)
+	blockRepo := db.NewBlockRepo(bitcaskDB)
 	paramsRepo := db.NewParamsRepo(bitcaskDB)
 
 	// provider
-	prv := pocket.NewPocketProvider(httpClient, *pocketRpcURL, blockTimesRepo, paramsRepo)
+	prv := pocket.NewPocketProvider(httpClient, *pocketRpcURL, blockRepo, paramsRepo)
 	pocketProvider := prv.WithLogger(logger)
 	nodeSvc := monitoring.NewService(pocketProvider)
 	//accountsSvc = accounts.NewLoggingService(logger, accountsSvc)

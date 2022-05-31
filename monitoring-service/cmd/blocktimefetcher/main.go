@@ -50,11 +50,11 @@ func main() {
 			_ = logger.Log("ERROR closing database")
 		}
 	}(bitcaskDB)
-	blockTimesRepo := db.NewBlockTimesRepo(bitcaskDB)
+	blockRepo := db.NewBlockRepo(bitcaskDB)
 	paramsRepo := db.NewParamsRepo(bitcaskDB)
 
 	// provider + MonitoringService
-	prv := pocket.NewPocketProvider(httpClient, *pocketRpcURL, blockTimesRepo, paramsRepo)
+	prv := pocket.NewPocketProvider(httpClient, *pocketRpcURL, blockRepo, paramsRepo)
 	pocketProvider := prv.WithLogger(logger)
 	nodeSvc := monitoring.NewService(pocketProvider)
 
@@ -77,7 +77,7 @@ func main() {
 
 		(func() {
 			fmt.Printf("fetching blocks %v\n", heights)
-			if _, err := nodeSvc.BlockTimes(heights); err != nil {
+			if _, err := nodeSvc.Blocks(heights); err != nil {
 				fmt.Printf("ERROR: %s", err)
 			}
 			for _, n := range heights {

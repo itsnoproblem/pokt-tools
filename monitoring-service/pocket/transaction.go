@@ -21,6 +21,7 @@ type Transaction struct {
 	AppPubkey     string
 	ResultCode    int64
 	IsConfirmed   bool
+	Block         Block
 }
 
 func (t Transaction) Chain() (Chain, error) {

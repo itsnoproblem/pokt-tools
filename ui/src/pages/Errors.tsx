@@ -86,13 +86,13 @@ export const Errors = () => {
                     </Select>
                 </FormControl>
             </Flex>
-            <Flex pt={1} pb={1} pl={40} pr={40} w={"100%"} align={"center"}>
+            <Flex pt={1} pb={1} pl={40} pr={40} w={"100%"} textAlign={"center"}>
                 { chain && (
                     <HStack margin={"auto"} mb={4}>
                         <Box>
                             <IconButton disabled={(page <= 1)} aria-label={"back"} icon={(<ArrowLeftIcon/>)} onClick={() => { setPage(page - 1); }}/>
                         </Box>
-                        <Box w={100} align={"center"}>{page}</Box>
+                        <Box w={100} textAlign={"center"}>{page}</Box>
                         <Box>
                             <IconButton disabled={(errors.length < resultsPerPage)} aria-label={"next"} icon={(<ArrowRightIcon/>)} onClick={() => { setPage(page + 1); }}/>
                         </Box>
@@ -101,7 +101,7 @@ export const Errors = () => {
             </Flex>
             { isLoading && (<SkeletonRows/>) }
             {(errors.length === 0 && !isLoading) && (
-                <Box align={"center"} m={"auto"}>No results</Box>
+                <Box textAlign={"center"} m={"auto"}>No results</Box>
             )}
             { (errors.length > 0  && !isLoading) && (
                 <Table variant={"striped"} w={"100%"}>

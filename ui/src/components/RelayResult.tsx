@@ -16,7 +16,7 @@ export const RelayResult = (props: RelayResultProps) => {
     return (
         <>
         {(Object.entries(props.relayResponse).length > 0) && (
-        <Grid templateColumns={"repeat(5,1fr)"} mt={30} spacing={1} fontSize={"sm"}>
+        <Grid templateColumns={"repeat(5,1fr)"} mt={30} fontSize={"sm"}>
             <GridItem mb={2} pb={2} borderBottomWidth={1} colSpan={2}>Chain</GridItem>
             <GridItem mb={2} pb={2} borderBottomWidth={1}>Duration</GridItem>
             <GridItem mb={2} pb={2} borderBottomWidth={1} textAlign={"right"}>HTTP status</GridItem>
@@ -49,7 +49,6 @@ const SingleResult = (props: SingleResultProps) => {
                 }
                 {isOpen ? (
                     <ChevronDownIcon
-                        title={"details"}
                         aria-label={"details"}
                         _hover={{cursor: "pointer"}}
                         ml={5}
@@ -57,7 +56,6 @@ const SingleResult = (props: SingleResultProps) => {
                     />
                 ) : (
                     <ChevronLeftIcon
-                        title={"details"}
                         aria-label={"details"}
                         _hover={{cursor: "pointer"}}
                         ml={5}

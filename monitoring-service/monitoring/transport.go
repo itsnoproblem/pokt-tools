@@ -19,7 +19,7 @@ const (
 	transactionEndpointPath         = "/transactions/{hash}"
 	nodeEndpointPath                = "/node/{address}"
 	accountTransactionsEndpointPath = "/accounts/{address}/transactions"
-	blockTimesEndpointPath          = "/block-times"
+	blockEndpointPath               = "/block/{height}"
 	monthlyRewardsEndpointPath      = "/node/{address}/rewards"
 	simulateRelaysEndpointPath      = "/tests/simulate-relay"
 )
@@ -69,10 +69,10 @@ func NewTransport(svc Service) transport {
 				Encoder:  api.EncodeResponse,
 			},
 			{
-				Method:   http.MethodPost,
-				Path:     blockTimesEndpointPath,
-				Endpoint: BlockTimesEndpoint(svc),
-				Decoder:  decodeBlockTimesRequest,
+				Method:   http.MethodGet,
+				Path:     blockEndpointPath,
+				Endpoint: BlockEndpoint(svc),
+				Decoder:  decodeBlockRequest,
 				Encoder:  api.EncodeResponse,
 			},
 			{
@@ -176,13 +176,22 @@ func decodeNodeRequest(_ context.Context, req *http.Request) (request interface{
 	return nodeRequest{Address: address}, nil
 }
 
-func decodeBlockTimesRequest(_ context.Context, req *http.Request) (request interface{}, err error) {
-	var blockHeights blockTimesRequest
-	if err := json.NewDecoder(req.Body).Decode(&blockHeights); err != nil {
-		return nil, fmt.Errorf("decodeBlockTimesRequest: %s", err)
+func decodeBlockRequest(_ context.Context, req *http.Request) (request interface{}, err error) {
+	vars := mux.Vars(req)
+	height, ok := vars["height"]
+	if !ok {
+		return nil, errors.New("decodeBlockRequest: required param 'height' not found")
 	}
 
-	return blockHeights, nil
+	heightUint, err := strconv.ParseUint(height, 10, 32)
+	if err != nil {
+		return nil, fmt.Errorf("decodeBlockRequest: failed to convert 'height' to uint  %s", err)
+	}
+
+	heights := make([]uint, 1)
+	heights[0] = uint(heightUint)
+
+	return blockRequest{Heights: heights}, nil
 }
 
 func decodeMonthlyRewardsRequest(_ context.Context, req *http.Request) (request interface{}, err error) {

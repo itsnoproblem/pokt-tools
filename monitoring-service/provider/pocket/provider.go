@@ -10,7 +10,6 @@ import (
 	"monitoring-service/pocket"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/go-kit/kit/log"
 )
@@ -28,9 +27,9 @@ const (
 	urlPathSimulateRelay          = "v1/client/sim"
 )
 
-type blockTimesRepo interface {
-	Get(height uint) (t time.Time, exists bool, err error)
-	Set(height uint, t time.Time) error
+type blockRepo interface {
+	Get(height uint) (p pocket.Block, exists bool, err error)
+	Set(height uint, p pocket.Block) error
 }
 
 type paramsRepo interface {
@@ -47,7 +46,7 @@ type Provider interface {
 	AllParams(height int64, forceRefresh bool) (pocket.AllParams, error)
 	Node(address string) (pocket.Node, error)
 	Balance(address string) (uint, error)
-	BlockTime(height uint) (time.Time, error)
+	Block(height uint) (pocket.Block, error)
 	Transaction(hash string) (pocket.Transaction, error)
 	AccountTransactions(address string, page uint, perPage uint, sort string) ([]pocket.Transaction, error)
 	SimulateRelay(servicerUrl, chainID string, payload json.RawMessage) (json.RawMessage, error)
@@ -55,18 +54,18 @@ type Provider interface {
 }
 
 type pocketProvider struct {
-	client         pchttp.Client
-	blockTimesRepo blockTimesRepo
-	paramsRepo     paramsRepo
-	pocketRpcURL   string
+	client       pchttp.Client
+	blockRepo    blockRepo
+	paramsRepo   paramsRepo
+	pocketRpcURL string
 }
 
-func NewPocketProvider(c pchttp.Client, pocketRpcURL string, blockTimesRepo blockTimesRepo, paramsRepo paramsRepo) Provider {
+func NewPocketProvider(c pchttp.Client, pocketRpcURL string, blockRepo blockRepo, paramsRepo paramsRepo) Provider {
 	return pocketProvider{
-		client:         c,
-		blockTimesRepo: blockTimesRepo,
-		paramsRepo:     paramsRepo,
-		pocketRpcURL:   pocketRpcURL,
+		client:       c,
+		blockRepo:    blockRepo,
+		paramsRepo:   paramsRepo,
+		pocketRpcURL: pocketRpcURL,
 	}
 }
 
@@ -227,14 +226,9 @@ func (p pocketProvider) Balance(address string) (uint, error) {
 	return balResponse.Balance, nil
 }
 
-func (p pocketProvider) BlockTime(height uint) (time.Time, error) {
-	var fail = func(err error) (time.Time, error) {
-		return time.Time{}, fmt.Errorf("pocketProvider.BlockTime: %s", err)
-	}
-
-	cached, exists, _ := p.blockTimesRepo.Get(height)
-	if exists {
-		return cached, nil
+func (p pocketProvider) Block(height uint) (pocket.Block, error) {
+	var fail = func(err error) (pocket.Block, error) {
+		return pocket.Block{}, fmt.Errorf("pocketProvider.Block: %s", err)
 	}
 
 	url := fmt.Sprintf("%s/%s", p.pocketRpcURL, urlPathGetBlock)
@@ -251,11 +245,11 @@ func (p pocketProvider) BlockTime(height uint) (time.Time, error) {
 		return fail(err)
 	}
 
-	if err = p.blockTimesRepo.Set(height, blkResponse.Block.Header.Time); err != nil {
-		return time.Time{}, fmt.Errorf("pocketProvider.BlockTime: %s", err)
+	if err = p.blockRepo.Set(height, pocket.Block(blkResponse.Block.Header)); err != nil {
+		return pocket.Block{}, fmt.Errorf("pocketProvider.Block: %s", err)
 	}
 
-	return blkResponse.Block.Header.Time, nil
+	return pocket.Block(blkResponse.Block.Header), nil
 }
 
 func (p pocketProvider) Transaction(hash string) (pocket.Transaction, error) {
