@@ -1,0 +1,75 @@
+version: "3.4"
+
+volumes:
+  grafana: {}
+  prometheus: {}
+
+# Note: this stack is configured to run on the same network as node pilot (node-manager-network).
+# If you are not using node pilot, you can set this to the network name of your docker network (if using docker).
+# The point is that the prometheus container needs to be able to access the exported metrics on your pocket nodes,
+# generally exposed on pokt-node-host:8083
+#
+# See below under the prometheus service definition, PROMETHEUS_TARGETS
+networks:
+  node-manager-network:
+    external: true
+
+services:
+  grafana:
+    container_name: grafana
+    image: "grafana/grafana:latest"
+    restart: unless-stopped
+    ports:
+      - "3003:3000"
+    volumes:
+      - ./grafana/data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    networks:
+      - node-manager-network
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=YOURADMINPASSWORD
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+      - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/var/lib/grafana/dashboards/pocket-nodes.json
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_DATABASE_TYPE=sqlite3
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+      - GF_SERVER_DOMAIN=monitoring.pokt.tools
+      - GF_USERS_DEFAULT_THEME=dark
+      - GF_SMTP_ENABLED=false
+      - GF_SMTP_HOST=smtp.gmail.com:587
+      - GF_SMTP_USER=myadrress@gmail.com
+      - GF_SMTP_PASSWORD=mypassword
+      - GF_SMTP_FROM_ADDRESS=myaddress@gmail.com
+  prometheus:
+    container_name: prometheus
+    build:
+      context: ./prometheus
+      args:
+        PROMETHEUS_TARGETS: "'pokt-000:8083','pokt-001:8083'"
+    volumes:
+      - ./prometheus/data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - "9090:9090"
+    restart: unless-stopped
+    depends_on:
+      - initContainers
+    networks:
+      - node-manager-network
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter 
+    networks:
+      - node-manager-network
+    ports:
+      - "9101:9100"
+    restart: unless-stopped
+  initContainers:
+    container_name: prometheus-data-permission-fix
+    image: busybox
+    command: ["/bin/chmod","-R","777", "/prometheus"]
+    volumes:
+      - ./prometheus/data:/prometheus
+
+
