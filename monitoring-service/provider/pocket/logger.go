@@ -46,7 +46,6 @@ func (p loggingProvider) Height() (uint, error) {
 }
 
 func (p loggingProvider) AllParams(height int64, forceRefresh bool) (pocket.AllParams, error) {
-	t := timer.Start()
 	params, err := p.provider.AllParams(height, forceRefresh)
 	if err != nil {
 		p.error(err.Error())
