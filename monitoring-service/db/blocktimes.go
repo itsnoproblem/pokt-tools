@@ -34,7 +34,7 @@ func (r BlockTimesRepo) Get(height uint) (t time.Time, exists bool, err error) {
 func (r BlockTimesRepo) Set(height uint, t time.Time) error {
 	heightB, _ := json.Marshal(height)
 	timeB, _ := json.Marshal(t)
-	err := r.db.Put(heightB, timeB)
+	err := r.db.PutWithTTL(heightB, timeB, time.Hour*3)
 	if err != nil {
 		return fmt.Errorf("BlockTimesRepo.Set: %s", err)
 	}

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"monitoring-service/pocket"
+	"time"
 
 	"git.mills.io/prologic/bitcask"
 )
@@ -34,7 +35,7 @@ func (r ParamsRepo) Get(name string, height int64) (p pocket.Params, exists bool
 func (r ParamsRepo) Set(name string, height int64, p pocket.Params) error {
 	keyB := r.key(name, height)
 	paramsB, _ := json.Marshal(p)
-	err := r.db.Put(keyB, paramsB)
+	err := r.db.PutWithTTL(keyB, paramsB, time.Hour*3)
 	if err != nil {
 		return fmt.Errorf("ParamsRepo.Set [%s, %d]: %s", name, height, err)
 	}
@@ -72,7 +73,7 @@ func (r ParamsRepo) DelAll(height int64) error {
 func (r ParamsRepo) SetAll(height int64, params pocket.AllParams) error {
 	keyB := r.key("pocketAllParams", height)
 	paramsB, _ := json.Marshal(params)
-	err := r.db.Put(keyB, paramsB)
+	err := r.db.PutWithTTL(keyB, paramsB, time.Hour*3)
 	if err != nil {
 		return fmt.Errorf("ParamsRepo.SetAll [%d]: %s", height, err)
 	}
