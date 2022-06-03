@@ -178,6 +178,10 @@ export const allChains: Chain[] = [
     {
         id: "000C",
         name: "xDAI Archival"
+    },
+    {
+        id: "0050",
+        name: "Moonbeam"
     }
 ];
 

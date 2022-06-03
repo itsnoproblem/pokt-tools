@@ -295,4 +295,10 @@ var allChains = map[string]Chain{
 		PortalPrefix: "sol-testnet",
 		IsMonetized:  false,
 	},
+	"0050": {
+		ID:           "0050",
+		Name:         "Moonbeam",
+		PortalPrefix: "moonbeam-mainnet",
+		IsMonetized:  true,
+	},
 }
