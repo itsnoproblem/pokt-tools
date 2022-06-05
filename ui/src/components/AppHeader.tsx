@@ -1,4 +1,15 @@
-import {Box, HStack, IconButton, Kbd, Spacer, Spinner, Text, useBreakpointValue, useInterval} from "@chakra-ui/react";
+import {
+    Box,
+    HStack,
+    IconButton,
+    Kbd,
+    Spacer,
+    Spinner,
+    Text,
+    Tooltip,
+    useBreakpointValue,
+    useInterval
+} from "@chakra-ui/react";
 import {NodeContext} from "../context";
 import {ColorModeSwitcher} from "./ColorModeSwitcher";
 import {BiCoin, CgFileDocument, MdBrightness1, MdRefresh} from "react-icons/all";
@@ -74,11 +85,11 @@ export const AppHeader = (props: AppHeaderProps) => {
         try {
             const n = await getNode(node.address);
             props.onNodeLoaded(n);
-            const c = await getClaims(node.address);
-            props.onRewardsLoaded(c);
             getHeight().then((h) => setCurrentHeight(h));
             updateBalance();
 
+            const c = await getClaims(node.address);
+            props.onRewardsLoaded(c);
         }
         catch (err) {
             console.error("updateNodeData", err);
@@ -155,7 +166,9 @@ export const AppHeader = (props: AppHeaderProps) => {
             <Box pl={2} fontSize={"sm"}>
                 <Text d="inline" fontSize="xs" fontWeight={600} textTransform={"uppercase"}>height:</Text>
                 {node.latestBlockHeight === 0 ? (
-                    <QuestionOutlineIcon ml={2} mr={2}/>
+                    <Tooltip label={"pokt.tools can't reach "+node.service_url+"/v1/query/height"}>
+                        <QuestionOutlineIcon ml={2} mr={2}/>
+                    </Tooltip>
                 ) : (
                     <Kbd title={"node Height"}>{node.latestBlockHeight}</Kbd>
                 )}
