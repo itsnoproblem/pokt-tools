@@ -6,16 +6,16 @@ import (
 	"fmt"
 	"log"
 	"math"
-	pocket2 "monitoring-service/provider/pocket"
 	"sort"
 	"strconv"
 	"time"
 
 	"monitoring-service/pocket"
+	pocketnode "monitoring-service/provider/pocket"
 )
 
 type PocketProvider interface {
-	NodeProvider(address string) (pocket2.Provider, error)
+	NodeProvider(address string) (pocketnode.Provider, error)
 	SimulateRelay(servicerUrl, chainID string, payload json.RawMessage) (json.RawMessage, error)
 	AccountTransactions(address string, page uint, perPage uint, sort string) ([]pocket.Transaction, error)
 	Transaction(hash string) (pocket.Transaction, error)
