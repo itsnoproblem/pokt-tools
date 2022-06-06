@@ -65,8 +65,7 @@ export const AppHeader = (props: AppHeaderProps) => {
     } else {
         statusColor = "#2bd950";
     }
-
-    console.log("node", node)
+    
     const status = (node.isJailed || !node.exists) ?
         (node.exists ? "Jailed" : "Invalid address") : "Not Jailed";
 
