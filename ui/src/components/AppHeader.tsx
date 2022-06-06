@@ -60,11 +60,13 @@ export const AppHeader = (props: AppHeaderProps) => {
     let statusColor = "#797979";
     if (node.isJailed || !node.exists) {
         statusColor = "#FF0000";
-    } else if(node.latestBlockHeight < currentHeight) {
+    } else if((node.latestBlockHeight !== 0) && node.latestBlockHeight < currentHeight) {
         statusColor = "#ffb700";
     } else {
         statusColor = "#2bd950";
     }
+
+    console.log("node", node)
     const status = (node.isJailed || !node.exists) ?
         (node.exists ? "Jailed" : "Invalid address") : "Not Jailed";
 
