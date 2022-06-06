@@ -10,6 +10,8 @@ export type CryptoNode = {
     pubkey: string,
     stakedBalance: number,
     lastChecked?: Date,
+    latestBlockTime?: Date,
+    latestBlockHeight: number
 }
 
 export interface NodeProps {

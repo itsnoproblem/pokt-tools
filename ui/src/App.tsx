@@ -21,7 +21,9 @@ export const App = () => {
         isJailed: true,
         pubkey: '',
         stakedBalance: 0,
+        latestBlockHeight: 0
     }
+
     const defaultRewards: MonthlyReward[] = [];
     const [node, setNode] = useState(defaultNode);
     const [rewards, setRewards] = useState(defaultRewards);

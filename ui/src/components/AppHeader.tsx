@@ -1,4 +1,15 @@
-import {Box, HStack, IconButton, Kbd, Spacer, Spinner, Text, useBreakpointValue, useInterval} from "@chakra-ui/react";
+import {
+    Box,
+    HStack,
+    IconButton,
+    Kbd,
+    Spacer,
+    Spinner,
+    Text,
+    Tooltip,
+    useBreakpointValue,
+    useInterval
+} from "@chakra-ui/react";
 import {NodeContext} from "../context";
 import {ColorModeSwitcher} from "./ColorModeSwitcher";
 import {BiCoin, CgFileDocument, MdBrightness1, MdRefresh} from "react-icons/all";
@@ -14,6 +25,7 @@ import {HamburgerMenu} from "./HamburgerMenu";
 import {PendingRelaysBadge} from "./badges/PendingRelaysBadge";
 import {MonthlyReward} from "../types/monthly-reward";
 import {getActivePath, pathIdErrors, pathIdRewards} from "../App";
+import {QuestionOutlineIcon} from "@chakra-ui/icons";
 
 type AppHeaderProps = {
     address: string,
@@ -45,7 +57,15 @@ export const AppHeader = (props: AppHeaderProps) => {
     }
 
     const [hasLoaded, setHasLoaded] = useState(false);
-    const statusColor = (node.isJailed || !node.exists) ? "#FF0000"   : "#2bd950";
+    let statusColor = "#797979";
+    if (node.isJailed || !node.exists) {
+        statusColor = "#FF0000";
+    } else if((node.latestBlockHeight !== 0) && node.latestBlockHeight < currentHeight) {
+        statusColor = "#ffb700";
+    } else {
+        statusColor = "#2bd950";
+    }
+    
     const status = (node.isJailed || !node.exists) ?
         (node.exists ? "Jailed" : "Invalid address") : "Not Jailed";
 
@@ -73,11 +93,11 @@ export const AppHeader = (props: AppHeaderProps) => {
         try {
             const n = await getNode(node.address);
             props.onNodeLoaded(n);
-            const c = await getClaims(node.address);
-            props.onRewardsLoaded(c);
             getHeight().then((h) => setCurrentHeight(h));
             updateBalance();
 
+            const c = await getClaims(node.address);
+            props.onRewardsLoaded(c);
         }
         catch (err) {
             console.error("updateNodeData", err);
@@ -134,10 +154,7 @@ export const AppHeader = (props: AppHeaderProps) => {
                     </IconButton>
 
                     {/*<ConnectedChainsBadge/>*/}
-                    <Box pl={2}>
-                        <Text d="inline" fontSize="xs" fontWeight={600} textTransform={"uppercase"}>height:</Text>
-                        <Kbd>{currentHeight}</Kbd>
-                    </Box>
+
                     <IconButton
                         ml={4} mr={4}
                         aria-label={"Refresh"}
@@ -146,12 +163,25 @@ export const AppHeader = (props: AppHeaderProps) => {
                         icon={props.isRefreshing ? (<Spinner size={"xs"}/>) : (<MdRefresh/>)}
                         onClick={updateNodeData}
                     />
-                    <Box  color={"gray.400"} ml={8}><em>Updated: {node.lastChecked?.toLocaleString()}</em></Box>
+                    <Box  color={"gray.400"} ml={8} fontSize={"sm"}>
+                        <em>Updated: {node.lastChecked?.toLocaleString()}</em>
+                    </Box>
                 </HStack>
 
             )}
             <Box ml={2}><PendingRelaysBadge num={pendingRelays} amt={poktAmt}/></Box>
             <Spacer/>
+            <Box pl={2} fontSize={"sm"}>
+                <Text d="inline" fontSize="xs" fontWeight={600} textTransform={"uppercase"}>height:</Text>
+                {node.latestBlockHeight === 0 ? (
+                    <Tooltip label={"pokt.tools can't reach "+node.service_url+"/v1/query/height"}>
+                        <QuestionOutlineIcon ml={2} mr={2}/>
+                    </Tooltip>
+                ) : (
+                    <Kbd title={"node Height"}>{node.latestBlockHeight}</Kbd>
+                )}
+                <>/ <Kbd title={"network height"}>{currentHeight}</Kbd></>
+            </Box>
             <Box>
                 <MdBrightness1
                     title={"Node status: " + status}

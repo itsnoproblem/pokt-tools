@@ -55,6 +55,7 @@ func main() {
 
 	// provider + MonitoringService
 	prv := pocket.NewPocketProvider(httpClient, *pocketRpcURL, blockTimesRepo, paramsRepo)
+
 	pocketProvider := prv.WithLogger(logger)
 	nodeSvc := monitoring.NewService(pocketProvider)
 

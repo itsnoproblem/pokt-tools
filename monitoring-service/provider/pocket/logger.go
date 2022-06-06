@@ -34,6 +34,10 @@ func (p loggingProvider) WithLogger(l log.Logger) Provider {
 	}
 }
 
+func (p loggingProvider) NodeProvider(addr string) (Provider, error) {
+	return p.provider.NodeProvider(addr)
+}
+
 func (p loggingProvider) Height() (uint, error) {
 	t := timer.Start()
 	h, err := p.provider.Height()

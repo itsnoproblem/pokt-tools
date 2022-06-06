@@ -4,15 +4,18 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"math"
 	"sort"
 	"strconv"
 	"time"
 
 	"monitoring-service/pocket"
+	pocketnode "monitoring-service/provider/pocket"
 )
 
 type PocketProvider interface {
+	NodeProvider(address string) (pocketnode.Provider, error)
 	SimulateRelay(servicerUrl, chainID string, payload json.RawMessage) (json.RawMessage, error)
 	AccountTransactions(address string, page uint, perPage uint, sort string) ([]pocket.Transaction, error)
 	Transaction(hash string) (pocket.Transaction, error)
@@ -190,6 +193,22 @@ func (s *Service) Node(address string) (pocket.Node, error) {
 	node.Balance, err = s.provider.Balance(address)
 	if err != nil {
 		return pocket.Node{}, fmt.Errorf("Node: %s", err)
+	}
+
+	nodeProvider, err := s.provider.NodeProvider(node.Address)
+	if err != nil {
+		log.Default().Printf("ERROR: %+v", err)
+	} else {
+		if node.LatestBlockHeight, err = nodeProvider.Height(); err != nil {
+			log.Default().Printf("ERROR: %+v", err)
+		} else {
+			blockTimes, err := s.BlockTimes([]uint{node.LatestBlockHeight})
+			if err != nil {
+				log.Default().Printf("ERROR: %+v", err)
+			} else {
+				node.LatestBlockTime = blockTimes[node.LatestBlockHeight]
+			}
+		}
 	}
 
 	return node, nil
