@@ -390,6 +390,9 @@ func (p pocketProvider) doRequest(url string, reqObj interface{}) ([]byte, error
 		}
 	}()
 
+	if resp == nil {
+		return nil, errors.New("pocketProvider.doRequest: got empty response for " + url)
+	}
 	if resp.StatusCode != http.StatusOK {
 		return nil, errors.New(fmt.Sprintf("pocketProvider.doRequest: got unexpected response status %s - %s", resp.Status, string(reqBody)))
 	}

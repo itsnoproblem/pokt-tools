@@ -247,6 +247,18 @@ var allChains = map[string]Chain{
 		PortalPrefix: "iotex-mainnet",
 		IsMonetized:  true,
 	},
+	"0052": {
+		ID:           "0052",
+		Name:         "NEAR",
+		PortalPrefix: "near-mainnet",
+		IsMonetized:  true,
+	},
+	"0053": {
+		ID:           "0053",
+		Name:         "Optimism",
+		PortalPrefix: "optimism-mainnet",
+		IsMonetized:  true,
+	},
 	"0047": {
 		ID:           "0047",
 		Name:         "OKExChain",
@@ -299,6 +311,12 @@ var allChains = map[string]Chain{
 		ID:           "0050",
 		Name:         "Moonbeam",
 		PortalPrefix: "moonbeam-mainnet",
+		IsMonetized:  true,
+	},
+	"0051": {
+		ID:           "0050",
+		Name:         "Moonriver",
+		PortalPrefix: "moonriver-mainnet",
 		IsMonetized:  true,
 	},
 }

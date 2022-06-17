@@ -18,24 +18,24 @@ type AllParams struct {
 }
 
 func (a AllParams) Validate() error {
-	if a.AppParams == nil {
-		return fmt.Errorf("app_params is null")
+	if a.AppParams == nil || len(a.AppParams) == 0 {
+		return fmt.Errorf("app_params is empty")
 	}
 
-	if a.AuthParams == nil {
-		return fmt.Errorf("auth_params is null")
+	if a.AuthParams == nil || len(a.AuthParams) == 0 {
+		return fmt.Errorf("auth_params is empty")
 	}
 
-	if a.GovParams == nil {
-		return fmt.Errorf("gov_params is null")
+	if a.GovParams == nil || len(a.GovParams) == 0 {
+		return fmt.Errorf("gov_params is empty")
 	}
 
-	if a.NodeParams == nil {
-		return fmt.Errorf("node_params is null")
+	if a.NodeParams == nil || len(a.NodeParams) == 0 {
+		return fmt.Errorf("node_params is empty")
 	}
 
-	if a.PocketParams == nil {
-		return fmt.Errorf("pocket_params is null")
+	if a.PocketParams == nil || len(a.PocketParams) == 0 {
+		return fmt.Errorf("pocket_params is empty")
 	}
 
 	return nil

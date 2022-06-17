@@ -150,6 +150,22 @@ export const allChains: Chain[] = [
         name: "IoTeX"
     },
     {
+        id: "0050",
+        name: "Moonbeam"
+    },
+    {
+        id: "0051",
+        name: "Moonriver"
+    },
+    {
+        id: "0052",
+        name: "NEAR"
+    },
+    {
+        id: "0053",
+        name: "Optimism"
+    },
+    {
         id: "0001",
         name: "POKT"
     },
