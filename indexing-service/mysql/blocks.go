@@ -10,15 +10,15 @@ import (
 	"github.com/itsnoproblem/pokt-calculator/indexing-service/pocket"
 )
 
-type repo struct {
+type blocksRepo struct {
 	db *sql.DB
 }
 
-func NewBlocksRepo(db *sql.DB) repo {
-	return repo{db: db}
+func NewBlocksRepo(db *sql.DB) blocksRepo {
+	return blocksRepo{db: db}
 }
 
-func (r *repo) CreateSchema(ctx context.Context) error {
+func (r *blocksRepo) CreateSchema(ctx context.Context) error {
 	query := `
 	CREATE TABLE blocks (
 		height int(11) unsigned NOT NULL,
@@ -35,7 +35,7 @@ func (r *repo) CreateSchema(ctx context.Context) error {
 	return nil
 }
 
-func (r *repo) DropSchemaIfExists(ctx context.Context) error {
+func (r *blocksRepo) DropSchemaIfExists(ctx context.Context) error {
 	query := `DROP TABLE IF EXISTS blocks`
 	if _, err := r.db.ExecContext(ctx, query); err != nil {
 		return errors.Wrapf(err, "blocksRepo.DropSchema")
@@ -44,7 +44,7 @@ func (r *repo) DropSchemaIfExists(ctx context.Context) error {
 	return nil
 }
 
-func (r *repo) InsertBlock(ctx context.Context, blk pocket.Block) error {
+func (r *blocksRepo) InsertBlock(ctx context.Context, blk pocket.Block) error {
 	query := `INSERT INTO blocks (height, time, proposer_address) VALUES (?, ?, ?)`
 	if _, err := r.db.ExecContext(ctx, query, blk.Height, blk.Time, blk.ProposerAddress); err != nil {
 		return errors.Wrap(err, "blocksRepo.InsertBlock")
@@ -53,7 +53,7 @@ func (r *repo) InsertBlock(ctx context.Context, blk pocket.Block) error {
 	return nil
 }
 
-func (r *repo) InsertBlocks(ctx context.Context, blks []pocket.Block) error {
+func (r *blocksRepo) InsertBlocks(ctx context.Context, blks []pocket.Block) error {
 	query := `INSERT INTO blocks(height, time, proposer_address) VALUES `
 	params := make([]string, len(blks))
 	values := make([]interface{}, 0)
@@ -70,7 +70,7 @@ func (r *repo) InsertBlocks(ctx context.Context, blks []pocket.Block) error {
 	return nil
 }
 
-func (r *repo) FetchBlocks(ctx context.Context, heights []int) (map[int]pocket.Block, error) {
+func (r *blocksRepo) FetchBlocks(ctx context.Context, heights []int) (map[int]pocket.Block, error) {
 	params := make([]string, len(heights))
 	for i := 0; i < len(heights); i++ {
 		params[i] = "?"
@@ -93,7 +93,7 @@ func (r *repo) FetchBlocks(ctx context.Context, heights []int) (map[int]pocket.B
 	return blocks, nil
 }
 
-func (r *repo) FetchAllBlocks(ctx context.Context) (map[int]pocket.Block, error) {
+func (r *blocksRepo) FetchAllBlocks(ctx context.Context) (map[int]pocket.Block, error) {
 	query := `SELECT height, time, proposer_address FROM blocks`
 	result, err := r.db.QueryContext(ctx, query)
 	if err != nil {
@@ -114,7 +114,7 @@ func (r *repo) FetchAllBlocks(ctx context.Context) (map[int]pocket.Block, error)
 	return blocks, nil
 }
 
-func (r *repo) FetchBlock(ctx context.Context, height int) (pocket.Block, bool, error) {
+func (r *blocksRepo) FetchBlock(ctx context.Context, height int) (pocket.Block, bool, error) {
 	query := `SELECT height, time, proposer_address FROM blocks WHERE height = ? LIMIT 1`
 	result, err := r.db.QueryContext(ctx, query, height)
 	if err != nil {

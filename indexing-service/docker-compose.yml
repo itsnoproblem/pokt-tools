@@ -21,6 +21,12 @@ services:
       # Where our data will be persisted
     volumes:
       - poktql:/var/lib/mysql
+
+  redis:
+    image: redis
+    ports:
+      - 6379:6379
+    
 # Names our volume
 volumes:
   poktql:
