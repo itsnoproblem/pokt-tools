@@ -17,7 +17,7 @@ type Service interface {
 }
 
 type Provider interface {
-	GetAllParams(height int) (*provider.AllParams, error)
+	GetAllParams(options *provider.GetAllParamsOptions) (*provider.AllParams, error)
 }
 
 type service struct {
@@ -31,7 +31,10 @@ func NewService(p Provider) Service {
 }
 
 func (s *service) Params(ctx context.Context, h int) (pocket.ParamGroups, error) {
-	params, err := s.provider.GetAllParams(h)
+	opts := provider.GetAllParamsOptions{
+		Height: h,
+	}
+	params, err := s.provider.GetAllParams(&opts)
 	if err != nil {
 		return pocket.ParamGroups{}, errors.Wrap(err, "Params")
 	}
