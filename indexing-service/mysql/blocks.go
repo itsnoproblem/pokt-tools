@@ -23,6 +23,7 @@ func (r *blocksRepo) CreateSchema(ctx context.Context) error {
 	CREATE TABLE blocks (
 		height int(11) unsigned NOT NULL,
 		time datetime NOT NULL,
+		num_txs int(11) unsigned NOT NULL,
 		proposer_address varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
 		PRIMARY KEY (height),
 		INDEX  idx_time (time)
@@ -45,8 +46,8 @@ func (r *blocksRepo) DropSchemaIfExists(ctx context.Context) error {
 }
 
 func (r *blocksRepo) InsertBlock(ctx context.Context, blk pocket.Block) error {
-	query := `INSERT INTO blocks (height, time, proposer_address) VALUES (?, ?, ?)`
-	if _, err := r.db.ExecContext(ctx, query, blk.Height, blk.Time, blk.ProposerAddress); err != nil {
+	query := `INSERT INTO blocks (height, time, num_txs, proposer_address) VALUES (?, ?, ?, ?)`
+	if _, err := r.db.ExecContext(ctx, query, blk.Height, blk.Time, blk.NumTxs, blk.ProposerAddress); err != nil {
 		return errors.Wrap(err, "blocksRepo.InsertBlock")
 	}
 
@@ -54,12 +55,12 @@ func (r *blocksRepo) InsertBlock(ctx context.Context, blk pocket.Block) error {
 }
 
 func (r *blocksRepo) InsertBlocks(ctx context.Context, blks []pocket.Block) error {
-	query := `INSERT INTO blocks(height, time, proposer_address) VALUES `
+	query := `INSERT INTO blocks(height, time, num_txs, proposer_address) VALUES `
 	params := make([]string, len(blks))
 	values := make([]interface{}, 0)
 	for i, blk := range blks {
-		params[i] = "(?, ?, ?)"
-		values = append(values, blk.Height, blk.Time, blk.ProposerAddress)
+		params[i] = "(?, ?, ?, ?)"
+		values = append(values, blk.Height, blk.Time, blk.NumTxs, blk.ProposerAddress)
 	}
 	query += strings.Join(params, ",")
 
@@ -75,7 +76,7 @@ func (r *blocksRepo) FetchBlocks(ctx context.Context, heights []int) (map[int]po
 	for i := 0; i < len(heights); i++ {
 		params[i] = "?"
 	}
-	query := `SELECT height, time, proposer_address FROM blocks WHERE height IN (` + strings.Join(params, ",") + ")"
+	query := `SELECT height, time, num_txs, proposer_address FROM blocks WHERE height IN (` + strings.Join(params, ",") + ")"
 	res, err := r.db.QueryContext(ctx, query, heights)
 	if err != nil {
 		return nil, errors.Wrap(err, "FetchBlocks")
@@ -84,7 +85,7 @@ func (r *blocksRepo) FetchBlocks(ctx context.Context, heights []int) (map[int]po
 	blocks := make(map[int]pocket.Block)
 	for res.Next() {
 		blk := pocket.Block{}
-		if err := res.Scan(&blk.Height, &blk.Time, &blk.ProposerAddress); err != nil {
+		if err := res.Scan(&blk.Height, &blk.Time, &blk.NumTxs, &blk.ProposerAddress); err != nil {
 			return nil, errors.Wrap(err, "FetchBlocks")
 		}
 		blocks[blk.Height] = blk
@@ -94,7 +95,7 @@ func (r *blocksRepo) FetchBlocks(ctx context.Context, heights []int) (map[int]po
 }
 
 func (r *blocksRepo) FetchAllBlocks(ctx context.Context) (map[int]pocket.Block, error) {
-	query := `SELECT height, time, proposer_address FROM blocks`
+	query := `SELECT height, time, num_txs, proposer_address FROM blocks`
 	result, err := r.db.QueryContext(ctx, query)
 	if err != nil {
 		return nil, errors.Wrap(err, "blocksRepo.FetchAllBlocks")
@@ -104,7 +105,7 @@ func (r *blocksRepo) FetchAllBlocks(ctx context.Context) (map[int]pocket.Block, 
 	blocks := make(map[int]pocket.Block)
 	for result.Next() {
 		blk := pocket.Block{}
-		if err := result.Scan(&blk.Height, &blk.Time, &blk.ProposerAddress); err != nil {
+		if err := result.Scan(&blk.Height, &blk.Time, &blk.NumTxs, &blk.ProposerAddress); err != nil {
 			return nil, errors.Wrap(err, "blocksRepo.FetchAllBlocks")
 		}
 
@@ -115,7 +116,7 @@ func (r *blocksRepo) FetchAllBlocks(ctx context.Context) (map[int]pocket.Block, 
 }
 
 func (r *blocksRepo) FetchBlock(ctx context.Context, height int) (pocket.Block, bool, error) {
-	query := `SELECT height, time, proposer_address FROM blocks WHERE height = ? LIMIT 1`
+	query := `SELECT height, time, num_txs, proposer_address FROM blocks WHERE height = ? LIMIT 1`
 	result, err := r.db.QueryContext(ctx, query, height)
 	if err != nil {
 		return pocket.Block{}, false, errors.Wrap(err, "FetchBlock")
@@ -127,7 +128,7 @@ func (r *blocksRepo) FetchBlock(ctx context.Context, height int) (pocket.Block, 
 	}
 
 	blk := pocket.Block{}
-	if err = result.Scan(&blk.Height, &blk.Time, &blk.ProposerAddress); err != nil {
+	if err = result.Scan(&blk.Height, &blk.Time, &blk.NumTxs, &blk.ProposerAddress); err != nil {
 		return pocket.Block{}, false, errors.Wrap(err, "FetchBlock")
 	}
 

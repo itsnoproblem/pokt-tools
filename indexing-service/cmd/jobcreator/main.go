@@ -29,7 +29,7 @@ const (
 var wg sync.WaitGroup
 
 func main() {
-	createSchema := flag.Bool("dropAndCreate", false, "set to true to create the blocks table (will drop if already exists)")
+	createSchema := flag.Bool("resetSchema", false, "set to true to create the DB schema (will drop if already exists)")
 	flag.Parse()
 
 	redisClient := redis.NewClient(&redis.Options{
@@ -56,6 +56,7 @@ func main() {
 
 	blocksRepo := mysql.NewBlocksRepo(db)
 	paramsRepo := mysql.NewParamsRepo(db)
+	transactionsRepo := mysql.NewTransactionsRepo(db)
 
 	if *createSchema {
 		if err = blocksRepo.DropSchemaIfExists(ctx); err != nil {
@@ -64,6 +65,10 @@ func main() {
 
 		if err = paramsRepo.DropSchemaIfExists(ctx); err != nil {
 			log.Fatalf(">>> error - paramsRepo drop schema failed: %+v", err)
+		}
+
+		if err = transactionsRepo.DropSchemaIfExists(ctx); err != nil {
+			log.Fatalf(">>> error - transactionsRepo drop schema failed: %+v", err)
 		}
 
 		if err = blocksRepo.CreateSchema(ctx); err != nil {
@@ -75,6 +80,11 @@ func main() {
 			log.Fatalf(">>> error - paramsRepo createSchema failed: %+v", err)
 		}
 		log.Println("Created schema for paramsRepo")
+
+		if err = transactionsRepo.CreateSchema(ctx); err != nil {
+			log.Fatalf(">>> error - transactionsRepo createSchema failed: %+v", err)
+		}
+		log.Println("Created schema for transactionsRepo")
 	}
 
 	pocketProvider := provider.NewProvider(rpcURL, nil)
@@ -125,6 +135,8 @@ func main() {
 				log.Printf("Params height %d queued for processing\r\n", h)
 			}
 		}
+
+		//blockTransactions, err :=
 	}
 
 }

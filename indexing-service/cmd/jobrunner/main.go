@@ -10,6 +10,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/itsnoproblem/pokt-calculator/indexing-service/transaction"
+
 	"github.com/itsnoproblem/pokt-calculator/indexing-service/param"
 
 	"github.com/go-redis/redis"
@@ -23,8 +25,8 @@ import (
 const (
 	rpcURL                 = "http://backend.pokt.tools:8888"
 	maxDBConnections       = 20
-	numBlockFetcherThreads = 5
-	numParamFetcherThreads = 5
+	numBlockFetcherThreads = 7
+	numParamFetcherThreads = 3
 )
 
 func main() {
@@ -52,6 +54,7 @@ func main() {
 
 	blocksRepo := mysql.NewBlocksRepo(db)
 	paramRepo := mysql.NewParamsRepo(db)
+	txRepo := mysql.NewTransactionsRepo(db)
 
 	pocketProvider := provider.NewProvider(rpcURL, nil)
 	pocketProvider.UpdateRequestConfig(3, 30*time.Second)
@@ -62,6 +65,9 @@ func main() {
 	blockService := block.NewService(pocketProvider)
 	blockService = block.ServiceWithCache(&blockService, &blocksRepo)
 
+	transactionService := transaction.NewService(pocketProvider)
+	transactionService = transaction.ServiceWithCache(&transactionService, blockService, &txRepo)
+
 	var wgBlockFetcher sync.WaitGroup
 	var wgParamsFetcher sync.WaitGroup
 
@@ -71,7 +77,7 @@ func main() {
 		go func(thread int) {
 			defer wgBlockFetcher.Done()
 			log.Printf("Starting blockfetcher thread %d...", thread)
-			blockFetcher(redisClient, blockService)
+			blockFetcher(redisClient, blockService, transactionService)
 		}(i)
 	}
 
@@ -89,7 +95,7 @@ func main() {
 	wgParamsFetcher.Wait()
 }
 
-func blockFetcher(redisClient *redis.Client, blockService block.Service) {
+func blockFetcher(redisClient *redis.Client, blockService block.Service, transactionService transaction.Service) {
 	for {
 		ctx := context.Background()
 		result, err := redisClient.BLPop(0*time.Second, "blocksToProcess").Result()
@@ -104,11 +110,19 @@ func blockFetcher(redisClient *redis.Client, blockService block.Service) {
 			log.Fatalf(err.Error())
 		}
 
+		log.Printf("Starting blockFetcher at height %d\n", height)
+
 		blk, err := blockService.Block(ctx, int(height))
 		if err != nil {
 			log.Fatalf("ERROR: %s", err.Error())
 		}
-		log.Println("Block #" + strconv.Itoa(blk.Height) + " processed successfully.")
+
+		txs, err := transactionService.BlockTransactions(ctx, int(height))
+		if err != nil {
+			log.Fatalf("ERROR: %s", err.Error())
+		}
+
+		log.Printf("Block #%d with %d/%d transactions processed.\n", blk.Height, len(txs), blk.NumTxs)
 
 	}
 }

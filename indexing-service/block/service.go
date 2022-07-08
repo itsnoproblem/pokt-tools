@@ -2,6 +2,7 @@ package block
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/pokt-foundation/pocket-go/provider"
 
@@ -45,9 +46,15 @@ func (s *service) Block(_ context.Context, h int) (pocket.Block, error) {
 		return pocket.Block{}, errors.Wrap(err, "Block")
 	}
 
+	numTxs, err := strconv.Atoi(b.Block.Header.NumTxs)
+	if err != nil {
+		return pocket.Block{}, errors.Wrap(err, "Block")
+	}
+
 	return pocket.Block{
 		Height:          h,
 		Time:            b.Block.Header.Time,
+		NumTxs:          numTxs,
 		ProposerAddress: b.Block.Header.ProposerAddress,
 	}, nil
 }
