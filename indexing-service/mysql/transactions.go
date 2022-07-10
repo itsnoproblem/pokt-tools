@@ -3,6 +3,7 @@ package mysql
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 
 	"github.com/pkg/errors"
 
@@ -15,6 +16,201 @@ type transactionsRepo struct {
 
 func NewTransactionsRepo(db *sql.DB) transactionsRepo {
 	return transactionsRepo{db: db}
+}
+
+func (r *transactionsRepo) InsertTransaction(ctx context.Context, tx pocket.Transaction) error {
+	dbTx, err := r.db.BeginTx(ctx, nil)
+	if err != nil {
+		return errors.Wrap(err, "InsertTransaction")
+	}
+
+	query := `
+		INSERT INTO transactions 
+		(
+		    hash, 
+		    height, 
+		    type, 
+		    fee, 
+		    from_address, 
+		    to_address, 
+		    amount, 
+		    memo
+		) 
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+	`
+	if _, err := dbTx.ExecContext(ctx, query,
+		tx.Hash,
+		tx.Height,
+		tx.Type,
+		tx.Fee,
+		tx.FromAddress,
+		tx.ToAddress,
+		tx.Amount,
+		tx.Memo,
+	); err != nil {
+		return errors.Wrap(err, "transactionsRepo.InsertTransaction")
+	}
+
+	switch tx.Type {
+	case pocket.TxTypeClaim:
+		err = insertTxClaim(ctx, dbTx, tx)
+	case pocket.TxTypeProof:
+		err = insertTxProof(ctx, dbTx, tx)
+	case pocket.TxTypeStake:
+		err = insertTxStake(ctx, dbTx, tx)
+	}
+
+	if err != nil {
+		if rollbackErr := dbTx.Rollback(); rollbackErr != nil {
+			return errors.Wrapf(err, "InsertTransaction: rollback failed (%s) for error", rollbackErr)
+		}
+
+		return errors.Wrap(err, "transactionsRepo.InsertTransaction")
+	}
+
+	if err = dbTx.Commit(); err != nil {
+		return errors.Wrap(err, "transactionsRepo.InsertTransaction")
+	}
+
+	return nil
+}
+
+func insertTxClaim(ctx context.Context, dbTx *sql.Tx, tx pocket.Transaction) error {
+	var err error
+
+	query2 := `
+			INSERT INTO tx_claim
+			(
+				hash,
+				chain,
+				app_public_key,
+				session_height,
+				total_proofs,
+				evidence_type,
+				expiration_height
+			)
+			VALUES (?, ?, ?, ?, ?, ?, ?)
+		`
+	if _, err = dbTx.ExecContext(ctx, query2,
+		tx.Hash,
+		tx.Claim.Chain,
+		tx.Claim.AppPublicKey,
+		tx.Claim.SessionHeight,
+		tx.Claim.TotalProofs,
+		tx.Claim.EvidenceType,
+		tx.Claim.ExpirationHeight,
+	); err != nil {
+		return errors.Wrap(err, "insertTxClaim")
+	}
+
+	return nil
+}
+
+func insertTxProof(ctx context.Context, dbTx *sql.Tx, tx pocket.Transaction) error {
+	var err error
+
+	query2 := `
+			INSERT INTO tx_proof
+			(
+				hash,
+				app_pub_key,
+			 	client_pub_key,
+			 	servicer_pub_key,
+			 	blockchain,
+			 	request_hash,
+			 	session_height
+			)
+			VALUES (?, ?, ?, ?, ?, ?, ?)
+		`
+	if _, err = dbTx.ExecContext(ctx, query2,
+		tx.Hash,
+		tx.Proof.AppPublicKey,
+		tx.Proof.ClientPublicKey,
+		tx.Proof.ServicerPublicKey,
+		tx.Proof.Chain,
+		tx.Proof.RequestHash,
+		tx.Proof.SessionHeight,
+	); err != nil {
+		return errors.Wrap(err, "insertTxProof")
+	}
+
+	return nil
+}
+
+func insertTxStake(ctx context.Context, dbTx *sql.Tx, tx pocket.Transaction) error {
+	var err error
+
+	query2 := `
+			INSERT INTO tx_stake
+			(
+				hash,
+			 	amount,
+			 	chains,
+			 	pub_key_type,
+			 	pub_key_value,
+			 	service_url
+			)
+			VALUES (?, ?, ?, ?, ?, ?)
+		`
+
+	chains, err := json.Marshal(tx.Stake.Chains)
+	if err != nil {
+		return errors.Wrap(err, "insertTxStake")
+	}
+
+	if _, err = dbTx.ExecContext(ctx, query2,
+		tx.Hash,
+		tx.Stake.Amount,
+		chains,
+		tx.Stake.PublicKeyType,
+		tx.Stake.PublicKey,
+		tx.Stake.ServiceUrl,
+	); err != nil {
+		return errors.Wrap(err, "insertTxStake")
+	}
+
+	return nil
+}
+
+func (r *transactionsRepo) FetchTransactionsAtHeight(ctx context.Context, height int) ([]pocket.Transaction, error) {
+	query := `
+		SELECT 
+		    hash, 
+		    height, 
+		    type, 
+		    fee, 
+		    from_address, 
+		    to_address, 
+		    amount, 
+		    memo 
+		FROM transactions
+	`
+	result, err := r.db.QueryContext(ctx, query)
+	if err != nil {
+		return nil, errors.Wrap(err, "transactionsRepo.FetchTransactionsAtHeight")
+	}
+	defer result.Close()
+
+	transactions := make([]pocket.Transaction, 0)
+	for result.Next() {
+		tx := pocket.Transaction{}
+		if err := result.Scan(
+			&tx.Hash,
+			&tx.Height,
+			&tx.Type,
+			&tx.Fee,
+			&tx.FromAddress,
+			&tx.ToAddress,
+			&tx.Amount,
+			&tx.Memo,
+		); err != nil {
+			return nil, errors.Wrap(err, "blocksRepo.FetchAllBlocks")
+		}
+
+		transactions = append(transactions, tx)
+	}
+
+	return transactions, nil
 }
 
 func (r *transactionsRepo) CreateSchema(ctx context.Context) error {
@@ -55,42 +251,6 @@ func (r *transactionsRepo) DropSchemaIfExists(ctx context.Context) error {
 	}
 
 	return nil
-}
-
-func (r *transactionsRepo) InsertTransaction(ctx context.Context, tx pocket.Transaction) error {
-	query := `
-		INSERT INTO transactions (hash, height, type, fee, message) 
-		VALUES (?, ?, ?, ?, ?)
-	`
-	if _, err := r.db.ExecContext(ctx, query, tx.Hash, tx.Height, tx.Type, tx.Fee, tx.Message); err != nil {
-		return errors.Wrap(err, "transactionsRepo.InsertTransaction")
-	}
-
-	return nil
-}
-
-func (r *transactionsRepo) FetchTransactionsAtHeight(ctx context.Context, height int) ([]pocket.Transaction, error) {
-	query := `
-		SELECT hash, height, type, fee, message 
-		FROM transactions
-	`
-	result, err := r.db.QueryContext(ctx, query)
-	if err != nil {
-		return nil, errors.Wrap(err, "transactionsRepo.FetchTransactionsAtHeight")
-	}
-	defer result.Close()
-
-	transactions := make([]pocket.Transaction, 0)
-	for result.Next() {
-		tx := pocket.Transaction{}
-		if err := result.Scan(&tx.Hash, &tx.Height, &tx.Type, &tx.Fee, &tx.Message); err != nil {
-			return nil, errors.Wrap(err, "blocksRepo.FetchAllBlocks")
-		}
-
-		transactions = append(transactions, tx)
-	}
-
-	return transactions, nil
 }
 
 func (r *transactionsRepo) createTransactionsSchema(ctx context.Context) error {

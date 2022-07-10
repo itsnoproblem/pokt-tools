@@ -59,6 +59,12 @@ func main() {
 	transactionsRepo := mysql.NewTransactionsRepo(db)
 
 	if *createSchema {
+		log.Println("***** Resetting Schema *****")
+
+		if _, err = redisClient.FlushDB().Result(); err != nil {
+			log.Fatalf(">>> error - failed to flush redis DB")
+		}
+
 		if err = blocksRepo.DropSchemaIfExists(ctx); err != nil {
 			log.Fatalf(">>> error - blocksRepo drop schema failed: %+v", err)
 		}
