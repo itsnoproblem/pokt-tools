@@ -48,6 +48,7 @@ func (t *transactionResponse) Transaction() (pocket.Transaction, error) {
 	}
 
 	tx := pocket.Transaction{
+		Address:
 		Hash:       t.Hash,
 		Height:     uint(t.Height),
 		Type:       t.StdTx.Message.Type,

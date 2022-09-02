@@ -122,6 +122,45 @@ func (s *Service) ParamsAtHeight(height int64, forceRefresh bool) (pocket.Params
 	return params, nil
 }
 
+type TxReward struct {
+	PoktAmount  float64
+	StakeWeight float64
+}
+
+const RewardScalingActivationHeight = 
+func (s *Service) Rewards(tx pocket.Transaction) (TxReward, error) {
+	params, err := s.ParamsAtHeight(int64(tx.Height), false)
+	if err != nil {
+		return TxReward{}, fmt.Errorf("Rewards: %s", err)
+	}
+
+	if(tx.Height >= RewardScalingActivationHeight)
+	node, err := s.Node(tx.Address)
+	if err != nil {
+		return TxReward{}, fmt.Errorf("Rewards: %s", err)
+	}
+
+	// Calculate bin
+	flooredStake := math.Min(
+		float64(node.StakedBalance)-float64(node.StakedBalance)/params.ValidatorStakeFloorMultiplier,
+		params.ServicerStakeWeightCeiling,
+	)
+
+	// Calculate weight
+	weight := math.Pow(
+		flooredStake/params.ValidatorStakeFloorMultiplier,
+		params.ValidatorStakeFloorMultiplierExponent/params.ValidatorStakeWeightMultiplier,
+	)
+
+	// Calculate coins based on weight
+	coins := params.RelaysToTokensMultiplier * float64(tx.NumRelays) * weight
+	tx.PoktPerRelay = coins / float64(tx.NumRelays)
+	return TxReward{
+		PoktAmount:  coins,
+		StakeWeight: weight,
+	}, nil
+}
+
 func (s *Service) AccountTransactions(address string, page uint, perPage uint, sort string) ([]pocket.Transaction, error) {
 	txs, err := s.provider.AccountTransactions(address, page, perPage, sort)
 	if err != nil {

@@ -324,6 +324,7 @@ func (p pocketProvider) AccountTransactions(address string, page uint, perPage u
 	var transactions []pocket.Transaction
 	for _, t := range txsResponse.Transactions {
 		txn, err := t.Transaction()
+		txn.Address = address
 		if err != nil {
 			return fail(err)
 		}

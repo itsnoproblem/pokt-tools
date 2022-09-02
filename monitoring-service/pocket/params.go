@@ -3,10 +3,14 @@ package pocket
 import "fmt"
 
 type Params struct {
-	RelaysToTokensMultiplier float64
-	DaoAllocation            uint8
-	ProposerPercentage       uint8
-	ClaimExpirationBlocks    uint
+	RelaysToTokensMultiplier              float64
+	ValidatorStakeWeightMultiplier        float64
+	ValidatorStakeFloorMultiplier         float64
+	ValidatorStakeFloorMultiplierExponent float64
+	ServicerStakeWeightCeiling            float64
+	DaoAllocation                         uint8
+	ProposerPercentage                    uint8
+	ClaimExpirationBlocks                 uint
 }
 
 type AllParams struct {

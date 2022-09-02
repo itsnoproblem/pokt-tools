@@ -12,6 +12,7 @@ type Transaction struct {
 	Hash          string
 	Height        uint
 	Time          time.Time
+	Address       string
 	Type          string
 	ChainID       string
 	NumRelays     uint
@@ -32,6 +33,9 @@ func (t Transaction) Chain() (Chain, error) {
 	return chain, nil
 }
 
+// PoktAmount is calculated as:
+//reward = NUM_RELAYS * RelaysToTokensMultiplier * ((FLOOR/ValidatorStakeFloorMultiplier)/( ValidatorStakeWeightMultiplier*ValidatorStakeFloorMultiplier))^(ValidatorStakeFloorMultiplierExponent)
+//
 func (tx Transaction) PoktAmount() float64 {
 	return tx.PoktPerRelay * float64(tx.NumRelays)
 }
