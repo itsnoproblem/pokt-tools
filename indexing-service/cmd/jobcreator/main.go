@@ -24,7 +24,7 @@ import (
 )
 
 const (
-	rpcURL           = "http://backend.pokt.tools:8888"
+	rpcURL           = "https://mainnet.gateway.pokt.network/v1/lb/61d4a60d431851003b628aa8/v1"
 	maxDBConnections = 20
 )
 
