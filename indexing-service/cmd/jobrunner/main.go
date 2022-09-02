@@ -3,12 +3,12 @@ package main
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"log"
 	"strconv"
-	"strings"
 	"sync"
 	"time"
+
+	"github.com/itsnoproblem/pokt-calculator/indexing-service/queue"
 
 	"github.com/itsnoproblem/pokt-calculator/indexing-service/transaction"
 
@@ -24,10 +24,14 @@ import (
 
 const (
 	rpcURL                 = "http://backend.pokt.tools:8888"
-	maxDBConnections       = 20
+	maxDBConnections       = 64
 	numBlockFetcherThreads = 7
 	numParamFetcherThreads = 3
 )
+
+type messageQueue interface {
+	NextMessage(queueName string, target interface{}) error
+}
 
 func main() {
 
@@ -68,6 +72,8 @@ func main() {
 	transactionService := transaction.NewService(pocketProvider)
 	transactionService = transaction.ServiceWithCache(&transactionService, blockService, &txRepo)
 
+	jobQueue := queue.New(redisClient)
+
 	var wgBlockFetcher sync.WaitGroup
 	var wgParamsFetcher sync.WaitGroup
 
@@ -77,7 +83,7 @@ func main() {
 		go func(thread int) {
 			defer wgBlockFetcher.Done()
 			log.Printf("Starting blockfetcher thread %d...", thread)
-			blockFetcher(redisClient, blockService, transactionService)
+			blockFetcher(jobQueue, blockService, transactionService)
 		}(i)
 	}
 
@@ -87,7 +93,7 @@ func main() {
 		go func(thread int) {
 			defer wgParamsFetcher.Done()
 			log.Printf("Starting paramfetcher thread %d...", thread)
-			paramsFetcher(redisClient, paramService)
+			paramsFetcher(jobQueue, paramService)
 		}(i)
 	}
 
@@ -95,17 +101,12 @@ func main() {
 	wgParamsFetcher.Wait()
 }
 
-func blockFetcher(redisClient *redis.Client, blockService block.Service, transactionService transaction.Service) {
+func blockFetcher(jobQueue messageQueue, blockService block.Service, transactionService transaction.Service) {
 	for {
 		ctx := context.Background()
-		result, err := redisClient.BLPop(0*time.Second, "blocksToProcess").Result()
-		if err != nil {
-			log.Fatalf(err.Error())
-		}
 
 		var height int64
-
-		err = json.NewDecoder(strings.NewReader(string(result[1]))).Decode(&height)
+		err := jobQueue.NextMessage(queue.BlocksQueue, &height)
 		if err != nil {
 			log.Fatalf(err.Error())
 		}
@@ -119,25 +120,20 @@ func blockFetcher(redisClient *redis.Client, blockService block.Service, transac
 
 		txs, err := transactionService.BlockTransactions(ctx, int(height))
 		if err != nil {
-			log.Fatalf("ERROR: %s", err.Error())
+			log.Fatalf("ERROR: %s", err)
 		}
 
-		log.Printf("Block #%d with %d/%d transactions processed.\n", blk.Height, len(txs), blk.NumTxs)
-
+		log.Printf("Block #%d with %d/%d transactions processed.\n",
+			blk.Height, len(txs), blk.NumTxs)
 	}
 }
 
-func paramsFetcher(redisClient *redis.Client, paramService param.Service) {
+func paramsFetcher(jobQueue messageQueue, paramService param.Service) {
 	for {
 		ctx := context.Background()
 		var height int64
 
-		result, err := redisClient.BLPop(0*time.Second, "paramsToProcess").Result()
-		if err != nil {
-			log.Fatalf(err.Error())
-		}
-
-		err = json.NewDecoder(strings.NewReader(string(result[1]))).Decode(&height)
+		err := jobQueue.NextMessage(queue.ParamsQueue, &height)
 		if err != nil {
 			log.Fatalf(err.Error())
 		}
@@ -146,7 +142,7 @@ func paramsFetcher(redisClient *redis.Client, paramService param.Service) {
 		if err != nil {
 			log.Fatalf("ERROR: %s", err.Error())
 		}
-		log.Println("Params at block #" + strconv.Itoa(params.Height) + " processed successfully.")
 
+		log.Println("Params at block #" + strconv.Itoa(params.Height) + " processed successfully.")
 	}
 }

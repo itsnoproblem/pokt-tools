@@ -20,3 +20,5 @@ require (
 	github.com/stretchr/objx v0.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+replace github.com/pokt-foundation/pocket-go => ../../pocket-go

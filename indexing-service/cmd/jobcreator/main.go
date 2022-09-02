@@ -8,6 +8,10 @@ import (
 	"sync"
 	"time"
 
+	"github.com/itsnoproblem/pokt-calculator/indexing-service/node"
+
+	"github.com/itsnoproblem/pokt-calculator/indexing-service/queue"
+
 	"github.com/itsnoproblem/pokt-calculator/indexing-service/param"
 
 	"github.com/go-redis/redis"
@@ -20,16 +24,14 @@ import (
 )
 
 const (
-	//rpcURL = "https://mainnet.gateway.pokt.network/v1/lb/61d4a60d431851003b628aa8"
 	rpcURL           = "http://backend.pokt.tools:8888"
 	maxDBConnections = 20
-	batchSize        = 8
 )
 
 var wg sync.WaitGroup
 
 func main() {
-	createSchema := flag.Bool("resetSchema", false, "set to true to create the DB schema (will drop if already exists)")
+	resetSchema := flag.Bool("resetSchema", false, "set to true to create the DB schema (will drop if already exists)")
 	flag.Parse()
 
 	redisClient := redis.NewClient(&redis.Options{
@@ -57,8 +59,11 @@ func main() {
 	blocksRepo := mysql.NewBlocksRepo(db)
 	paramsRepo := mysql.NewParamsRepo(db)
 	transactionsRepo := mysql.NewTransactionsRepo(db)
+	nodesRepo := mysql.NewNodesRepo(db)
 
-	if *createSchema {
+	jobQueue := queue.New(redisClient)
+
+	if *resetSchema {
 		log.Println("***** Resetting Schema *****")
 
 		if _, err = redisClient.FlushDB().Result(); err != nil {
@@ -77,20 +82,29 @@ func main() {
 			log.Fatalf(">>> error - transactionsRepo drop schema failed: %+v", err)
 		}
 
+		if err = nodesRepo.DropSchemaIfExists(ctx); err != nil {
+			log.Fatalf(">>> error - nodesRepo drop schema failed: %+v", err)
+		}
+
 		if err = blocksRepo.CreateSchema(ctx); err != nil {
-			log.Fatalf(">>> error - blocksRepo createSchema failed: %+v", err)
+			log.Fatalf(">>> error - blocksRepo resetSchema failed: %+v", err)
 		}
 		log.Println("Created schema for blocksRepo")
 
 		if err = paramsRepo.CreateSchema(ctx); err != nil {
-			log.Fatalf(">>> error - paramsRepo createSchema failed: %+v", err)
+			log.Fatalf(">>> error - paramsRepo resetSchema failed: %+v", err)
 		}
 		log.Println("Created schema for paramsRepo")
 
 		if err = transactionsRepo.CreateSchema(ctx); err != nil {
-			log.Fatalf(">>> error - transactionsRepo createSchema failed: %+v", err)
+			log.Fatalf(">>> error - transactionsRepo resetSchema failed: %+v", err)
 		}
 		log.Println("Created schema for transactionsRepo")
+
+		if err = nodesRepo.CreateSchema(ctx); err != nil {
+			log.Fatalf(">>> error - nodesRepo resetSchema failed: %+v", err)
+		}
+		log.Println("Created schema for nodesRepo")
 	}
 
 	pocketProvider := provider.NewProvider(rpcURL, nil)
@@ -102,10 +116,20 @@ func main() {
 	paramService := param.NewService(pocketProvider)
 	paramService = param.ServiceWithCache(&paramService, &paramsRepo)
 
-	height, err := blockService.Height(ctx)
+	nodeService := node.NewService(pocketProvider)
+	nodeService = node.ServiceWithCache(&nodeService, &nodesRepo)
+
+	latestHeight, err := blockService.Height(ctx)
 	if err != nil {
 		log.Fatalf("ERROR: %+v", err)
 	}
+
+	log.Printf("Syncing nodes at block %d", latestHeight)
+	nodes, err := nodeService.NodesAtHeight(ctx, latestHeight)
+	if err != nil {
+		log.Fatalf("Node sync failed: %s\n", err)
+	}
+	log.Printf("Synced %d nodes\n", len(nodes))
 
 	allBlocks, err := blockService.AllBlocks(ctx)
 	if err != nil {
@@ -119,30 +143,26 @@ func main() {
 	}
 	log.Printf("Loaded %d cached params", len(allParams))
 
-	for h := height; h > 0; h-- {
+	for h := latestHeight; h > 0; h-- {
 
 		_, blockExists := allBlocks[h]
 		_, paramsExist := allParams[h]
 
 		if !blockExists {
-			err = redisClient.RPush("blocksToProcess", h).Err()
-			if err != nil {
-				log.Fatalf(err.Error() + "\r\n")
+			if err := jobQueue.AddMessage(queue.BlocksQueue, h); err != nil {
+				log.Fatalf("%s\r\n", err)
 			} else {
 				log.Printf("Block height %d queued for processing\r\n", h)
 			}
 		}
 
 		if !paramsExist {
-			err = redisClient.RPush("paramsToProcess", h).Err()
-			if err != nil {
-				log.Fatalf(err.Error() + "\r\n")
+			if err := jobQueue.AddMessage(queue.ParamsQueue, h); err != nil {
+				log.Fatalf("%s\r\n", err)
 			} else {
 				log.Printf("Params height %d queued for processing\r\n", h)
 			}
 		}
-
-		//blockTransactions, err :=
 	}
 
 }
