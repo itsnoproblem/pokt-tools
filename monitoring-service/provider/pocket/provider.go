@@ -365,26 +365,29 @@ func (p pocketProvider) SimulateRelay(servicerUrl, chainID string, payload json.
 }
 
 func (p pocketProvider) doRequest(url string, reqObj interface{}) ([]byte, error) {
-	var reqBody []byte
 	var err error
+	var reqBody = make([]byte, 0)
+
 	if reqObj != nil {
 		reqBody, err = json.Marshal(reqObj)
 		if err != nil {
 			return nil, fmt.Errorf("doRequest: %s", err)
 		}
 	}
-	req := bytes.NewBuffer(reqBody)
 
+	req := bytes.NewBuffer(reqBody)
 	clientReq, err := http.NewRequest(http.MethodPost, url, req)
 	if err != nil {
 		return nil, fmt.Errorf("doRequest: %s", err)
 	}
+
 	clientReq.Header.Set("Content-Type", contentTypeJSON)
 
 	resp, err := p.client.Do(clientReq)
 	if err != nil {
 		return nil, fmt.Errorf("doRequest: %s", err)
 	}
+
 	defer func() {
 		if resp.Body != nil {
 			resp.Body.Close()
@@ -394,6 +397,7 @@ func (p pocketProvider) doRequest(url string, reqObj interface{}) ([]byte, error
 	if resp == nil {
 		return nil, errors.New("pocketProvider.doRequest: got empty response for " + url)
 	}
+
 	if resp.StatusCode != http.StatusOK {
 		return nil, errors.New(fmt.Sprintf("pocketProvider.doRequest: got unexpected response status %s - %s", resp.Status, string(reqBody)))
 	}

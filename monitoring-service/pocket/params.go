@@ -3,14 +3,14 @@ package pocket
 import "fmt"
 
 type Params struct {
-	RelaysToTokensMultiplier              float64
-	ValidatorStakeWeightMultiplier        float64
-	ValidatorStakeFloorMultiplier         float64
-	ValidatorStakeFloorMultiplierExponent float64
-	ServicerStakeWeightCeiling            float64
-	DaoAllocation                         uint8
-	ProposerPercentage                    uint8
-	ClaimExpirationBlocks                 uint
+	RelaysToTokensMultiplier             float64
+	ServicerStakeWeightMultiplier        float64
+	ServicerStakeFloorMultiplier         float64
+	ServicerStakeFloorMultiplierExponent float64
+	ServicerStakeWeightCeiling           float64
+	DaoAllocation                        uint8
+	ProposerPercentage                   uint8
+	ClaimExpirationBlocks                uint
 }
 
 type AllParams struct {
@@ -61,6 +61,6 @@ type Param struct {
 	Value string `json:"param_value"`
 }
 
-func (p Params) PoktPerRelay() float64 {
+func (p Params) LegacyPoktPerRelay() float64 {
 	return (p.RelaysToTokensMultiplier / 1000000) * (float64(100-p.DaoAllocation-p.ProposerPercentage) / 100)
 }

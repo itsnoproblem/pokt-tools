@@ -1,5 +1,13 @@
 package pocket
 
+const RewardScalingActivationHeight = 69243
+
+type Reward struct {
+	PoktAmount   float64
+	StakeWeight  float64
+	PoktPerRelay float64
+}
+
 type MonthlyReward struct {
 	Year                    uint
 	Month                   uint

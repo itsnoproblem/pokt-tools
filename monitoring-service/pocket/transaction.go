@@ -22,6 +22,7 @@ type Transaction struct {
 	AppPubkey     string
 	ResultCode    int64
 	IsConfirmed   bool
+	Reward        Reward
 }
 
 func (t Transaction) Chain() (Chain, error) {
@@ -34,7 +35,7 @@ func (t Transaction) Chain() (Chain, error) {
 }
 
 // PoktAmount is calculated as:
-//reward = NUM_RELAYS * RelaysToTokensMultiplier * ((FLOOR/ValidatorStakeFloorMultiplier)/( ValidatorStakeWeightMultiplier*ValidatorStakeFloorMultiplier))^(ValidatorStakeFloorMultiplierExponent)
+//reward = NUM_RELAYS * RelaysToTokensMultiplier * ((FLOOR/ValidatorStakeFloorMultiplier)/( ServicerStakeWeightMultiplier*ValidatorStakeFloorMultiplier))^(ValidatorStakeFloorMultiplierExponent)
 //
 func (tx Transaction) PoktAmount() float64 {
 	return tx.PoktPerRelay * float64(tx.NumRelays)
