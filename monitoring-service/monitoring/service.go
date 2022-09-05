@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"math"
 	"sort"
 	"strconv"
@@ -21,6 +20,7 @@ type PocketProvider interface {
 	Transaction(hash string) (pocket.Transaction, error)
 	BlockTime(height uint) (time.Time, error)
 	Node(address string) (pocket.Node, error)
+	NodeAtHeight(address string, height int64) (pocket.Node, error)
 	Balance(address string) (uint, error)
 	Param(name string, height int64) (string, error)
 	AllParams(height int64, forceRefresh bool) (pocket.AllParams, error)
@@ -164,7 +164,7 @@ func (s *Service) TxReward(tx pocket.Transaction) (pocket.Reward, error) {
 
 	var coins, poktPerRelay, weight float64
 	if tx.Height >= pocket.RewardScalingActivationHeight {
-		node, err := s.Node(tx.Address)
+		node, err := s.provider.NodeAtHeight(tx.Address, int64(tx.Height)) // HERE
 		if err != nil {
 			return pocket.Reward{}, fmt.Errorf("TxReward: %s", err)
 		}
@@ -280,21 +280,21 @@ func (s *Service) Node(address string) (pocket.Node, error) {
 		return pocket.Node{}, fmt.Errorf("Node: %s", err)
 	}
 
-	nodeProvider, err := s.provider.NodeProvider(node.Address)
-	if err != nil {
-		log.Default().Printf("ERROR: %+v", err)
-	} else {
-		if node.LatestBlockHeight, err = nodeProvider.Height(); err != nil {
-			log.Default().Printf("ERROR: %+v", err)
-		} else {
-			blockTimes, err := s.BlockTimes([]uint{node.LatestBlockHeight})
-			if err != nil {
-				log.Default().Printf("ERROR: %+v", err)
-			} else {
-				node.LatestBlockTime = blockTimes[node.LatestBlockHeight]
-			}
-		}
-	}
+	//nodeProvider, err := s.provider.NodeProvider(node.Address)
+	//if err != nil {
+	//	log.Default().Printf("ERROR: %+v", err)
+	//} else {
+	//	if node.LatestBlockHeight, err = nodeProvider.Height(); err != nil {
+	//		log.Default().Printf("ERROR: %+v", err)
+	//	} else {
+	//		blockTimes, err := s.BlockTimes([]uint{node.LatestBlockHeight})
+	//		if err != nil {
+	//			log.Default().Printf("ERROR: %+v", err)
+	//		} else {
+	//			node.LatestBlockTime = blockTimes[node.LatestBlockHeight]
+	//		}
+	//	}
+	//}
 
 	return node, nil
 }

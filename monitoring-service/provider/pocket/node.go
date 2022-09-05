@@ -2,6 +2,7 @@ package pocket
 
 type queryNodeRequest struct {
 	Address string `json:"address"`
+	Height  int64  `json:"height"`
 }
 
 type queryNodeResponse struct {
