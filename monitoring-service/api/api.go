@@ -91,7 +91,6 @@ func EncodeError(_ context.Context, err error, w http.ResponseWriter) {
 		},
 	}
 
-	w.WriteHeader(httpCode)
 	if err = json.NewEncoder(w).Encode(resp); err != nil {
 		panic(err)
 	}
