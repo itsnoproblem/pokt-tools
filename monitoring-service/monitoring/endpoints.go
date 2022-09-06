@@ -118,8 +118,12 @@ func MonthlyRewardsEndpoint(svc Service) endpoint.Endpoint {
 					ExpireHeight:  tx.ExpireHeight,
 					AppPubkey:     tx.AppPubkey,
 					NumRelays:     tx.NumRelays,
-					PoktPerRelay:  tx.PoktPerRelay,
-					IsConfirmed:   tx.IsConfirmed,
+					Reward: rewardResponse{
+						Amount:       tx.Reward.PoktAmount,
+						StakeWeight:  tx.Reward.StakeWeight,
+						PoktPerRelay: tx.Reward.PoktPerRelay,
+					},
+					IsConfirmed: tx.IsConfirmed,
 				}
 			}
 
@@ -221,19 +225,25 @@ type transactionRequest struct {
 	Hash string
 }
 
+type rewardResponse struct {
+	Amount       float64 `json:"amount"`
+	StakeWeight  float64 `json:"stake_weight"`
+	PoktPerRelay float64 `json:"pokt_per_relay"`
+}
+
 type transactionResponse struct {
-	Hash          string        `json:"hash"`
-	Height        uint          `json:"height"`
-	Time          time.Time     `json:"time"`
-	Type          string        `json:"type"`
-	ChainID       string        `json:"chain_id"`
-	Chain         chainResponse `json:"chain"`
-	SessionHeight uint          `json:"session_height"`
-	ExpireHeight  uint          `json:"expire_height"`
-	AppPubkey     string        `json:"app_pubkey"`
-	NumRelays     uint          `json:"num_relays"`
-	PoktPerRelay  float64       `json:"pokt_per_relay"`
-	IsConfirmed   bool          `json:"is_confirmed"`
+	Hash          string         `json:"hash"`
+	Height        uint           `json:"height"`
+	Time          time.Time      `json:"time"`
+	Type          string         `json:"type"`
+	ChainID       string         `json:"chain_id"`
+	Chain         chainResponse  `json:"chain"`
+	SessionHeight uint           `json:"session_height"`
+	ExpireHeight  uint           `json:"expire_height"`
+	AppPubkey     string         `json:"app_pubkey"`
+	NumRelays     uint           `json:"num_relays"`
+	IsConfirmed   bool           `json:"is_confirmed"`
+	Reward        rewardResponse `json:"reward"`
 }
 
 func TransactionEndpoint(svc Service) endpoint.Endpoint {
@@ -254,13 +264,17 @@ func TransactionEndpoint(svc Service) endpoint.Endpoint {
 		}
 
 		return transactionResponse{
-			Hash:         txn.Hash,
-			Height:       txn.Height,
-			Time:         txn.Time,
-			Type:         txn.Type,
-			ChainID:      txn.ChainID,
-			NumRelays:    txn.NumRelays,
-			PoktPerRelay: txn.PoktPerRelay,
+			Hash:      txn.Hash,
+			Height:    txn.Height,
+			Time:      txn.Time,
+			Type:      txn.Type,
+			ChainID:   txn.ChainID,
+			NumRelays: txn.NumRelays,
+			Reward: rewardResponse{
+				Amount:       txn.Reward.PoktAmount,
+				StakeWeight:  txn.Reward.StakeWeight,
+				PoktPerRelay: txn.Reward.PoktPerRelay,
+			},
 		}, nil
 	}
 }
@@ -303,7 +317,11 @@ func AccountTransactionsEndpoint(svc Service) endpoint.Endpoint {
 				ExpireHeight:  tx.ExpireHeight,
 				AppPubkey:     tx.AppPubkey,
 				NumRelays:     tx.NumRelays,
-				PoktPerRelay:  tx.PoktPerRelay,
+				Reward: rewardResponse{
+					Amount:       tx.Reward.PoktAmount,
+					StakeWeight:  tx.Reward.StakeWeight,
+					PoktPerRelay: tx.Reward.PoktPerRelay,
+				},
 			}
 		}
 

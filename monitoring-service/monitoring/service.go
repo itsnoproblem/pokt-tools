@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"math"
 	"sort"
 	"strconv"
@@ -21,6 +20,7 @@ type PocketProvider interface {
 	Transaction(hash string) (pocket.Transaction, error)
 	BlockTime(height uint) (time.Time, error)
 	Node(address string) (pocket.Node, error)
+	NodeAtHeight(address string, height int64) (pocket.Node, error)
 	Balance(address string) (uint, error)
 	Param(name string, height int64) (string, error)
 	AllParams(height int64, forceRefresh bool) (pocket.AllParams, error)
@@ -81,11 +81,11 @@ func (s *Service) ParamsAtHeight(height int64, forceRefresh bool) (pocket.Params
 	}
 
 	np := allParams.NodeParams
-	multiplier, ok := np.Get("pos/RelaysToTokensMultiplier")
+	relaysToTokensMultiplier, ok := np.Get("pos/RelaysToTokensMultiplier")
 	if !ok {
 		return pocket.Params{}, fmt.Errorf("ParamsAtHeight: node_params key not found at height %d 'pos/RelaysToTokensMultiplier'", height)
 	}
-	if params.RelaysToTokensMultiplier, err = strconv.ParseFloat(multiplier, 64); err != nil {
+	if params.RelaysToTokensMultiplier, err = strconv.ParseFloat(relaysToTokensMultiplier, 64); err != nil {
 		return pocket.Params{}, errors.New("ParamsAtHeight: failed to parse node_params key 'pos/RelaysToTokensMultiplier'")
 	}
 
@@ -119,7 +119,86 @@ func (s *Service) ParamsAtHeight(height int64, forceRefresh bool) (pocket.Params
 	}
 	params.ClaimExpirationBlocks = uint(claimExpires)
 
+	if height > pocket.RewardScalingActivationHeight {
+		stakeWeightMultiplier, ok := np.Get("pos/ServicerStakeWeightMultiplier")
+		if !ok {
+			return pocket.Params{}, fmt.Errorf("ParamsAtHeight: node_params key not found at height %d 'pos/ServicerStakeWeightMultiplier'", height)
+		}
+		if params.ServicerStakeWeightMultiplier, err = strconv.ParseFloat(stakeWeightMultiplier, 64); err != nil {
+			return pocket.Params{}, fmt.Errorf("ParamsAtHeight: node_params key not found at height %d 'pos/ServicerStakeWeightMultiplier", height)
+		}
+
+		stakeFloorMultiplier, ok := np.Get("pos/ServicerStakeFloorMultiplier")
+		if !ok {
+			return pocket.Params{}, fmt.Errorf("ParamsAtHeight: node_params key not found at height %d 'pos/ServicerStakeFloorMultiplier'", height)
+		}
+		if params.ServicerStakeFloorMultiplier, err = strconv.ParseFloat(stakeFloorMultiplier, 64); err != nil {
+			return pocket.Params{}, fmt.Errorf("ParamsAtHeight: node_params key not found at height %d 'pos/ServicerStakeFloorMultiplier", height)
+		}
+
+		stakeFloorMultiplierExponent, ok := np.Get("pos/ServicerStakeFloorMultiplierExponent")
+		if !ok {
+			return pocket.Params{}, fmt.Errorf("ParamsAtHeight: node_params key not found at height %d 'pos/ServicerStakeFloorMultiplierExponent'", height)
+		}
+		if params.ServicerStakeFloorMultiplierExponent, err = strconv.ParseFloat(stakeFloorMultiplierExponent, 64); err != nil {
+			return pocket.Params{}, fmt.Errorf("ParamsAtHeight: node_params key not found at height %d 'pos/ServicerStakeFloorMultiplierExponent", height)
+		}
+
+		stakeWeightCeiling, ok := np.Get("pos/ServicerStakeWeightCeiling")
+		if !ok {
+			return pocket.Params{}, fmt.Errorf("ParamsAtHeight: node_params key not found at height %d 'pos/ServicerStakeWeightCeiling'", height)
+		}
+		if params.ServicerStakeWeightCeiling, err = strconv.ParseFloat(stakeWeightCeiling, 64); err != nil {
+			return pocket.Params{}, fmt.Errorf("ParamsAtHeight: node_params key not found at height %d 'pos/ServicerStakeWeightCeiling", height)
+		}
+	}
+
 	return params, nil
+}
+
+func (s *Service) TxReward(tx pocket.Transaction) (pocket.Reward, error) {
+	params, err := s.ParamsAtHeight(int64(tx.Height), false)
+	if err != nil {
+		return pocket.Reward{}, fmt.Errorf("TxReward: %s", err)
+	}
+
+	var coins, poktPerRelay, weight float64
+	if tx.Height >= pocket.RewardScalingActivationHeight {
+		node, err := s.provider.NodeAtHeight(tx.Address, int64(tx.Height)) // HERE
+		if err != nil {
+			return pocket.Reward{}, fmt.Errorf("TxReward: %s", err)
+		}
+
+		// Calculate bin
+		if params.ServicerStakeFloorMultiplier > 0 {
+
+			flooredStake := math.Min(
+				float64(node.StakedBalance)-float64(node.StakedBalance)/params.ServicerStakeFloorMultiplier,
+				params.ServicerStakeWeightCeiling,
+			)
+
+			// Calculate weight
+			weight = math.Pow(
+				flooredStake/params.ServicerStakeFloorMultiplier,
+				params.ServicerStakeFloorMultiplierExponent/params.ServicerStakeWeightMultiplier,
+			)
+
+			// Calculate coins based on weight
+			percentageToKeep := float64(100-params.DaoAllocation-params.ProposerPercentage) / 100
+			coins = (params.RelaysToTokensMultiplier * float64(tx.NumRelays) * weight * percentageToKeep) / 1000000
+			poktPerRelay = coins / float64(tx.NumRelays)
+		}
+	} else {
+		weight = 1
+		poktPerRelay = params.LegacyPoktPerRelay()
+		coins = float64(tx.NumRelays) * poktPerRelay
+	}
+
+	return pocket.Reward{
+		PoktAmount:   coins,
+		StakeWeight:  weight,
+		PoktPerRelay: poktPerRelay,
+	}, nil
 }
 
 func (s *Service) AccountTransactions(address string, page uint, perPage uint, sort string) ([]pocket.Transaction, error) {
@@ -136,7 +215,13 @@ func (s *Service) AccountTransactions(address string, page uint, perPage uint, s
 		}
 
 		tx.Time, err = s.provider.BlockTime(tx.Height)
-		tx.PoktPerRelay = params.PoktPerRelay()
+		tx.Reward, err = s.TxReward(tx)
+		if err != nil {
+			return nil, fmt.Errorf("AccountTransactions: %s", err)
+		}
+
+		tx.PoktPerRelay = params.LegacyPoktPerRelay()
+
 		if err != nil {
 			return nil, fmt.Errorf("AccountTransactions: %s", err)
 		}
@@ -195,21 +280,21 @@ func (s *Service) Node(address string) (pocket.Node, error) {
 		return pocket.Node{}, fmt.Errorf("Node: %s", err)
 	}
 
-	nodeProvider, err := s.provider.NodeProvider(node.Address)
-	if err != nil {
-		log.Default().Printf("ERROR: %+v", err)
-	} else {
-		if node.LatestBlockHeight, err = nodeProvider.Height(); err != nil {
-			log.Default().Printf("ERROR: %+v", err)
-		} else {
-			blockTimes, err := s.BlockTimes([]uint{node.LatestBlockHeight})
-			if err != nil {
-				log.Default().Printf("ERROR: %+v", err)
-			} else {
-				node.LatestBlockTime = blockTimes[node.LatestBlockHeight]
-			}
-		}
-	}
+	//nodeProvider, err := s.provider.NodeProvider(node.Address)
+	//if err != nil {
+	//	log.Default().Printf("ERROR: %+v", err)
+	//} else {
+	//	if node.LatestBlockHeight, err = nodeProvider.Height(); err != nil {
+	//		log.Default().Printf("ERROR: %+v", err)
+	//	} else {
+	//		blockTimes, err := s.BlockTimes([]uint{node.LatestBlockHeight})
+	//		if err != nil {
+	//			log.Default().Printf("ERROR: %+v", err)
+	//		} else {
+	//			node.LatestBlockTime = blockTimes[node.LatestBlockHeight]
+	//		}
+	//	}
+	//}
 
 	return node, nil
 }
