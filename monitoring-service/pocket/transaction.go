@@ -21,6 +21,8 @@ type Transaction struct {
 	AppPubkey     string
 	ResultCode    int64
 	IsConfirmed   bool
+	StakeWeight   float64
+	Signer        string
 }
 
 func (t Transaction) Chain() (Chain, error) {
@@ -33,5 +35,6 @@ func (t Transaction) Chain() (Chain, error) {
 }
 
 func (tx Transaction) PoktAmount() float64 {
+
 	return tx.PoktPerRelay * float64(tx.NumRelays)
 }

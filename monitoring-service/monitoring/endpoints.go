@@ -120,6 +120,8 @@ func MonthlyRewardsEndpoint(svc Service) endpoint.Endpoint {
 					NumRelays:     tx.NumRelays,
 					PoktPerRelay:  tx.PoktPerRelay,
 					IsConfirmed:   tx.IsConfirmed,
+					StakeWeight:   tx.StakeWeight,
+					Signer:        tx.Signer,
 				}
 			}
 
@@ -234,6 +236,8 @@ type transactionResponse struct {
 	NumRelays     uint          `json:"num_relays"`
 	PoktPerRelay  float64       `json:"pokt_per_relay"`
 	IsConfirmed   bool          `json:"is_confirmed"`
+	StakeWeight   float64       `json:"stake_weight"`
+	Signer        string        `json:"signer"`
 }
 
 func TransactionEndpoint(svc Service) endpoint.Endpoint {
@@ -261,6 +265,7 @@ func TransactionEndpoint(svc Service) endpoint.Endpoint {
 			ChainID:      txn.ChainID,
 			NumRelays:    txn.NumRelays,
 			PoktPerRelay: txn.PoktPerRelay,
+			StakeWeight:  txn.StakeWeight,
 		}, nil
 	}
 }
@@ -304,6 +309,7 @@ func AccountTransactionsEndpoint(svc Service) endpoint.Endpoint {
 				AppPubkey:     tx.AppPubkey,
 				NumRelays:     tx.NumRelays,
 				PoktPerRelay:  tx.PoktPerRelay,
+				StakeWeight:   tx.StakeWeight,
 			}
 		}
 

@@ -24,7 +24,8 @@ type transactionRequest struct {
 }
 
 type txResult struct {
-	Code int64 `json:"code"`
+	Code   int64  `json:"code"`
+	Signer string `json:"signer"`
 }
 
 type transactionResponse struct {
@@ -54,6 +55,7 @@ func (t *transactionResponse) Transaction() (pocket.Transaction, error) {
 		ChainID:    t.StdTx.Message.Value.Header.Chain,
 		NumRelays:  uint(numProofs),
 		ResultCode: t.Result.Code,
+		Signer:     t.Result.Signer,
 	}
 
 	switch tx.Type {
@@ -76,6 +78,7 @@ func (t *transactionResponse) Transaction() (pocket.Transaction, error) {
 		tx.SessionHeight = uint(sessionHeight)
 		tx.ChainID = t.StdTx.Message.Value.Header.Chain
 		tx.AppPubkey = t.StdTx.Message.Value.Header.AppPubKey
+
 		break
 	}
 
