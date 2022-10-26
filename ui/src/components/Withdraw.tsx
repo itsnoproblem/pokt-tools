@@ -32,6 +32,7 @@ import {ArrowDownIcon, CheckCircleIcon, CopyIcon, ExternalLinkIcon, WarningIcon}
 import {ethers} from "ethers";
 import {EVENT_PREVIEW_TPOKT_WITHDRAWAL, trackGoal} from "../events";
 import {POLYGON_URL} from "../configuration";
+// const POLYGON_URL = "https://poly-rpc.gateway.pokt.network"
 
 export const Withdraw = () => {
     const tipJarAddress = "0xd7b0EbE6a841f094358b8E9c53946235948d2368";

@@ -1,4 +1,4 @@
-#!/bin/bash
+!/bin/bash
 
 OUTFILE=./src/configuration.ts
 ENVFILE=$1
