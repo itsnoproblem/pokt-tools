@@ -51,6 +51,14 @@ func (s *Service) Transaction(hash string) (pocket.Transaction, error) {
 	if err != nil {
 		return pocket.Transaction{}, fmt.Errorf("Transaction: %s", err)
 	}
+	params, err := s.ParamsAtHeight(int64(txn.Height), false)
+	node, err := s.provider.Node(txn.Signer)
+
+	if txn.Height >= pocket.RewardScalingActivationHeight {
+		txn.StakeWeight = params.StakeWeight(float64(node.StakedBalance))
+	} else {
+		txn.StakeWeight = float64(1)
+	}
 
 	txn.Time, err = s.provider.BlockTime(txn.Height)
 	if err != nil {
@@ -119,6 +127,40 @@ func (s *Service) ParamsAtHeight(height int64, forceRefresh bool) (pocket.Params
 	}
 	params.ClaimExpirationBlocks = uint(claimExpires)
 
+	if height >= pocket.RewardScalingActivationHeight {
+		stakeWeightMultiplier, ok := np.Get("pos/ServicerStakeWeightMultiplier")
+		if !ok {
+			return pocket.Params{}, fmt.Errorf("ParamsAtHeight: node_params key not found at height %d 'pos/ServicerStakeWeightMultiplier'", height)
+		}
+		if params.ServicerStakeWeightMultiplier, err = strconv.ParseFloat(stakeWeightMultiplier, 64); err != nil {
+			return pocket.Params{}, fmt.Errorf("ParamsAtHeight: node_params key not found at height %d 'pos/ServicerStakeWeightMultiplier", height)
+		}
+
+		stakeFloorMultiplier, ok := np.Get("pos/ServicerStakeFloorMultiplier")
+		if !ok {
+			return pocket.Params{}, fmt.Errorf("ParamsAtHeight: node_params key not found at height %d 'pos/ServicerStakeFloorMultiplier'", height)
+		}
+		if params.ServicerStakeFloorMultiplier, err = strconv.ParseFloat(stakeFloorMultiplier, 64); err != nil {
+			return pocket.Params{}, fmt.Errorf("ParamsAtHeight: node_params key not found at height %d 'pos/ServicerStakeFloorMultiplier", height)
+		}
+
+		stakeFloorMultiplierExponent, ok := np.Get("pos/ServicerStakeFloorMultiplierExponent")
+		if !ok {
+			return pocket.Params{}, fmt.Errorf("ParamsAtHeight: node_params key not found at height %d 'pos/ServicerStakeFloorMultiplierExponent'", height)
+		}
+		if params.ServicerStakeFloorMultiplierExponent, err = strconv.ParseFloat(stakeFloorMultiplierExponent, 64); err != nil {
+			return pocket.Params{}, fmt.Errorf("ParamsAtHeight: node_params key not found at height %d 'pos/ServicerStakeFloorMultiplierExponent", height)
+		}
+
+		stakeWeightCeiling, ok := np.Get("pos/ServicerStakeWeightCeiling")
+		if !ok {
+			return pocket.Params{}, fmt.Errorf("ParamsAtHeight: node_params key not found at height %d 'pos/ServicerStakeWeightCeiling'", height)
+		}
+		if params.ServicerStakeWeightCeiling, err = strconv.ParseFloat(stakeWeightCeiling, 64); err != nil {
+			return pocket.Params{}, fmt.Errorf("ParamsAtHeight: node_params key not found at height %d 'pos/ServicerStakeWeightCeiling", height)
+		}
+	}
+
 	return params, nil
 }
 
@@ -128,20 +170,43 @@ func (s *Service) AccountTransactions(address string, page uint, perPage uint, s
 		return nil, fmt.Errorf("AccountTransactions: %s", err)
 	}
 
+	// this was used used testing as some heights return no params from the pocket rpc its recommended to verify this before committing changes
+	// currentHeight, err := s.provider.Height()
+
+	if err != nil {
+		return nil, fmt.Errorf("AccountTransactions: %s", err)
+	}
+
 	transactions := make([]pocket.Transaction, len(txs))
 	for i, tx := range txs {
+		// if these params for previous blocks werent cached might throw error for prune rpc endpoints(ignore this comment if previous block params were cached)
 		params, err := s.ParamsAtHeight(int64(tx.Height), false)
+		// params, err := s.ParamsAtHeight(int64(currentHeight), false)
+
 		if err != nil {
+
 			return nil, fmt.Errorf("AccountTransactions: %s", err)
 		}
 
+		node, err := s.provider.Node(address)
+
+		fmt.Println("node in Txs", node)
 		tx.Time, err = s.provider.BlockTime(tx.Height)
 		tx.PoktPerRelay = params.PoktPerRelay()
+
+		if tx.Height >= pocket.RewardScalingActivationHeight {
+			tx.StakeWeight = params.StakeWeight(float64(node.StakedBalance))
+		} else {
+			tx.StakeWeight = float64(1)
+		}
+
+		fmt.Println("stake weight in Txs", params.StakeWeight(float64(node.StakedBalance)))
 		if err != nil {
 			return nil, fmt.Errorf("AccountTransactions: %s", err)
 		}
 
 		tx.ExpireHeight = params.ClaimExpirationBlocks + tx.Height
+
 		transactions[i] = tx
 	}
 

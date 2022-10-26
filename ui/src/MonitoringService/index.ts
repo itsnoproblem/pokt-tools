@@ -4,6 +4,7 @@ import {CryptoNode} from "../types/crypto-node";
 import {MonthlyReward} from "../types/monthly-reward";
 import {Chain} from "../types/chain";
 
+// const RPC_URL = "http://127.0.0.1:7878"
 const HTTP_STATUS_OK = 200;
 
 export const getNode = async (address: string): Promise<CryptoNode> => {
@@ -11,7 +12,7 @@ export const getNode = async (address: string): Promise<CryptoNode> => {
     let node: CryptoNode;
 
     return axios.get(url)
-        .then(async (result) => {
+        .then(async (result:any) => {
             node = {
                 exists: result.data.data.address !== "",
                 address: result.data.data.address,
@@ -27,7 +28,7 @@ export const getNode = async (address: string): Promise<CryptoNode> => {
             node.lastChecked = new Date();
             return node;
         })
-        .catch((err) => {
+        .catch((err:Error) => {
             console.error(err);
             throw err;
         });
@@ -35,7 +36,7 @@ export const getNode = async (address: string): Promise<CryptoNode> => {
 
 export  const getClaims = async (address: string): Promise<MonthlyReward[]> => {
     const url = `${RPC_URL}/node/${address}/rewards`;
-    return axios.get(url).then((result) => {
+    return axios.get(url).then((result:any) => {
         let rewards: MonthlyReward[] = result.data.data as MonthlyReward[];
 
         if(result.status !== HTTP_STATUS_OK) {
@@ -67,7 +68,7 @@ export const simulateRelay = async (req: simulateRelayRequest): Promise<AxiosRes
 
 export const getHeight = async (): Promise<number> => {
     const url = `${RPC_URL}/height`;
-    return axios.get(url).then((result) => {
+    return axios.get(url).then((result:any) => {
         if(result.status !== HTTP_STATUS_OK) {
             throw new Error(`RPC returned status ${result.status} for ${url}`);
         }

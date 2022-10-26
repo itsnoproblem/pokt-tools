@@ -19,7 +19,7 @@ func (r *MonthlyReward) PoktAmount() float64 {
 	var total float64
 	for _, t := range r.Transactions {
 		if t.IsConfirmed {
-			total += t.PoktAmount()
+			total += t.PoktAmount() * t.StakeWeight
 		}
 	}
 	return total

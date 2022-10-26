@@ -153,6 +153,8 @@ func (p pocketProvider) AllParams(height int64, forceRefresh bool) (pocket.AllPa
 	}
 
 	url := fmt.Sprintf("%s/%s", p.pocketRpcURL, urlPathGetAllParams)
+	// fmt.Println("url from env variable", url1)
+	// url := "https://mainnet.gateway.pokt.network/v1/lb/62acb951123e6f00397754d0/v1"
 	pReq := allParamsRequest{
 		Height: height,
 	}
@@ -302,6 +304,7 @@ func (p pocketProvider) AccountTransactions(address string, page uint, perPage u
 	}
 
 	url := fmt.Sprintf("%s/%s", p.pocketRpcURL, urlPathGetAccountTransactions)
+
 	txsRequest := accountTransactionsRequest{
 		Address: address,
 		Height:  0,
